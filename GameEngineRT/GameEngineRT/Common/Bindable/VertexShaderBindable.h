@@ -17,14 +17,16 @@ namespace GNF::Common::Bindable
 			VertexShaderBindable(Common::CommonVertexShaders,DeviceResources*);
 			VertexShaderBindable(const VertexShaderBindable&) = delete;
 
+
 			~VertexShaderBindable() = default;
 			virtual const void* GetShader() const;
 			virtual UINT GetShaderSize() const;
 			virtual void* GetD3DShader() const;
 			virtual void Bind(DeviceResources* resources);
 
-			Event::Event<int> OnBind;
-			void Velth(const int&);
+
+			Event::Event<VertexShaderBindable> Binded;
+
 		private:
 			winrt::com_ptr<ID3D11VertexShader> m_vertexShader;
 			const void* m_pShader;

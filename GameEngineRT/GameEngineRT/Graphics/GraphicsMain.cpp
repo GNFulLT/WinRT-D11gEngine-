@@ -55,7 +55,7 @@ namespace GNF::Graphics
 		float deltaTime = 0;
 		m_gTimer->Tick();
 		
-		Primitives::Triangle triangle(m_deviceResources->GetD3DDevice(), m_deviceResources->GetShaderManager()->GetVertexShader(Common::BasicVertexShader), m_deviceResources->GetShaderManager()->GetVertexShaderSize(Common::BasicVertexShader));
+		Primitives::Triangle triangle(m_deviceResources->GetD3DDevice(), m_deviceResources->GetShaderManager()->GetBindedVertexShader(), m_deviceResources->GetShaderManager()->GetBindedVertexShaderSize());
 
 		while (true)
 		{	

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "VertexShaderBindable.h"
 #include "Common/DeviceResources.h"
-#include "Common/Event/EventHandler.h"
+
 namespace GNF::Common::Bindable
 {
 	VertexShaderBindable::VertexShaderBindable(Common::CommonVertexShaders vertexShaderType, DeviceResources* resources)
@@ -11,15 +11,10 @@ namespace GNF::Common::Bindable
 		m_shaderSize = vertexShaderInfos.second;
 		HRESULT rs = resources->GetD3DDevice()->CreateVertexShader(m_pShader, m_shaderSize, nullptr, m_vertexShader.put());
 
-		OnBind += Event::EventHandler::Bind<int, VertexShaderBindable>(&VertexShaderBindable::Velth, this);
 	}
 
 
-	void VertexShaderBindable::Velth(const int&)
-	{
-		int a = 5;
-		throw std::exception("Çalýþýyo");
-	}
+
 
 	const void* VertexShaderBindable::GetShader() const
 	{
@@ -36,8 +31,7 @@ namespace GNF::Common::Bindable
 	
 	void VertexShaderBindable::Bind(DeviceResources* resources)
 	{
-		int a = 5;
-		OnBind(a);
+		Binded(*this);
 		resources->GetD3DContext()->VSSetShader(m_vertexShader.get(), nullptr, 0);
 	}
 

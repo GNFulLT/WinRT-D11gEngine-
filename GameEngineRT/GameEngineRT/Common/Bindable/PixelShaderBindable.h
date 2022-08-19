@@ -10,6 +10,8 @@
 #include <wincodec.h>
 #include <DirectXMath.h>
 
+#include "Common/Event/Event.h"
+
 namespace GNF::Common::Bindable
 {
 	class PixelShaderBindable : public IShaderBindable
@@ -23,6 +25,9 @@ namespace GNF::Common::Bindable
 		virtual UINT GetShaderSize() const;
 		virtual void* GetD3DShader() const;
 		virtual void Bind(DeviceResources* resources);
+
+		Event::Event<PixelShaderBindable> Binded;
+
 	private:
 		winrt::com_ptr<ID3D11PixelShader> m_pixelShader;
 		const void* m_pShader;

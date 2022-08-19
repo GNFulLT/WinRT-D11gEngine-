@@ -29,6 +29,7 @@ namespace GNF::Common::Bindable
 	void PixelShaderBindable::Bind(DeviceResources* resources)
 	{
 		resources->GetD3DContext()->PSSetShader(m_pixelShader.get(), nullptr, 0);
+		Binded(*this);
 	}
 
 

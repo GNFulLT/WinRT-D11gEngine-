@@ -32,5 +32,10 @@ namespace GNF::Common
 			virtual Bindable::IShaderBindable* GetShaderBindable(CommonVertexShaders) = 0;
 			virtual Bindable::IShaderBindable* GetShaderBindable(CommonPixelShaders) = 0;
 
+			virtual const void* GetBindedPixelShader() const = 0;
+			virtual UINT GetBindedPixelShaderSize() const = 0;
+
+			virtual const void* GetBindedVertexShader() const = 0;
+			virtual UINT GetBindedVertexShaderSize() const = 0;
 	};
 }

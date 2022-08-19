@@ -26,6 +26,12 @@ namespace GNF::Common
 			virtual const void* GetPixelShader(CommonPixelShaders) const;
 			virtual UINT GetPixelShaderSize(CommonPixelShaders) const;
 
+			virtual const void* GetBindedVertexShader() const;
+			virtual UINT GetBindedVertexShaderSize() const;
+
+
+			virtual const void* GetBindedPixelShader() const;
+			virtual UINT GetBindedPixelShaderSize() const;
 
 			virtual void LoadAllShaders(DeviceResources* resources);
 
@@ -44,10 +50,14 @@ namespace GNF::Common
 			inline static CommonPixelShaders AllPixelShaderTypes[] = { BasicPixelShader };
 
 		private:
+			void OnVertexShaderBinded(const Bindable::VertexShaderBindable&);
+			void OnPixelShaderBinded(const Bindable::PixelShaderBindable&);
 
-
+		private:
 			std::map<CommonVertexShaders,std::unique_ptr<Bindable::VertexShaderBindable>> m_vertexShaders;
 			std::map<CommonPixelShaders,std::unique_ptr<Bindable::PixelShaderBindable>> m_pixelShaders;
 
+			const Bindable::VertexShaderBindable* m_bindedVertexShader = nullptr;
+			const Bindable::PixelShaderBindable* m_bindedPixelShader = nullptr;
 	};
 }
