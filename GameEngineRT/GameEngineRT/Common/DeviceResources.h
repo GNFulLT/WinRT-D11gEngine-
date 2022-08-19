@@ -3,10 +3,13 @@
 #include <d2d1_3.h>
 #include <dwrite_3.h>
 #include <wincodec.h>
+#include <DirectXMath.h>
+#include "DeviceResources.fwd.h"
+
+#include "ShaderManager.h"
+#include "ShaderManager.fwd.h"
+
 namespace GNF::Common {
-
-	
-
 	class DeviceResources
 	{
 	public:
@@ -16,7 +19,7 @@ namespace GNF::Common {
 		void SetWindow(winrt::Windows::UI::Core::CoreWindow const& window);
 		void HandleWindowSizeChanged(winrt::Windows::Foundation::Size newSize);
 		float GetAspectRatio() const;
-
+		ShaderManager* GetShaderManager() const;
 		//Getters
 	public:
 		winrt::Windows::UI::Core::CoreWindow GetWindow() const noexcept;
@@ -72,6 +75,10 @@ namespace GNF::Common {
 		winrt::com_ptr<IDXGIDevice3> m_dxgi_device;
 		winrt::com_ptr<IDXGIAdapter> m_dxgi_adapter;
 		winrt::com_ptr<IDXGIFactory2> m_dxgi_factory;
+
+
+		//Subsystems
+		std::unique_ptr<ShaderManager> m_shaderManager;
 
 		//For cached devices
 	private:

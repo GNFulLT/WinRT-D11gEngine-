@@ -107,12 +107,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common\Bindable\IBindable.h" />
+    <ClInclude Include="Common\Bindable\IShaderBindable.h" />
+    <ClInclude Include="Common\Bindable\PixelShaderBindable.h" />
+    <ClInclude Include="Common\Bindable\VertexBufferBindable.h" />
+    <ClInclude Include="Common\Bindable\VertexShaderBindable.h" />
+    <ClInclude Include="Common\DeviceResources.fwd.h" />
     <ClInclude Include="Common\DeviceResources.h" />
+    <ClInclude Include="Common\Event\Event.h" />
+    <ClInclude Include="Common\Event\EventHandler.h" />
+    <ClInclude Include="Common\Event\FireableGEventHandler.h" />
+    <ClInclude Include="Common\Event\GEventHandlerBase.h" />
+    <ClInclude Include="Common\Event\GEventHandlerMember.h" />
     <ClInclude Include="Common\GTimer.h" />
+    <ClInclude Include="Common\IShaderManager.h" />
+    <ClInclude Include="Common\ShaderManager.fwd.h" />
+    <ClInclude Include="Common\ShaderManager.h" />
     <ClInclude Include="Graphics\GraphicsMain.h" />
     <ClInclude Include="Graphics\GraphicsRenderer.h" />
-    <ClInclude Include="GTimer2.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Primitives\Triangle.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -129,15 +142,19 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\Bindable\PixelShaderBindable.cpp" />
+    <ClCompile Include="Common\Bindable\VertexBufferBindable.cpp" />
+    <ClCompile Include="Common\Bindable\VertexShaderBindable.cpp" />
     <ClCompile Include="Common\DeviceResources.cpp" />
     <ClCompile Include="Common\GTimer.cpp" />
+    <ClCompile Include="Common\ShaderManager.cpp" />
     <ClCompile Include="Graphics\GraphicsMain.cpp" />
     <ClCompile Include="Graphics\GraphicsRenderer.cpp" />
-    <ClCompile Include="GTimer2.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Primitives\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -145,6 +162,22 @@
     <Text Include="readme.txt">
       <DeploymentContent>false</DeploymentContent>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\BasicPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Sh%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ObjectFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_%(Filename)</VariableName>
+    </FxCompile>
+    <FxCompile Include="Shaders\BasicVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_%(Filename)</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Sh%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ObjectFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

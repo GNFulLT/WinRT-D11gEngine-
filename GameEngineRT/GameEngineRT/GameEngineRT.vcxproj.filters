@@ -15,10 +15,23 @@
     <ClCompile Include="Graphics\GraphicsMain.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="GTimer2.cpp" />
+    <ClCompile Include="Common\Bindable\VertexBufferBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitives\Triangle.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\ShaderManager.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\VertexShaderBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\PixelShaderBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
     <ClInclude Include="Common\GTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -32,9 +45,51 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Common\Bindable\IBindable.h">
-      <Filter>Bindable</Filter>
+      <Filter>Common\Bindable</Filter>
     </ClInclude>
-    <ClInclude Include="GTimer2.h" />
+    <ClInclude Include="Common\Bindable\VertexBufferBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives\Triangle.h">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Common\ShaderManager.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IShaderManager.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\VertexShaderBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\IShaderBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\PixelShaderBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DeviceResources.fwd.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ShaderManager.fwd.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\Event.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\EventHandler.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\GEventHandlerMember.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\GEventHandlerBase.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\FireableGEventHandler.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -69,11 +124,20 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{57246703-e305-4b5a-a957-1cd49ddffc44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Bindable">
-      <UniqueIdentifier>{8a490d3b-e7ef-4e33-97d6-38225f53c10d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common\Assets">
       <UniqueIdentifier>{db9086fe-bacc-4437-8272-1aa6642082db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Primitives">
+      <UniqueIdentifier>{d335c076-8ecf-475b-a5af-c21d7574e5ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{709a64c0-176b-4934-863a-c274c0b98980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Bindable">
+      <UniqueIdentifier>{8a490d3b-e7ef-4e33-97d6-38225f53c10d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Event">
+      <UniqueIdentifier>{fb4f2d2f-475d-4463-a7b1-0fc1a8d6dfba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,5 +146,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\BasicPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BasicVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

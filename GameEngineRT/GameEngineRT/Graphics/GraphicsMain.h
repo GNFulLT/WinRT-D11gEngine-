@@ -2,7 +2,7 @@
 #include "GraphicsRenderer.h"
 #include "Common/DeviceResources.h"
 #include "Common/GTimer.h"
-#include "GTimer2.h"
+
 namespace GNF::Graphics
 {
 

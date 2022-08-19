@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "GraphicsMain.h"
 #include <sstream>
-#include <atlconv.h>
+#include "Primitives/Triangle.h"
+#include "Common/ShaderManager.h"
 
 
 using namespace winrt::Windows::UI::Core;
+
 
 namespace GNF::Graphics
 {
@@ -52,6 +54,8 @@ namespace GNF::Graphics
 		m_gTimer->Start();
 		float deltaTime = 0;
 		m_gTimer->Tick();
+		
+		Primitives::Triangle triangle(m_deviceResources->GetD3DDevice(), m_deviceResources->GetShaderManager()->GetVertexShader(Common::BasicVertexShader), m_deviceResources->GetShaderManager()->GetVertexShaderSize(Common::BasicVertexShader));
 
 		while (true)
 		{	
@@ -60,13 +64,14 @@ namespace GNF::Graphics
 			wsstream << std::to_wstring((int)CalculateFrameStats());
 			UINT size = wsstream.seekp(0, wsstream.end).tellp();
 
-
 			CoreWindow::GetForCurrentThread().Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 			//Start Draw Session
 			m_graphRenderer->StartDraw();
 			//CleanUp BG with Red Color
 			m_graphRenderer->CleanUpBg(1, 0, 0);
 			
+			triangle.Draw(m_deviceResources->GetD3DContext());
+
 			m_graphRenderer->DrawText(wsstream.str().c_str(), size);
 			//Finish Draw Session
 			m_graphRenderer->FinishDraw();

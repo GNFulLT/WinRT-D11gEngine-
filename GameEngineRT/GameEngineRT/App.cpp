@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "DirectXManager.h"
 #include "Graphics/GraphicsMain.h"
 #include <winrt/Windows.UI.Popups.h>
 using namespace winrt::Windows::ApplicationModel;
@@ -73,12 +72,12 @@ struct App : winrt::implements<App, IFrameworkViewSource, IFrameworkView>
         m_graphicsMain->OnWindowSizeChanged(args.Size());
 
     }
-    void OnResizeStarted(CoreWindow const& sender, Windows::Foundation::IInspectable const& args)
+    void OnResizeStarted(CoreWindow const& sender, winrt::Windows::Foundation::IInspectable const& args)
     {
         m_sizeChanging = true;
     }
 
-    void OnResizeCompleted(CoreWindow const& sender, Windows::Foundation::IInspectable const& args)
+    void OnResizeCompleted(CoreWindow const& sender, winrt::Windows::Foundation::IInspectable const& args)
     {
 
         m_sizeChanging = false;

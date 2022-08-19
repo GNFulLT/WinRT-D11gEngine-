@@ -36,10 +36,17 @@ namespace GNF::Common {
         return m_dwrite_textFormat.get();
     }
 
+    ShaderManager* DeviceResources::GetShaderManager() const
+    {
+        return m_shaderManager.get();
+    }
+
 
     DeviceResources::DeviceResources() :m_dpi(-1.0f), m_backBufferCount(2), m_backBufferFormat(DXGI_FORMAT_B8G8R8A8_UNORM), m_depthStencilFormat(DXGI_FORMAT_UNKNOWN)
     {
+        m_shaderManager.reset(new ShaderManager());
         CreateIndependentResources();
+
     }
 
     void DeviceResources::HandleDeviceLost()
@@ -142,6 +149,16 @@ namespace GNF::Common {
         //Create D2D Device
         ThrowIfFailed(m_d2d_factory->CreateDevice(m_dxgi_device.get(), m_d2d_device.put()), "Cannot Create D2D Device");
         ThrowIfFailed(m_d2d_device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, m_d2d_deviceContext.put()),"Cannot Create D2D Device Context");
+        //D2D WRITE DEVICE
+        ThrowIfFailed(m_dwrite_factory->CreateTextFormat(L"Verdana", NULL, DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL, 50, L"", m_dwrite_textFormat.put()), "Write Device couldnt be created");
+
+        m_shaderManager->LoadAllShaders(this);
+        
+        m_shaderManager->GetShaderBindable(CommonVertexShaders::BasicVertexShader)->Bind(this);
+        m_shaderManager->GetShaderBindable(CommonPixelShaders::BasicPixelShader)->Bind(this);
+
     }
 
     void DeviceResources::CreateDependentResources()
@@ -272,10 +289,7 @@ namespace GNF::Common {
         // Grayscale text anti-aliasing is recommended for all Windows Store apps.
         m_d2d_deviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 
-        //D2D WRITE DEVICE
-        ThrowIfFailed(m_dwrite_factory->CreateTextFormat(L"Verdana", NULL, DWRITE_FONT_WEIGHT_NORMAL,
-            DWRITE_FONT_STYLE_NORMAL,
-            DWRITE_FONT_STRETCH_NORMAL, 50, L"", m_dwrite_textFormat.put()),"Write Device couldnt be created");
+       
         
     }
     IDXGISwapChain1* DeviceResources::GetSwapChain() const noexcept
