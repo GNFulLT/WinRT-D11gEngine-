@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="EntryP.cpp" />
+    <ClCompile Include="WindowsMessageMap.cpp" />
+    <ClCompile Include="Window\MainWindow.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Timer\GTimer.cpp">
+      <Filter>Common\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Device\DeviceResources.cpp">
+      <Filter>Common\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Exception\DxException.cpp">
+      <Filter>Exception</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\GeometryGenerator.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\PixelShaderBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\VertexBufferBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\VertexShaderBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\ShaderManagement\ShaderManager.cpp">
+      <Filter>ShaderManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\DepthTestRenderer.cpp">
+      <Filter>Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\CameraTestRenderer.cpp">
+      <Filter>Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\ConstBufferBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem\InputSystem.cpp">
+      <Filter>InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameMain.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererSystem\DebugRendererSystem.cpp">
+      <Filter>RendererSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem\CameraEntity.cpp">
+      <Filter>CameraSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="EntitySystem\Cube.cpp">
+      <Filter>EntitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Bindable\TextureBindable.cpp">
+      <Filter>Common\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TextureManagement\TextureManager.cpp">
+      <Filter>Common\TextureManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\HRHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="EntitySystem\Sphere.cpp">
+      <Filter>EntitySystem</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WindowsMessageMap.h" />
+    <ClInclude Include="Window\IWindow32.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\IWindow32Class.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\MainWindow.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\WindowDesc.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\HRHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\Event.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\EventHandler.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\FireableGEventHandler.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\GEventHandlerBase.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Event\GEventHandlerMember.h">
+      <Filter>Common\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Timer\GTimer.h">
+      <Filter>Common\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Device\IDeviceResources.h">
+      <Filter>Common\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Device\DeviceResources.h">
+      <Filter>Common\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11Depends.h" />
+    <ClInclude Include="Exception\DxException..h">
+      <Filter>Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\VertexTypes.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\GeometryGenerator.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\PixelShaderBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\VertexBufferBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\VertexShaderBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\IBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\IShaderBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ShaderManagement\IShaderManager.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ShaderManagement\ShaderTypes.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ShaderManagement\ShaderManager.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ShaderManagement\IShaderManager1.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ShaderManagement\DebugShaderManager1.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\IRenderer.h">
+      <Filter>Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\DepthTestRenderer.h">
+      <Filter>Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\CameraTestRenderer.h">
+      <Filter>Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\IRenderer2.h">
+      <Filter>Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\ConstBufferBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitySystem\IEntity.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem\InputSystem.h">
+      <Filter>InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem\VirtualKeyCodes.h">
+      <Filter>InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem\IInputSystem.h">
+      <Filter>InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameMain.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Timer\ITimerSystem.h">
+      <Filter>Common\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\System\ISystem.h">
+      <Filter>Common\System</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererSystem\DebugRendererSystem.h">
+      <Filter>RendererSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererSystem\IRendererSystem.h">
+      <Filter>RendererSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\IRenderer3.h">
+      <Filter>Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\RTTI\RTTI.h">
+      <Filter>Common\RTTI</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem\CameraEntity.h">
+      <Filter>CameraSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitySystem\IDrawableEntity.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitySystem\Cube.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bindable\TextureBindable.h">
+      <Filter>Common\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TextureManagement\ITextureManager.h">
+      <Filter>Common\TextureManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TextureManagement\TextureManager.h">
+      <Filter>Common\TextureManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Material\MaterialType.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitySystem\Sphere.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>{2e27f279-b923-4e44-b1d2-4d3d57cd8405}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{1e0ff63c-72d6-4cce-8177-d4c7717ae208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Event">
+      <UniqueIdentifier>{f3d37577-6c60-4f56-a4d3-9bb5e2fb638e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Timer">
+      <UniqueIdentifier>{a4262086-3250-410a-9276-a8e9ab0d9e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Device">
+      <UniqueIdentifier>{128f52ba-8b84-41cd-84d0-5f37c757757a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Exception">
+      <UniqueIdentifier>{ba4c2a9b-ef14-4e21-9381-58c59829ccf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{4b392061-5305-443c-a317-df24177bfa83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Bindable">
+      <UniqueIdentifier>{ba393f7b-16fe-44f0-9346-fc5b98b0461d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShaderManagement">
+      <UniqueIdentifier>{b24f65dc-bdba-4143-8657-1f7fee7c2372}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphic">
+      <UniqueIdentifier>{06cdb1e5-c5a0-46ca-92b3-21968ea55e1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{1adc2429-b22d-4fac-8767-fe1cd4dfe376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InputSystem">
+      <UniqueIdentifier>{f9c0d588-38a8-4638-b06e-bfc848af295d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntitySystem">
+      <UniqueIdentifier>{cc305588-813a-4dde-916a-9ff677fe923b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CameraSystem">
+      <UniqueIdentifier>{32904fe1-c3c2-449b-b45c-e54801eeae49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{9fd78115-c25c-41d9-9ce8-1d925b2b9e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\System">
+      <UniqueIdentifier>{69a6a4d0-df2f-43da-a73c-6fc1680ca8a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RendererSystem">
+      <UniqueIdentifier>{2602943a-5918-43bc-bca3-d9983fcaac12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Storage">
+      <UniqueIdentifier>{a32fc598-f581-48cf-9ca6-db5217dcb441}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\RTTI">
+      <UniqueIdentifier>{ebbdb71e-8589-488c-8a18-a1a6bf2010aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\TextureManagement">
+      <UniqueIdentifier>{f5a55012-a310-49d4-8cb3-cabfd700e0b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{7d8732dc-db4b-42b8-8332-1c1262f0cb69}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="BasicVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BasicPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BasicColoredPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BasicColoredVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ColorCameraPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ColorCameraVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CameraTexturePixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CameraTextureVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
