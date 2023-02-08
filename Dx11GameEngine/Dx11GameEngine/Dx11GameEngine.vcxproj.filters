@@ -1,0 +1,296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{a6f35c82-1670-41b7-abe1-9fc1ebc3a4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Windowing">
+      <UniqueIdentifier>{f54c0e65-ef0d-4658-83f8-3533461ef362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{d84a260a-38aa-44fc-aeb9-25575dfa5400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Windowing\Win32">
+      <UniqueIdentifier>{587665ab-219e-4639-9d9b-0bc42d6d30aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Utils">
+      <UniqueIdentifier>{26fbb7d9-35b7-4c3e-b6ed-11edbcda0ea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\State">
+      <UniqueIdentifier>{39d2a555-f58e-45b7-9a3c-01c5bb77d406}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\GraphicEngine">
+      <UniqueIdentifier>{b53724f7-dd5a-45ec-bfd7-32be0dc42e02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\VertexBuffer">
+      <UniqueIdentifier>{68485e40-4c1e-407d-ae6c-943b892cc6f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Statistic">
+      <UniqueIdentifier>{453981bf-48fb-4fed-b447-8556d7c1c890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Camera">
+      <UniqueIdentifier>{5ac0ae34-7e17-4645-978f-a7aec4d57a38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Camera\CameraPositioner">
+      <UniqueIdentifier>{9ca7df9e-09f0-4470-aff8-6580255c6e81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{c6b47bea-9f61-4ad8-97a1-26d4cecefa0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{0eb8baeb-b28d-4c6e-91ed-88d65323f05f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity">
+      <UniqueIdentifier>{8cfc727f-ea65-4955-868a-e758b7feb87d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{4789551b-8480-46a3-8121-e7cedc080b5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Bindable">
+      <UniqueIdentifier>{b1a9e996-0fff-43a2-8bdc-c19c74f4900d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Bindable\Shader">
+      <UniqueIdentifier>{39695d24-09c7-455b-8011-51fe2e2fa8c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Bindable\Buffer">
+      <UniqueIdentifier>{461e861b-b52c-48eb-8134-4401b990b4a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Bindable\Miscellaneous">
+      <UniqueIdentifier>{47c54065-3c96-4996-83c5-8bf765591441}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Scene">
+      <UniqueIdentifier>{63e01fb2-4a90-4c7a-8fb5-589d5b1e54d1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EntryP.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Common\Windowing\Win32\Win32_Window.cpp">
+      <Filter>Common\Windowing\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Utils\utils_win32.cpp">
+      <Filter>Common\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Game.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\GraphicEngine\GraphicEngine.cpp">
+      <Filter>Core\GraphicEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="directx_wrapper.cpp" />
+    <ClCompile Include="Core\Bindable\Shader\PixelShaderBindable.cpp">
+      <Filter>Core\Bindable\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Bindable\Shader\VertexShaderBindable.cpp">
+      <Filter>Core\Bindable\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Bindable\Buffer\VertexBufferBindable.cpp">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Bindable\Buffer\ConstantBufferBindable.cpp">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Statistic\Statistic.cpp">
+      <Filter>Common\Statistic</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Camera\Camera.cpp">
+      <Filter>Common\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Camera\CameraPositioner\FPSCameraPositioner.cpp">
+      <Filter>Common\Camera\CameraPositioner</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ImGuiRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Windowing\Win32\WindowsMessageMap.cpp">
+      <Filter>Common\Windowing\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MenuBar.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Entitiy\IEntity.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Bindable\Buffer\IndexBufferBindable.cpp">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Entitiy\Triangle2D.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Skybox.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\TextureManager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Bindable\Miscellaneous\TextureBindable.cpp">
+      <Filter>Core\Bindable\Miscellaneous</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\IFixedWindowChild.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\SceneRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene\Scene.cpp">
+      <Filter>Core\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene\EntityManager.cpp">
+      <Filter>Core\Scene</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\Logger.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Game.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Common\Utils\utils_win32.h">
+      <Filter>Common\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\State\IState.h">
+      <Filter>Core\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\GraphicEngine\GraphicEngine.h">
+      <Filter>Core\GraphicEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_wrapper.h" />
+    <ClInclude Include="Core\Bindable\IBindable.h">
+      <Filter>Core\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Shader\PixelShaderBindable.h">
+      <Filter>Core\Bindable\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Utils\utils_dxd.h">
+      <Filter>Common\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Shader\VertexShaderBindable.h">
+      <Filter>Core\Bindable\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Buffer\VertexBufferBindable.h">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Buffer\DrawMode.h">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\VertexBuffer\IVertexBuffer.h">
+      <Filter>Core\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\VertexBuffer\OnlyVertexBuffer.h">
+      <Filter>Core\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Buffer\ConstantBufferBindable.h">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Statistic\Statistic.h">
+      <Filter>Common\Statistic</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Camera\Camera.h">
+      <Filter>Common\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Camera\CameraPositioner\FPSCameraPositioner.h">
+      <Filter>Common\Camera\CameraPositioner</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Camera\CameraPositioner\ICameraPositioner.h">
+      <Filter>Common\Camera\CameraPositioner</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Utils\utils_common.h">
+      <Filter>Common\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\IKeyboard.h">
+      <Filter>Common\Windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\VirtualKeyCodes.h">
+      <Filter>Common\Windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\IWindow.h">
+      <Filter>Common\Windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ImGuiRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_wrapper.h" />
+    <ClInclude Include="Renderer\RendererBase.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\Win32\WindowsMessageMap.h">
+      <Filter>Common\Windowing\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\IMouse.h">
+      <Filter>Common\Windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\Win32\Win32_Mouse.h">
+      <Filter>Common\Windowing\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\Win32\Win32_Keyboard.h">
+      <Filter>Common\Windowing\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Utils\utils_imgui.h">
+      <Filter>Common\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Windowing\Win32\Win32_Window.h">
+      <Filter>Common\Windowing\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\MenuBar.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Entitiy\IEntity.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Buffer\IndexBufferBindable.h">
+      <Filter>Core\Bindable\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Entitiy\Triangle2D.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Skybox.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\TextureManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Bindable\Miscellaneous\TextureBindable.h">
+      <Filter>Core\Bindable\Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Texture.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\IFixedWindowChild.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\SceneRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene\Scene.h">
+      <Filter>Core\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene\EntityManager.h">
+      <Filter>Core\Scene</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\BasicVertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\BasicPixelShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SimplePixelShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SimpleVertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common\Camera\Camera.tpp">
+      <Filter>Common\Camera</Filter>
+    </None>
+  </ItemGroup>
+</Project>

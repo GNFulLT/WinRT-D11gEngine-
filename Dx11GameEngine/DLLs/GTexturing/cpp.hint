@@ -1,0 +1,2 @@
+#define GTEXTURING_API __declspec(dllexport)
+#define GTEXTURING_API __declspec(dllimport)
