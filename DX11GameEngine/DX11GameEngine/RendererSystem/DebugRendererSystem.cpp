@@ -15,7 +15,7 @@ namespace GNF::Renderer
 	}
 	void DebugRendererSystem::Draw(Entity::IDrawableEntity* drawable)
 	{
-		
+	
 		drawable->Draw();
 	}
 

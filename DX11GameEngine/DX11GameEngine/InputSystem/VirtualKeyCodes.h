@@ -3,8 +3,15 @@
 
 namespace GNF::Input
 {
+	enum MOUSE_KEY_CODE
+	{
+		LEFT_BUTTON = 0,
+		RIGHT_BUTTON = 1
+	};
+
 	enum KEY_CODE
 	{	
+		KEY_SHIFT = 0x10,
 		KEY_LEFT = 0x25,
 		KEY_UP,
 		KEY_RIGHT,
@@ -44,6 +51,8 @@ namespace GNF::Input
 		KEY_W,
 		KEY_X,
 		KEY_Y,
-		KEY_Z
+		KEY_Z,
+		KEY_LSHIFT = 0xA0,
+		KEY_RSHIFT,
 	};
 }

@@ -8,10 +8,18 @@
 #include <memory>
 #include "CameraSystem/CameraEntity.h"
 #include "EntitySystem/IDrawableEntity.h"
+#include "CameraSystem/CameraSystem.h"
+#include "CameraSystem/FPSCameraPositioner.h"
+#include "RendererSystem/ImGuiRenderer.h"
 namespace GNF::Game
 {
 	class GameMain
 	{
+		struct cbPerObj
+		{
+			glm::mat4  WVP;
+		};
+
 		public:
 			float GetFrameTime();
 			static GameMain* BuildGame();
@@ -83,12 +91,25 @@ namespace GNF::Game
 
 			std::vector<std::unique_ptr<Entity::IEntity>> m_entities;
 			std::vector < Entity::IDrawableEntity*> m_drawables;
-			GameMain* WithDefaultSystems();
+			GameMain* WithDefaultSystems();	
 			GameMain(const Window::WindowDesc&);
+
+			std::unique_ptr<Common::Bindable::ConstBufferBindable> cameraConstBuffer;
+
 			inline static std::unique_ptr<GameMain> g_gameMain;
+
+			std::unique_ptr<Camera::CameraSystem> cam;
+
+
+			Camera::FPSCameraPositioner fpsCam;
+			glm::mat4 world = glm::mat4(1.f);
+			cbPerObj perObj;
 			float fps = 120;
 			//! Members
 		private:
 			std::unique_ptr<Window::IWindow32> pMainWindow;
+			std::unique_ptr<Renderer::ImGuiRenderer> m_imgui;
+
+
 	};
 }

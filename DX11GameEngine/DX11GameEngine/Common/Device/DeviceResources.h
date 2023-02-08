@@ -71,6 +71,11 @@ namespace GNF::Common::Device
 
 			inline virtual bool IsMultiSamplingEnabled() override;
 
+		protected:
+			inline void DevicePropsCheck(size_t* videoMem = nullptr, size_t* sharedMem = nullptr, wchar_t* deviceNameBuffer = nullptr, int bufferSize = 0);
+			inline const char* SelectFuture();
+			inline void LoadShaderManager(Bindable::PixelShaderBindable* pixelShader = nullptr, Bindable::VertexShaderBindable* vertexShader = nullptr);
+			inline bool CheckMSAAFeatures(int* msaaMaxLevel = nullptr, bool* msaaIsEnabled = nullptr);
 		private:
 			virtual void CreateDependentResources() override;
 

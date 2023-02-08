@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CameraSystem\CameraEntity.cpp" />
+    <ClCompile Include="CameraSystem\FPSCameraPositioner.cpp" />
+    <ClCompile Include="CameraSystem\MoveToCameraPositioner.cpp" />
     <ClCompile Include="Common\Bindable\ConstBufferBindable.cpp" />
     <ClCompile Include="Common\Bindable\PixelShaderBindable.cpp" />
     <ClCompile Include="Common\Bindable\TextureBindable.cpp" />
@@ -40,11 +42,16 @@
     <ClCompile Include="Graphic\DepthTestRenderer.cpp" />
     <ClCompile Include="InputSystem\InputSystem.cpp" />
     <ClCompile Include="RendererSystem\DebugRendererSystem.cpp" />
+    <ClCompile Include="RendererSystem\ImGuiRenderer.cpp" />
     <ClCompile Include="WindowsMessageMap.cpp" />
     <ClCompile Include="Window\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraSystem\CameraEntity.h" />
+    <ClInclude Include="CameraSystem\CameraSystem.h" />
+    <ClInclude Include="CameraSystem\FPSCameraPositioner.h" />
+    <ClInclude Include="CameraSystem\ICameraPositioner.h" />
+    <ClInclude Include="CameraSystem\MoveToCameraPositioner.h" />
     <ClInclude Include="Common\Bindable\ConstBufferBindable.h" />
     <ClInclude Include="Common\Bindable\IBindable.h" />
     <ClInclude Include="Common\Bindable\IShaderBindable.h" />
@@ -60,6 +67,7 @@
     <ClInclude Include="Common\Event\GEventHandlerBase.h" />
     <ClInclude Include="Common\Event\GEventHandlerMember.h" />
     <ClInclude Include="Common\HRHelper.h" />
+    <ClInclude Include="Common\imgui_wrapper.h" />
     <ClInclude Include="Common\RTTI\RTTI.h" />
     <ClInclude Include="Common\ShaderManagement\DebugShaderManager1.h" />
     <ClInclude Include="Common\ShaderManagement\IShaderManager.h" />
@@ -90,6 +98,7 @@
     <ClInclude Include="InputSystem\VirtualKeyCodes.h" />
     <ClInclude Include="Material\MaterialType.h" />
     <ClInclude Include="RendererSystem\DebugRendererSystem.h" />
+    <ClInclude Include="RendererSystem\ImGuiRenderer.h" />
     <ClInclude Include="RendererSystem\IRendererSystem.h" />
     <ClInclude Include="WindowsMessageMap.h" />
     <ClInclude Include="Window\IWindow32.h" />
@@ -337,7 +346,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -354,7 +363,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -371,7 +380,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -388,7 +397,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

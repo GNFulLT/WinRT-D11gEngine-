@@ -11,7 +11,7 @@ namespace GNF::Entity
 		
 		public:
 			virtual ~IEntity() {};
-			virtual void Update(const float& frameTime) = 0;
+			virtual void Update(const float frameTime) = 0;
 			virtual void InitResources() = 0;
 	/*	
 		protected:

@@ -66,6 +66,15 @@
     <ClCompile Include="EntitySystem\Sphere.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
+    <ClCompile Include="CameraSystem\FPSCameraPositioner.cpp">
+      <Filter>CameraSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererSystem\ImGuiRenderer.cpp">
+      <Filter>RendererSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem\MoveToCameraPositioner.cpp">
+      <Filter>CameraSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsMessageMap.h" />
@@ -219,6 +228,24 @@
     </ClInclude>
     <ClInclude Include="EntitySystem\Sphere.h">
       <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem\ICameraPositioner.h">
+      <Filter>CameraSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem\CameraSystem.h">
+      <Filter>CameraSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem\FPSCameraPositioner.h">
+      <Filter>CameraSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererSystem\ImGuiRenderer.h">
+      <Filter>RendererSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\imgui_wrapper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem\MoveToCameraPositioner.h">
+      <Filter>CameraSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

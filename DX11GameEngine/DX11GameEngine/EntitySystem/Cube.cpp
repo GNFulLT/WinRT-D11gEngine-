@@ -10,7 +10,7 @@ namespace GNF::Entity
 {
 	
     Cube::Cube()
-    {
+    {   
 
     }
 
@@ -42,7 +42,7 @@ namespace GNF::Entity
         m_d3d_deviceContext->DrawIndexed(sizeOfInd, 0, 0);
 
 	}
-	void Cube::Update(const float& frameTime)
+	void Cube::Update(const float frameTime)
 	{
       
 	}
@@ -130,43 +130,46 @@ namespace GNF::Entity
 
         auto hr = resources->CreateInputLayout(layout, numElements, vertLayout.GetAddressOf());
 
+        auto t = m_worldPos.x - m_edgeL/2;
+        auto y = m_worldPos.y - m_edgeL/2;
+        auto z = m_worldPos.z - m_edgeL/2;
         VertexTextured v[] =
         {
-            // Front Face
-            VertexTextured(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
-            VertexTextured(-1.0f,  1.0f, -1.0f, 0.0f, 0.0f),
-            VertexTextured(1.0f,  1.0f, -1.0f, 1.0f, 0.0f),
-            VertexTextured(1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
+          
+            VertexTextured(m_worldPos.x - m_edgeL/2,  m_worldPos.y - m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 0.0f, 1.0f),
+            VertexTextured(m_worldPos.x - m_edgeL/2,  m_worldPos.y + m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 0.0f, 0.0f),
+            VertexTextured(m_worldPos.x + m_edgeL/2,  m_worldPos.y + m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 1.0f, 0.0f),
+            VertexTextured(m_worldPos.x + m_edgeL/2,  m_worldPos.y - m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 1.0f, 1.0f),
 
             // Back Face
-            VertexTextured(-1.0f, -1.0f, 1.0f, 1.0f, 1.0f),
-            VertexTextured(1.0f, -1.0f, 1.0f, 0.0f, 1.0f),
-            VertexTextured(1.0f,  1.0f, 1.0f, 0.0f, 0.0f),
-            VertexTextured(-1.0f,  1.0f, 1.0f, 1.0f, 0.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2,  m_worldPos.y - m_edgeL / 2, m_worldPos.z + m_edgeL / 2, 1.0f, 1.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,  m_worldPos.y - m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 0.0f, 1.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,  m_worldPos.y + m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 0.0f, 0.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2,  m_worldPos.y + m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 1.0f, 0.0f),
 
             // Top Face
-            VertexTextured(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f),
-            VertexTextured(-1.0f, 1.0f,  1.0f, 0.0f, 0.0f),
-            VertexTextured(1.0f, 1.0f,  1.0f, 1.0f, 0.0f),
-            VertexTextured(1.0f, 1.0f, -1.0f, 1.0f, 1.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2,  m_worldPos.y + m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 0.0f, 1.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2,  m_worldPos.y + m_edgeL / 2,   m_worldPos.z + m_edgeL / 2, 0.0f, 0.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,  m_worldPos.y + m_edgeL / 2,   m_worldPos.z + m_edgeL / 2, 1.0f, 0.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,  m_worldPos.y + m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 1.0f, 1.0f),
 
             // Bottom Face
-            VertexTextured(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
-            VertexTextured(1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
-            VertexTextured(1.0f, -1.0f,  1.0f, 0.0f, 0.0f),
-            VertexTextured(-1.0f, -1.0f,  1.0f, 1.0f, 0.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2, m_worldPos.y - m_edgeL / 2,  m_worldPos.z - m_edgeL / 2, 1.0f, 1.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,m_worldPos.y - m_edgeL / 2,  m_worldPos.z - m_edgeL / 2, 0.0f, 1.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2, m_worldPos.y - m_edgeL / 2,   m_worldPos.z + m_edgeL / 2, 0.0f, 0.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2, m_worldPos.y - m_edgeL / 2,   m_worldPos.z + m_edgeL / 2, 1.0f, 0.0f),
 
             // Left Face
-            VertexTextured(-1.0f, -1.0f,  1.0f, 0.0f, 1.0f),
-            VertexTextured(-1.0f,  1.0f,  1.0f, 0.0f, 0.0f),
-            VertexTextured(-1.0f,  1.0f, -1.0f, 1.0f, 0.0f),
-            VertexTextured(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2, m_worldPos.y - m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 0.0f, 1.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2,  m_worldPos.y + m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 0.0f, 0.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2,  m_worldPos.y + m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 1.0f, 0.0f),
+            VertexTextured(m_worldPos.x - m_edgeL / 2, m_worldPos.y - m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 1.0f, 1.0f),
 
             // Right Face
-            VertexTextured(1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
-            VertexTextured(1.0f,  1.0f, -1.0f, 0.0f, 0.0f),
-            VertexTextured(1.0f,  1.0f,  1.0f, 1.0f, 0.0f),
-            VertexTextured(1.0f, -1.0f,  1.0f, 1.0f, 1.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2, m_worldPos.y - m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 0.0f, 1.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,  m_worldPos.y + m_edgeL / 2, m_worldPos.z - m_edgeL / 2, 0.0f, 0.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2,  m_worldPos.y + m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 1.0f, 0.0f),
+            VertexTextured(m_worldPos.x + m_edgeL / 2, m_worldPos.y - m_edgeL / 2,  m_worldPos.z + m_edgeL / 2, 1.0f, 1.0f),
         };
         m_vertexBufferBindable.reset(new Bindable::VertexBufferBindable(resources, v, ARRAYSIZE(v) * sizeof(VertexTextured)));
 

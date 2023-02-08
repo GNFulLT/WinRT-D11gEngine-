@@ -6,6 +6,11 @@
 #include "InputSystem/InputSystem.h"
 #include "Game/GameMain.h"
 #include "InputSystem/VirtualKeyCodes.h"
+#include "imgui/imgui_impl_win32.h"	
+#include "imgui/imgui.h"
+#include <windowsx.h>
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace GNF::Window
 {
 	 
@@ -17,7 +22,7 @@ namespace GNF::Window
 	}
 
 	IWindow32Class* MainWindow::GetWindowClass() const noexcept
-	{
+	{  
 		return (IWindow32Class*)m_windowClass.get();
 	}
 
@@ -143,8 +148,10 @@ namespace GNF::Window
 
 	}
 
+
 	LRESULT MainWindow::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		
 		if (msg == WM_NCCREATE)
 		{
 			const CREATESTRUCTW* const pcreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
@@ -168,6 +175,7 @@ namespace GNF::Window
 		return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 	}
 	
+
 	LRESULT MainWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
 #if defined _DEBUG
@@ -175,9 +183,39 @@ namespace GNF::Window
 		std::string str = mm(msg, lParam, wParam);
 		OutputDebugString(std::wstring(str.begin(), str.end()).c_str());
 #endif
-		
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+			return true;
 		switch (msg)
 		{
+			case WM_MOUSEMOVE:				
+				Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseMoved(GET_X_LPARAM(lParam) ,GET_Y_LPARAM(lParam));
+				break;
+			case WM_LBUTTONDOWN:
+				switch (wParam)
+				{
+					case MK_LBUTTON:
+						Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseKeyPressed(Input::LEFT_BUTTON);
+						break;
+					case MK_RBUTTON:
+						Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseKeyPressed(Input::RIGHT_BUTTON);
+						break;
+				}
+				break;
+			case WM_RBUTTONUP:
+				Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseKeyReleased(Input::RIGHT_BUTTON);
+				break;
+			case WM_LBUTTONUP:
+				Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseKeyReleased(Input::LEFT_BUTTON);
+				switch (wParam)
+				{
+				case MK_LBUTTON:
+					Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseKeyReleased(Input::LEFT_BUTTON);
+					break;
+				case MK_RBUTTON:
+					Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->MouseKeyReleased(Input::RIGHT_BUTTON);
+					break;
+				}
+				break;
 			case WM_KEYUP:
 				Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>()->KeyReleased(wParam);		
 				break;

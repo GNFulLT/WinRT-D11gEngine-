@@ -17,7 +17,7 @@ namespace GNF::Entity
 			~Sphere() {};
 
 			virtual void Draw() override;
-			virtual void Update(const float& frameTime) override;
+			virtual void Update(const float frameTime) override;
 			virtual void InitResources() override;
 		private:
 			Geometry::MeshData meshData;

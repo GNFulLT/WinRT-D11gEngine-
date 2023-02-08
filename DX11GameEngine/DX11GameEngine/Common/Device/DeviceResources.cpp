@@ -55,85 +55,170 @@ namespace GNF::Common::Device
 		return m_textureManager.get();
 	}
 
-	void DeviceResources::CreateInDependentResources()
+	const char* DeviceResources::SelectFuture()
 	{
-		try
-		{
-			D3D11_CREATE_DEVICE_FLAG creationFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_BGRA_SUPPORT);
-			D2D1_FACTORY_OPTIONS options;
-			ZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
+		D3D11_CREATE_DEVICE_FLAG creationFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_BGRA_SUPPORT);
+		D2D1_FACTORY_OPTIONS options;
+		ZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
 
-	
+
 #if _DEBUG
-			creationFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(static_cast<UINT>(creationFlag) | static_cast<UINT>(D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG));
-			creationFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(static_cast<UINT>(creationFlag) | static_cast<UINT>(D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUGGABLE));
-			// If the project is in a debug build, enable Direct2D debugging via SDK Layers.
-			options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+		creationFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(static_cast<UINT>(creationFlag) | static_cast<UINT>(D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG));
+		creationFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(static_cast<UINT>(creationFlag) | static_cast<UINT>(D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUGGABLE));
+		// If the project is in a debug build, enable Direct2D debugging via SDK Layers.
+		options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 #endif
-		
-			//# Create D2D Factory
 
-			GThrowIfFailed(D2D1CreateFactory(
-				D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_SINGLE_THREADED
-				,__uuidof(m_d2d_factory),
-				&options
-				,(void**)m_d2d_factory.GetAddressOf()));
+		//# Create D2D Factory
 
-			//# Create DirectWrite Factory
+		GThrowIfFailed(D2D1CreateFactory(
+			D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_SINGLE_THREADED
+			, __uuidof(m_d2d_factory),
+			&options
+			, (void**)m_d2d_factory.GetAddressOf()));
 
-			GThrowIfFailed(DWriteCreateFactory(DWRITE_FACTORY_TYPE::DWRITE_FACTORY_TYPE_SHARED, __uuidof(m_dwrite_factory), (IUnknown**)m_dwrite_factory.GetAddressOf()));
+		//# Create DirectWrite Factory
 
-			//# Create IWICImagining factory for 
+		GThrowIfFailed(DWriteCreateFactory(DWRITE_FACTORY_TYPE::DWRITE_FACTORY_TYPE_SHARED, __uuidof(m_dwrite_factory), (IUnknown**)m_dwrite_factory.GetAddressOf()));
 
-			GThrowIfFailed(CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER,__uuidof(m_wic_factory),(LPVOID*)m_wic_factory.GetAddressOf()));
+		//# Create IWICImagining factory for 
+
+		GThrowIfFailed(CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(m_wic_factory), (LPVOID*)m_wic_factory.GetAddressOf()));
 
 
-			//# Set Feature Levels
-			D3D_FEATURE_LEVEL featureLevels[] =
-			{
-				D3D_FEATURE_LEVEL_11_1,
-				D3D_FEATURE_LEVEL_11_0,
-				D3D_FEATURE_LEVEL_10_1,
-				D3D_FEATURE_LEVEL_10_0,
-				D3D_FEATURE_LEVEL_9_3,
-				D3D_FEATURE_LEVEL_9_2,
-				D3D_FEATURE_LEVEL_9_1
-			};
+		//# Set Feature Levels
+		D3D_FEATURE_LEVEL featureLevels[] =
+		{
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_10_1,
+			D3D_FEATURE_LEVEL_10_0,
+			D3D_FEATURE_LEVEL_9_3,
+			D3D_FEATURE_LEVEL_9_2,
+			D3D_FEATURE_LEVEL_9_1
+		};
 
-			ComPtr< ID3D11Device > d3d_device;
-		
-			HRESULT hr = D3D11CreateDevice(
+		D3D_FEATURE_LEVEL sLevel;
+		ComPtr< ID3D11Device > d3d_device;
+
+		HRESULT hr = D3D11CreateDevice(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			0,
+			creationFlag,
+			featureLevels,
+			ARRAYSIZE(featureLevels),
+			D3D11_SDK_VERSION,
+			d3d_device.GetAddressOf(),
+			&sLevel,
+			nullptr
+		);
+		//If failed try create with warp device
+		if (FAILED(hr))
+		{
+			GThrowIfFailed(D3D11CreateDevice(
 				nullptr,
-				D3D_DRIVER_TYPE_HARDWARE,
+				D3D_DRIVER_TYPE_WARP,
 				0,
 				creationFlag,
 				featureLevels,
 				ARRAYSIZE(featureLevels),
 				D3D11_SDK_VERSION,
 				d3d_device.GetAddressOf(),
-				nullptr,
+				&sLevel,
 				nullptr
-			);
-			//If failed try create with warp device
-			if (FAILED(hr))
-			{
-				GThrowIfFailed(D3D11CreateDevice(
-					nullptr,
-					D3D_DRIVER_TYPE_WARP,
-					0,
-					creationFlag,
-					featureLevels,
-					ARRAYSIZE(featureLevels),
-					D3D11_SDK_VERSION,
-					d3d_device.GetAddressOf(),
-					nullptr,
-					nullptr
-				));
-			}
+			));
+		}
 
-			//! Get DXGI Adapter and DXGI Device by D3D Device 
-			GThrowIfFailed(d3d_device.As(&m_d3d_device));
-			m_d3d_device->GetImmediateContext3(m_d3d_deviceContext.GetAddressOf());
+		//! Get DXGI Adapter and DXGI Device by D3D Device 
+		GThrowIfFailed(d3d_device.As(&m_d3d_device));
+		m_d3d_device->GetImmediateContext3(m_d3d_deviceContext.GetAddressOf());
+
+		switch (sLevel)
+		{
+			case D3D_FEATURE_LEVEL_11_1:
+				return "D3D_FEATURE_LEVEL_11_1";
+			case D3D_FEATURE_LEVEL_11_0:
+				return "D3D_FEATURE_LEVEL_11_0";
+			case D3D_FEATURE_LEVEL_10_1:
+				return "D3D_FEATURE_LEVEL_10_1";
+			case D3D_FEATURE_LEVEL_10_0:
+				return "D3D_FEATURE_LEVEL_10_0";
+			case D3D_FEATURE_LEVEL_9_3:
+				return "D3D_FEATURE_LEVEL_9_3";
+			case D3D_FEATURE_LEVEL_9_2:
+				return "D3D_FEATURE_LEVEL_9_2";
+			case D3D_FEATURE_LEVEL_9_1:
+				return "D3D_FEATURE_LEVEL_9_1";
+			default:
+				return "D3D_FEATURE_UNKNOWN_LEVEL";
+		}
+	}
+	
+	void DeviceResources::LoadShaderManager(Bindable::PixelShaderBindable* pixelShader,Bindable::VertexShaderBindable* vertexShader)
+	{
+
+		//! Load Shaders from shaderManager
+
+		m_shaderManager->LoadAllShaderTypes();
+
+		//! Bind Basic Shaders
+		auto ps = m_shaderManager->GetShaderBindable(ShaderManagement::CameraTexturePixelShader);
+		auto vs = m_shaderManager->GetShaderBindable(ShaderManagement::CameraTextureVertexShader);
+
+		ps->Bind();
+		vs->Bind();
+
+		pixelShader = ps;
+		vertexShader = vs;
+	}
+
+	bool DeviceResources::CheckMSAAFeatures(int* msaaMaxLevel,bool* msaaIsEnabled)
+	{
+		UINT maxQuality;
+		auto hr = m_d3d_device->CheckMultisampleQualityLevels(m_backBufferFormat, m_sampleCount, &maxQuality);
+		if (!FAILED(hr))
+			m_multiSamplingSupported = true;
+		m_maxQualityLevel = maxQuality;
+		if (maxQuality == 0)
+			m_multiSamplingSupported = false;
+
+		if (!m_multiSamplingSupported)
+			return false;
+		if(msaaMaxLevel != nullptr)
+			(*msaaMaxLevel) = m_maxQualityLevel;
+		if(msaaIsEnabled != nullptr)
+		(*msaaIsEnabled) = IsMultiSamplingEnabled();
+	
+		return true;
+	}
+
+	void DeviceResources::DevicePropsCheck(size_t* videoMem,size_t* sharedMem,wchar_t* deviceNameBuffer,int bufferSize)
+	{
+		DXGI_ADAPTER_DESC2 desc;
+		m_dxgi_adapter->GetDesc2(&desc);
+
+
+		if (videoMem != nullptr)
+			(*videoMem) = desc.DedicatedVideoMemory;
+		if (sharedMem != nullptr)
+			(*sharedMem) = desc.SharedSystemMemory;
+		if (deviceNameBuffer != nullptr)
+		{
+			for (int i = 0; i < bufferSize; i++)
+			{
+				if (i > 128)
+					continue;
+				*(deviceNameBuffer + i) = *(desc.Description+i);
+			}
+		}
+	}
+
+	void DeviceResources::CreateInDependentResources()
+	{
+		try
+		{
+			SelectFuture();
 
 			GThrowIfFailed(m_d3d_device->QueryInterface(IID_PPV_ARGS(&m_dxgi_device)));
 
@@ -145,8 +230,6 @@ namespace GNF::Common::Device
 
 			//! Create DXGI Adapter and later we will create swap chain with this factory
 			GThrowIfFailed(m_dxgi_adapter->GetParent(IID_PPV_ARGS(&m_dxgi_factory)));
-
-			//! Now we get DXGI Adapter and Device so we can create D2D Things with them
 			
 			//! Create D2D Device
 			GThrowIfFailed(m_d2d_factory->CreateDevice(m_dxgi_device.Get(), m_d2d_device.GetAddressOf()));
@@ -155,31 +238,18 @@ namespace GNF::Common::Device
 			
 			GThrowIfFailed(m_d2d_device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS::D2D1_DEVICE_CONTEXT_OPTIONS_NONE, m_d2d_deviceContext.GetAddressOf()));
 			
+			//X TODO:
 			//! Create DWrite Device
 			
+			LoadShaderManager();
 
-			//! Load Shaders from shaderManager
-			
-			m_shaderManager->LoadAllShaderTypes();
-
-			//! Bind Basic Shaders
-			auto ps = m_shaderManager->GetShaderBindable(ShaderManagement::CameraTexturePixelShader);
-			auto vs = m_shaderManager->GetShaderBindable(ShaderManagement::CameraTextureVertexShader);
-
-			ps->Bind();
-			vs->Bind();
 
 			m_renderer->InitResources();
 			
-			UINT maxQuality;
-			hr = m_d3d_device->CheckMultisampleQualityLevels(m_backBufferFormat, m_sampleCount, &maxQuality);
-			if (!FAILED(hr))
-				m_multiSamplingSupported = true;
-			m_maxQualityLevel =  maxQuality;
-			if (maxQuality == 0)
-				m_multiSamplingSupported = false;
-			DXGI_ADAPTER_DESC2 desc;
-			m_dxgi_adapter->GetDesc2(&desc);
+			CheckMSAAFeatures();
+
+			DevicePropsCheck();
+
 
 			m_textureManager.reset(new Texture::TextureManager(this));
 
@@ -669,8 +739,8 @@ namespace GNF::Common::Device
 		 //! Grayscale text anti-aliasing
 		 m_d2d_deviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 		 
+		
 		 
-
 
 
 		}

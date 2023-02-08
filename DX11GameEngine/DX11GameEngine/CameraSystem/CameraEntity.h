@@ -22,7 +22,7 @@ namespace GNF::Camera
 
 			CameraEntity();
 			
-			virtual void Update(const float& frameTime) override;
+			virtual void Update(const float frameTime) override;
 
 			virtual void InitResources() override;
 

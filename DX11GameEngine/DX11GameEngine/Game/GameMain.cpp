@@ -11,6 +11,7 @@
 #include "EntitySystem/Cube.h"
 #include <string>
 
+#include <imgui/imgui.h>
 
 namespace GNF::Game
 {
@@ -77,8 +78,13 @@ namespace GNF::Game
 		
 		)));
 
-		CreateEntity(new Camera::CameraEntity());
 		CreateEntity(new Entity::Cube());
+		CreateEntity(new Entity::Cube(2.f,{3.f,0,0}));
+
+		cam.reset(new Camera::CameraSystem(fpsCam));
+		cameraConstBuffer.reset(new Common::Bindable::ConstBufferBindable(GetMainWindow()->GetDeviceResources(), &perObj, sizeof(Camera::cbPerObject)));
+		
+		m_imgui.reset(new Renderer::ImGuiRenderer(pMainWindow->GetHWnd(),GetMainWindow()->GetDeviceResources()));
 
 		return this;
 	}
@@ -101,9 +107,15 @@ namespace GNF::Game
 	GameMain* GameMain::BuildGame(const Window::WindowDesc& desc)
 	{
 		g_gameMain.reset(new GameMain(desc));
+
 		return g_gameMain.get();
 	}
+	void Render()
+	{
+		ImGui::Begin("Merhaba");
 
+		ImGui::End();
+	}
 	int GameMain::Run()
 	{
 		auto m_timer = GetSystem<Timer::ITimerSystem>();
@@ -111,6 +123,9 @@ namespace GNF::Game
 		m_timer->Reset();
 		m_timer->Start();
 		
+
+		m_imgui->PushImGuiRender(Render);
+
 		for (auto& entity : m_entities)
 		{
 			entity->InitResources();
@@ -121,9 +136,22 @@ namespace GNF::Game
 		auto resources = GetMainWindow()->GetDeviceResources();
 		CalculateFPS();
 
+		
+		glm::mat4 fworld = glm::mat4(1.0f);
 
+		auto vm = cam->GetViewProjMatrix();
 
+		//perObj.WVP = (cam->GetWorldViewProjMatrix(world)).Transpose();
+		
+		//perObj.WVP = (cam->GetWorldViewProjMatrix(world)).Transpose();
+		
+		perObj.WVP = glm::transpose(cam->GetWorldViewProjMatrix(world));
+		cameraConstBuffer->Update(&perObj);
 
+		cameraConstBuffer->Bind();
+
+		m_imgui->InitResources();
+		/*
 		//! For Calculating Avarage FPS
 		while (fps == 1)
 		{
@@ -139,9 +167,27 @@ namespace GNF::Game
 					break;
 				}
 			}
+
+
+			//! For Camera
+			fpsCam.Update(m_timer->GetDeltaTimeSeconds());
+
+			auto vm = cam->GetViewProjMatrix();
+
+			//perObj.WVP = (cam->GetWorldViewProjMatrix(world)).Transpose();
+			perObj.WVP = glm::transpose(cam->GetWorldViewProjMatrix(world));
+
+			cameraConstBuffer->Update(&perObj);
+
+			cameraConstBuffer->Bind();
+
 			renderer->StartDraw();
 
 			renderer->Cls();
+
+			m_imgui->Begin();
+			m_imgui->Render();
+			m_imgui->Finish();
 
 			for (auto& drawable : m_drawables)
 			{
@@ -152,6 +198,7 @@ namespace GNF::Game
 
 			m_timer->Tick();
 		}
+		*/
 		//! MAIN LOOP
 		while (1)
 		{
@@ -167,7 +214,25 @@ namespace GNF::Game
 					break;
 				}
 			}
-		
+
+			//! For Camera
+			fpsCam.Update(m_timer->GetDeltaTimeSeconds());
+
+			auto vm = cam->GetViewProjMatrix();
+			
+			//perObj.WVP = (cam->GetWorldViewProjMatrix(world)).Transpose();
+			perObj.WVP = glm::transpose(cam->GetWorldViewProjMatrix(world));
+
+			cameraConstBuffer->Update(&perObj);
+
+			cameraConstBuffer->Bind();
+
+
+			m_imgui->Begin();
+			m_imgui->Render();
+			m_imgui->Finish();
+
+
 			for (auto& entity : m_entities)
 			{
 				entity->Update(1 / fps);
@@ -176,20 +241,18 @@ namespace GNF::Game
 			renderer->StartDraw();
 
 			renderer->Cls();
-			
-			
+						
+
+
 			for (auto& drawable : m_drawables)
 			{
 				renderer->Draw(drawable);
 			}
 
-
-
-
-
 			renderer->EndDraw();
 			
 			m_timer->Tick();
+			
 		}
 	}
 }

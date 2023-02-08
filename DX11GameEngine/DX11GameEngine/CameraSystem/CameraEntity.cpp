@@ -9,7 +9,7 @@ namespace GNF::Camera
 	{
 
 	}
-	void CameraEntity::Update(const float& frameTime)
+	void CameraEntity::Update(const float frameTime)
 	{
 		auto inputs = Game::GameMain::GetInstance()->GetSystem<Input::IInputSystem>();
 		if(inputs->IsKeyPressing(Input::KEY_A) || inputs->IsKeyPressing(Input::KEY_LEFT))
@@ -102,7 +102,7 @@ namespace GNF::Camera
 		World = XMMatrixIdentity();
 
 		WVP = World * camView * camProjection;
-		cbPerObj.WVP = XMMatrixTranspose(WVP);
+		cbPerObj.WVP = WVP;
 		constBuffer.reset(new Common::Bindable::ConstBufferBindable(resources, &cbPerObj, sizeof(cbPerObject)));
 		constBuffer->Bind();
 	}

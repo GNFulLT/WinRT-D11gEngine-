@@ -5,6 +5,8 @@ namespace GNF::Common::Device
 {
 	class IDeviceResources
 	{
+		friend class DebugDeviceResources;
+
 		public:
 			virtual ~IDeviceResources() {}
 

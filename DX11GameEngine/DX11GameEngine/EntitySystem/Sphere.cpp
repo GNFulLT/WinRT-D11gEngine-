@@ -16,7 +16,7 @@ namespace GNF::Entity
 
 	}
 	
-	void Sphere::Update(const float& frameTime)
+	void Sphere::Update(const float frameTime)
 	{
 
 	}
