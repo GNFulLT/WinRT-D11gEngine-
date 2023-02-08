@@ -22,9 +22,6 @@ namespace GNF::Renderer
 		void Begin();
 		void Draw();
 		void Finish();
-		
-		void BeginChild();
-		void FinishChild();
 
 		inline void SetFont(ImGuiFonts font)
 		{
