@@ -6,7 +6,14 @@
 
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevinstance, _In_ LPSTR lpszCmdline, _In_ int nCmdShow)
 {
+	spdlog::set_level(spdlog::level::critical);
 
+	auto game = GNF::Core::Game::Build();
+	game->Init();
+	game->Run();
+	game->Destroy();
+
+	return 0;
 }
 
 #else if

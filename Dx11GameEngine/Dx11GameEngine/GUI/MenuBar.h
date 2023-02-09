@@ -21,10 +21,10 @@ namespace GNF::GUI
 		void Init(ID3D11DeviceContext* context);
 		//!: Should Be Init after the loading fonts and inside PreRender
 		void Init_PreRender();
-		bool RenderSGui();
+		void RenderSGui();
 		
 	private:
-		inline bool RenderMenu();
+		inline void RenderMenu();
 
 
 	private:

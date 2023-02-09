@@ -32,18 +32,16 @@ namespace GNF::GUI
 		}
 	}
 
-	bool MenuBar::RenderSGui()
+	void MenuBar::RenderSGui()
 	{
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding,{4.f,8.f});
-		auto res = RenderMenu();
+		RenderMenu();
 		ImGui::PopStyleVar();
-		return res;
 	}
 
-	inline bool MenuBar::RenderMenu()
+	inline void MenuBar::RenderMenu()
 	{
-		auto res = false;
 		if (ImGui::BeginMainMenuBar())
 		{
 			ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_btnStyle);
@@ -72,12 +70,10 @@ namespace GNF::GUI
 			//!: Draw Right Buttons
 			if (ImGui::Button("-", { g_buttonWidth,0 }))
 			{
-				res = true;
 				Core::Game::GetInstance()->GetWindow()->Minimize();
 			}
 			if (ImGui::Button("A", { g_buttonWidth,0 }))
 			{
-				res = true;
 				isAnyMenuEnabled = true;
 				if (Core::Game::GetInstance()->GetWindow()->IsWindowMaximized())
 				{
@@ -90,7 +86,6 @@ namespace GNF::GUI
 			}
 			if (ImGui::Button("X", { g_buttonWidth,0 }))
 			{
-				res = true;
 				isAnyMenuEnabled = true;
 				Core::Game::GetInstance()->GetWindow()->CloseWindow();
 			}
@@ -140,7 +135,6 @@ namespace GNF::GUI
 			ImGui::PopStyleColor(3);
 			ImGui::EndMainMenuBar();
 
-			return res;
 		}
 	}
 }

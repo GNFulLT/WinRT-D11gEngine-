@@ -129,11 +129,8 @@ namespace GNF::Core
 		ImVec2 m_frameSize;
 		Layout m_layout;
 		bool m_layoutNeedValidate = true;
-		bool m_newFrameSizeCalculated = false;
-		bool m_newFrameSizeShouldBeCalculated = false;
 		mutable SizeChangedSignal m_sizeChangedSignal;
 		bool m_isFirstPreRender = false;
-		bool m_waitForFrame = false;
 		SwapState m_swapState = SwapState::Swap;
 	private:
 		inline static std::unique_ptr<Game> g_instance;

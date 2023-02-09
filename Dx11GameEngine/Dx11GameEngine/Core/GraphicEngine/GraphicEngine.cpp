@@ -5,7 +5,8 @@
 #include "../Game.h"
 #include <DirectXTK/DirectXHelpers.h>
 
-#define DEBUG_GRAPHIC_CARD
+//#define DEBUG_GRAPHIC_CARD
+#define SINGLE_THREADED_GPU
 #ifdef _DEBUG
 #define GIVE_DEBUG_NAME(dxobj,name) GThrowIfFailed( \
 dxobj->SetPrivateData(WKPDID_D3DDebugObjectName,sizeof(name)-1,name)	\
@@ -164,7 +165,7 @@ namespace GNF::Core::GraphicEngine
 	void GraphicEngine::SwapBuffers()
 	{
 	
-		m_dxgi_swapChain->Present(0,0);
+		m_dxgi_swapChain->Present(1,0);
 	}
 
 	/*void GraphicEngine::FrameBuffer_ClearColor()
@@ -270,6 +271,10 @@ namespace GNF::Core::GraphicEngine
 #ifdef DEBUG_GRAPHIC_CARD	
 		deviceCreationFlag |= D3D11_CREATE_DEVICE_DEBUGGABLE;
 #endif
+#ifdef SINGLE_THREADED_GPU
+		deviceCreationFlag |= D3D11_CREATE_DEVICE_SINGLETHREADED;
+#endif
+
 		D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_12_2,D3D_FEATURE_LEVEL_12_1,D3D_FEATURE_LEVEL_12_0,D3D_FEATURE_LEVEL_11_1 };
 		Microsoft::WRL::ComPtr<ID3D11Device> device;
 		GNF::Common::Logger::LogInfo("Creating D3D Device");
@@ -406,7 +411,6 @@ namespace GNF::Core::GraphicEngine
 	{
 
 	}
-	void FrameBuffer_InitRTV_VP(float width, float height);
 
 	void GraphicEngine::Init_RTV()
 	{

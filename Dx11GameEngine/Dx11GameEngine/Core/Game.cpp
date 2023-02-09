@@ -121,11 +121,8 @@ namespace GNF::Core
 			PreRender();
 		}
 		*/
-		if (m_menuBar->RenderSGui())
-		{
-			m_newFrameSizeShouldBeCalculated = true;
+		m_menuBar->RenderSGui();
 
-		}
 	
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
