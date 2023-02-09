@@ -57,6 +57,15 @@ namespace GNF::Core::GraphicEngine
 			return new Bindable::Shader::VertexShaderBindable((void*)pixelShaderByteCode.data(), pixelShaderByteCode.size());
 		}
 		
+		template<>
+		inline Bindable::Shader::VertexShaderBindable* CreateVertexShader<void>(const wchar_t* path)
+		{
+			GNF::Common::Logger::LogInfo("Compiling the vertex shader");
+			auto pixelShaderByteCode = GNF::Common::Utils::ReadData(path);
+			return new Bindable::Shader::VertexShaderBindable((void*)pixelShaderByteCode.data(), pixelShaderByteCode.size());
+
+		}
+
 		template<typename T>
 		inline Bindable::Buffer::VertexBufferBindable* CreateDefaultVertexBuff(const std::vector<T>& data)
 		{
