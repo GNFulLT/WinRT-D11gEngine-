@@ -9,12 +9,28 @@ namespace GNF::Core::Scene
 	{
 		m_entityManager.reset(new EntityManager());
 		m_sceneRenderer.reset(new Renderer::SceneRenderer(width, height, format, device, context));
+		m_textureManager.reset(new TextureManager());
+	}
+
+	void Scene::RenderSGui()
+	{
+		m_entityManager->RenderSGui();
 	}
 
 	void Scene::Init()
 	{
 		m_entityManager->Init();
+		m_textureManager->Init();
 		m_sceneRenderer->Init();
+		
+		auto id = m_textureManager->CreateTexture(L"Assets/1texture.dds");
+
+
+		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();
+		m_triangle->OnCreated();
+		m_triangle->SetTexture(id);
+		m_triangle->ReSetVerticesIndices();
+
 	}
 	ID3D11ShaderResourceView* Scene::GetSceneFrame()
 	{
@@ -35,7 +51,7 @@ namespace GNF::Core::Scene
 	//!: Render Things
 	void Scene::Render()
 	{
-
+		m_triangle->Draw();
 	}
 
 	//!: Update Entities

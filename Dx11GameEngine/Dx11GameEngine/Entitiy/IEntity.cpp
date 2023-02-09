@@ -14,7 +14,7 @@ namespace GNF::Entity
 	void IEntity::SetTexture(Texture::TextureID textureId)
 	{
 		
-		if (Core::Game::GetInstance()->GetTextureManager()->IsTextureAvailable(textureId))
+		if (Core::Game::GetInstance()->GetCurrentTextureManager()->IsTextureAvailable(textureId))
 		{
 			m_textureId = textureId;
 		}
@@ -28,7 +28,7 @@ namespace GNF::Entity
 	void IEntity::Draw()
 	{
 		Core::Game::GetInstance()->GetCamera()->Use(GetModelMatrix());
-		Core::Game::GetInstance()->GetTextureManager()->BindTexture(m_textureId);
+		Core::Game::GetInstance()->GetCurrentTextureManager()->BindTexture(m_textureId);
 		m_vertexBuffer->Bind();
 		m_indexBuffer->Bind();
 		

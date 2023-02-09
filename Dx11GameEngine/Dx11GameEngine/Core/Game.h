@@ -11,7 +11,6 @@
 #include "Renderer/ImGuiRenderer.h"
 #include "GUI/MenuBar.h"
 #include "Scene/EntityManager.h"
-#include "TextureManager.h"
 #include "imgui/imgui.h"
 #include "Scene/Scene.h"
 
@@ -64,9 +63,9 @@ namespace GNF::Core
 			return m_entityManager.get();
 		}*/
 
-		inline TextureManager* GetTextureManager() const noexcept
+		inline TextureManager* GetCurrentTextureManager() const noexcept
 		{
-			return m_textureManager.get();
+			return m_scene->GetTextureManager();
 		}
 
 		inline GNF::Common::Windowing::IWindow* GetWindow() const
@@ -94,6 +93,7 @@ namespace GNF::Core
 		std::weak_ptr<Renderer::ImGuiRenderer> GetImGuiRenderer();
 
 		void RenderSGui();
+		void PreRenderSGui();
 		void FrameSizeChanged();
 		void FixedRender();
 	private:
@@ -116,7 +116,6 @@ namespace GNF::Core
 		
 		
 		//std::unique_ptr<EntityManager> m_entityManager;
-		std::unique_ptr<TextureManager> m_textureManager;
 		std::unique_ptr<GUI::MenuBar> m_menuBar;
 
 		std::unique_ptr<Common::Statistic::Statistic> m_statistic;

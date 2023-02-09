@@ -25,7 +25,6 @@ namespace GNF::Core
 
 		m_currentCamera = "FPS Camera";
 		m_window.reset(wnd);
-		m_textureManager.reset(new TextureManager());
 		m_menuBar.reset(new GUI::MenuBar());
 		//m_scene.reset(new Scene::Scene());
 		//m_entityNode.reset(new GUI::EntityNode());
@@ -74,7 +73,6 @@ namespace GNF::Core
 
 		ImGui::DockBuilderDockWindow("Scene", dock_id_left);
 		ImGui::DockBuilderDockWindow("Output", dock_id_up);
-		ImGui::DockBuilderDockWindow("Prop", dock_id_right_up);
 		ImGui::DockBuilderDockWindow("Dear ImGui Demo", dock_id_right_up);
 		ImGui::DockBuilderDockWindow("Global Settings", dock_id_right_down);
 
@@ -111,7 +109,99 @@ namespace GNF::Core
 	{
 		//m_scene->SceneSizeChanged(m_frameSize.x, m_frameSize.y);
 	}
+	void Game::PreRenderSGui()
+	{
+		m_menuBar->RenderSGui();
 
+
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(viewport->WorkSize);
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::Begin("DockSpace", nullptr, window_flags);
+		ImGuiID m_dockId = ImGui::GetID("##MainDocker");
+		ImGui::PopStyleVar(2);
+
+		/*
+		ImGui::DockSpace(m_dockId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_::ImGuiDockNodeFlags_NoResize
+			| ImGuiDockNodeFlags_PassthruCentralNode);
+
+		ImGui::SetNextWindowDockID(m_dockId, ImGuiCond_::ImGuiCond_Always);
+
+		*/
+		ImGui::DockSpace(m_dockId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_::ImGuiDockNodeFlags_NoResize
+			| ImGuiDockNodeFlags_PassthruCentralNode);
+
+		if (m_layoutNeedValidate)
+		{
+			ValidateLayout(m_dockId);
+			//CalculateFrameScreenBounds();
+			m_layoutNeedValidate = false;
+
+		}
+
+		//m_entityManager->RenderSGui();
+
+		ImGui::ShowDemoWindow();
+
+		/*
+		ImGui::DockSpace(m_dockId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_::ImGuiDockNodeFlags_NoResize
+			| ImGuiDockNodeFlags_PassthruCentralNode);
+		*/
+		/*
+		ImGui::Begin("Styles");
+		ImGui::ShowStyleEditor();
+		ImGui::End();
+		*/
+
+		//ImGui::ShowDemoWindow();
+		//m_scene->RenderSGui();
+		ImGui::Begin("Global Settings");
+		ImGui::Text(std::format("FPS		 : {}", m_fps).c_str());
+		ImGui::Text(std::format("Delta Time : {}", m_deltaTime).c_str());
+		if (ImGui::TreeNode("Camera"))
+		{
+			if (ImGui::BeginCombo("Camera Types", m_currentCamera.c_str()))
+			{
+				if (m_currentCameraIndex != 0)
+				{
+					std::string str = "FPS Camera";
+					bool selected = false;
+					ImGui::Selectable(str.c_str(), &selected);
+					if (selected)
+					{
+						m_currentCamera = str;
+						m_currentCameraIndex = 0;
+					}
+				}
+
+				if (m_currentCameraIndex != 1)
+				{
+					std::string str = "Move To Camera";
+					bool selected = false;
+					ImGui::Selectable(str.c_str(), &selected);
+					if (selected)
+					{
+						m_currentCamera = str;
+						m_currentCameraIndex = 1;
+					}
+				}
+				ImGui::EndCombo();
+			}
+			m_camera->RenderGui();
+			ImGui::TreePop();
+
+		}
+		//m_entityNode->RenderSGui();
+		ImGui::End();
+
+		ImGui::End();
+	}
 	void Game::RenderSGui()
 	{
 		/*
@@ -154,9 +244,6 @@ namespace GNF::Core
 			m_layoutNeedValidate = false;
 			
 		}
-		
-		ImGui::Begin("Prop");
-		ImGui::End();
 
 		//m_entityManager->RenderSGui();
 		
@@ -173,6 +260,7 @@ namespace GNF::Core
 		*/
 		
 		//ImGui::ShowDemoWindow();
+		m_scene->RenderSGui();
 		ImGui::Begin("Global Settings");
 		ImGui::Text(std::format("FPS		 : {}",m_fps).c_str());
 		ImGui::Text(std::format("Delta Time : {}", m_deltaTime).c_str());
@@ -220,7 +308,7 @@ namespace GNF::Core
 	{
 		//CalculateFrameScreenBounds();
 		engine.SetWindow(hwnd,width,height,isFullScreen, GetDpiForWindow(hwnd));
-		m_textureManager->Init();
+
 		m_vertexShader.reset(engine.CreateVertexShader<GNF::Core::VertexBuffer::OnlyVertexBuffer>(L"./SimpleVertexShader.cso"));
 		m_pixelShader.reset(engine.CreatePixelShader(L"./SimplePixelShader.cso"));
 		
@@ -288,7 +376,7 @@ namespace GNF::Core
 		engine.SetViewPort();
 
 		m_imgui->Begin();
-		RenderSGui();
+		PreRenderSGui();
 		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
 
 		m_frameSize = ImGui::GetContentRegionAvail();
@@ -308,12 +396,11 @@ namespace GNF::Core
 		
 		m_imgui->Begin();
 		m_menuBar->Init_PreRender();
-		RenderSGui();
+		PreRenderSGui();
 		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
 		
 		m_frameSize = ImGui::GetContentRegionAvail();
 		m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
-		m_scene->Init();
 		m_scene->Init();
 		ImGui::End();
 
@@ -345,7 +432,6 @@ namespace GNF::Core
 		//m_triangle->OnCreated();
 		//m_triangle->ReSetVerticesIndices();
 		//m_triangle1->ReSetVerticesIndices();
-		auto id = m_textureManager->CreateTexture(L"Assets/1texture.dds");
 		//m_triangle->SetTexture(id);
 		while (m_window->IsOpen())
 		{
@@ -381,7 +467,9 @@ namespace GNF::Core
 			*/
 			
 			m_scene->AsRenderTarget();
+			m_vertexShader->Bind();
 
+			m_pixelShader->Bind();
 			m_scene->Update();
 
 			m_scene->Render();

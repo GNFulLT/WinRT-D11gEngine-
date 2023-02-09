@@ -163,8 +163,8 @@
     <ClCompile Include="Core\GraphicEngine\GraphicEngine.cpp" />
     <ClCompile Include="Core\Scene\EntityManager.cpp" />
     <ClCompile Include="Core\Scene\Scene.cpp" />
+    <ClCompile Include="Core\Scene\TextureManager.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
-    <ClCompile Include="Core\TextureManager.cpp" />
     <ClCompile Include="directx_wrapper.cpp" />
     <ClCompile Include="Entitiy\IEntity.cpp" />
     <ClCompile Include="Entitiy\Triangle2D.cpp" />
@@ -210,10 +210,10 @@
     <ClInclude Include="Core\GraphicEngine\GraphicEngine.h" />
     <ClInclude Include="Core\Scene\EntityManager.h" />
     <ClInclude Include="Core\Scene\Scene.h" />
+    <ClInclude Include="Core\Scene\TextureManager.h" />
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\State\IState.h" />
     <ClInclude Include="Core\Texture.h" />
-    <ClInclude Include="Core\TextureManager.h" />
     <ClInclude Include="Core\VertexBuffer\IVertexBuffer.h" />
     <ClInclude Include="Core\VertexBuffer\OnlyVertexBuffer.h" />
     <ClInclude Include="directx_wrapper.h" />

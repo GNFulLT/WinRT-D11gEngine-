@@ -124,9 +124,6 @@
     <ClCompile Include="Core\Skybox.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\TextureManager.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Bindable\Miscellaneous\TextureBindable.cpp">
       <Filter>Core\Bindable\Miscellaneous</Filter>
     </ClCompile>
@@ -140,6 +137,9 @@
       <Filter>Core\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Core\Scene\EntityManager.cpp">
+      <Filter>Core\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene\TextureManager.cpp">
       <Filter>Core\Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -252,9 +252,6 @@
     <ClInclude Include="Core\Skybox.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\TextureManager.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\Bindable\Miscellaneous\TextureBindable.h">
       <Filter>Core\Bindable\Miscellaneous</Filter>
     </ClInclude>
@@ -271,6 +268,9 @@
       <Filter>Core\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Core\Scene\EntityManager.h">
+      <Filter>Core\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene\TextureManager.h">
       <Filter>Core\Scene</Filter>
     </ClInclude>
   </ItemGroup>
