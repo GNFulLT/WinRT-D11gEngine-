@@ -26,13 +26,7 @@ namespace GNF::Core::Scene
 		void Render();
 		void AsRenderTarget();
 		ID3D11ShaderResourceView* GetSceneFrame();
-	
-		//!: Inlines
-	public:
-		inline TextureManager* GetTextureManager() const noexcept
-		{
-			return m_textureManager.get();
-		}
+
 	private:
 		UINT m_width;
 		UINT m_height;
@@ -40,7 +34,6 @@ namespace GNF::Core::Scene
 		std::unique_ptr<Renderer::SceneRenderer> m_sceneRenderer;
 		std::shared_ptr<Entity::IEntity> m_triangle;
 		std::shared_ptr<Entity::IEntity> m_triangle2;
-		std::unique_ptr<TextureManager> m_textureManager;
 		std::unique_ptr<EntityManager> m_entityManager;
 	};
 }

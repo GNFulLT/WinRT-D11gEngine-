@@ -25,21 +25,53 @@ namespace GNF::Texturing
 
 		CD3D11_TEXTURE2D_DESC1 desc1(desc, layout);
 
-		D3D11_SUBRESOURCE_DATA initData;
-		initData.pSysMem = img->m_rawImage->pixels;
-		initData.SysMemPitch = img->m_rawImage->rowPitch;
-		initData.SysMemSlicePitch = img->m_rawImage->slicePitch;
-
-		ID3D11Texture2D1* texture;
-		auto hr = device->CreateTexture2D1(&desc1, &initData,&texture );
-		
-		if (FAILED(hr))
+		if (img->IsCubemap())
 		{
-			return hr;
+			desc1.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 		}
 
-		CD3D11_SHADER_RESOURCE_VIEW_DESC1 srvDesc1(texture, D3D11_SRV_DIMENSION::D3D10_1_SRV_DIMENSION_TEXTURE2D);
+		ID3D11Texture2D1* texture;
 
+		HRESULT hr = S_OK;
+		if (img->IsCubemap())
+		{
+			D3D11_SUBRESOURCE_DATA initData[6];
+			for (int i = 0; i < 6; i++)
+			{
+				auto selectedImg = img->m_image.GetImage(0, i, 0);
+				initData[i].pSysMem = img->m_image.GetImage(0,i,0)->pixels;
+				initData[i].SysMemPitch = img->m_rawImage->rowPitch;
+				initData[i].SysMemSlicePitch = img->m_rawImage->slicePitch;
+			}
+			hr = device->CreateTexture2D1(&desc1, initData, &texture);
+
+			if (FAILED(hr))
+			{
+				return hr;
+			}
+		}
+		else
+		{
+			D3D11_SUBRESOURCE_DATA initData;
+			initData.pSysMem = img->m_image.GetPixels();
+			initData.SysMemPitch = img->m_rawImage->rowPitch;
+			initData.SysMemSlicePitch = img->m_rawImage->slicePitch;
+
+			hr = device->CreateTexture2D1(&desc1, &initData, &texture);
+
+			if (FAILED(hr))
+			{
+				return hr;
+			}
+		}
+		
+
+		CD3D11_SHADER_RESOURCE_VIEW_DESC1 srvDesc1(texture, D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D);
+
+		if (img->IsCubemap())
+		{
+			srvDesc1 = CD3D11_SHADER_RESOURCE_VIEW_DESC1(texture, D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURECUBE);
+		}
 		hr = device->CreateShaderResourceView1(texture, &srvDesc1, srv);
 
 		return hr;
@@ -54,8 +86,8 @@ namespace GNF::Texturing
 		
 		
 		auto img = CreateInstanceFromResponsibleImage();
-		DirectX::ScratchImage* cubeFace = &img->m_image;
-		auto hr = cubeFace->InitializeCube(pImage->GetFormat(), newWidth, newHeight, 1, 1);
+		DirectX::ScratchImage cubeFace;
+		auto hr = cubeFace.InitializeCube(pImage->GetFormat(), newWidth, newHeight, 1, 1);
 
 		if (FAILED(hr))
 		{
@@ -63,7 +95,7 @@ namespace GNF::Texturing
 		}
 		
 		auto src = pImage->m_image.GetImages()->pixels;
-		auto dst = cubeFace->GetImages()->pixels;
+		auto dst = cubeFace.GetImages()->pixels;
 		auto pixelSize = DirectX::BitsPerPixel(pImage->GetFormat());
 		
 		//!: Iterate faces
@@ -126,9 +158,27 @@ namespace GNF::Texturing
 			}
 		}
 
+		if (newWidth > newHeight)
+		{
+			hr = DirectX::Resize(cubeFace.GetImages(), 6, cubeFace.GetMetadata(), (size_t)newWidth, (size_t)newWidth, DirectX::TEX_FILTER_CUBIC, img->m_image);
+
+		}
+		else
+		{
+			hr = DirectX::Resize(cubeFace.GetImages(), 6, cubeFace.GetMetadata(), (size_t)newHeight, (size_t)newHeight, DirectX::TEX_FILTER_CUBIC, img->m_image);
+		}
+		
+		if (FAILED(hr))
+		{
+			delete img;
+			return hr;
+		}
+
 		(*outImg) = img;
 	
 		img->InitPrivateData();
 		img->m_metaData = img->m_image.GetMetadata();
+
+		return S_OK;
 	}
 }

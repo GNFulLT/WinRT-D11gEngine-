@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Scene.h"
-
+#include "../Game.h"
 
 namespace GNF::Core::Scene
 {
@@ -9,7 +9,6 @@ namespace GNF::Core::Scene
 	{
 		m_entityManager.reset(new EntityManager());
 		m_sceneRenderer.reset(new Renderer::SceneRenderer(width, height, format, device, context));
-		m_textureManager.reset(new TextureManager());
 	}
 
 	void Scene::RenderSGui()
@@ -20,18 +19,14 @@ namespace GNF::Core::Scene
 	void Scene::Init()
 	{
 		m_entityManager->Init();
-		m_textureManager->Init();
 		m_sceneRenderer->Init();
 		
-		auto id = m_textureManager->CreateImage(L"Assets/bg.hdr");
+		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateTexture(L"Assets/1texture.dds");
 
-		bool succeed = m_textureManager->ChangeImageToCubemap(id);
-
-		auto textureID = m_textureManager->CreateTextureFromImageAndDelete(id);
 
 		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();
 		m_triangle->OnCreated();
-		m_triangle->SetTexture(textureID);
+		m_triangle->SetTexture(id);
 		m_triangle->ReSetVerticesIndices();
 
 	}

@@ -26,6 +26,8 @@ namespace GNF::Core
 		m_currentCamera = "FPS Camera";
 		m_window.reset(wnd);
 		m_menuBar.reset(new GUI::MenuBar());
+		m_textureManager.reset(new TextureManager());
+		m_skybox.reset(new Skybox());
 		//m_scene.reset(new Scene::Scene());
 		//m_entityNode.reset(new GUI::EntityNode());
 
@@ -364,8 +366,9 @@ namespace GNF::Core
 	{
 		//m_entityManager.reset(new EntityManager());
 		engine.Init();
+		m_textureManager->Init();
 		m_window->Init();
-		
+		m_skybox->Init(L"Assets/bg.hdr");
 	}
 	std::weak_ptr<Renderer::ImGuiRenderer> Game::GetImGuiRenderer()
 	{

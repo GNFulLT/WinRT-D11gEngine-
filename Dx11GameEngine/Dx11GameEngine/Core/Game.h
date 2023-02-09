@@ -13,7 +13,7 @@
 #include "Scene/EntityManager.h"
 #include "imgui/imgui.h"
 #include "Scene/Scene.h"
-
+#include "Skybox.h"
 //X: Change this
 #include "GUI/EntityNode.h"
 
@@ -65,7 +65,7 @@ namespace GNF::Core
 
 		inline TextureManager* GetCurrentTextureManager() const noexcept
 		{
-			return m_scene->GetTextureManager();
+			return m_textureManager.get();
 		}
 
 		inline GNF::Common::Windowing::IWindow* GetWindow() const
@@ -113,7 +113,7 @@ namespace GNF::Core
 		
 		std::unique_ptr<Bindable::Shader::PixelShaderBindable> m_pixelShader;
 		std::unique_ptr<Bindable::Shader::VertexShaderBindable> m_vertexShader;
-		
+		std::unique_ptr<Skybox> m_skybox;
 		
 		//std::unique_ptr<EntityManager> m_entityManager;
 		std::unique_ptr<GUI::MenuBar> m_menuBar;
@@ -123,6 +123,8 @@ namespace GNF::Core
 		std::unique_ptr<Common::Camera::Camera> m_camera;
 		std::shared_ptr<Renderer::ImGuiRenderer> m_imgui;
 		std::unique_ptr<Scene::Scene> m_scene;
+		std::unique_ptr<TextureManager> m_textureManager;
+
 		//std::shared_ptr<Entity::IEntity> m_triangle;
 		//std::shared_ptr<Entity::IEntity> m_triangle1;
 
