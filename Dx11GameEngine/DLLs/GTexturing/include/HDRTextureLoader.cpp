@@ -17,7 +17,7 @@ namespace GNF::Texturing
 		m_logCritical = logCritical;
 		m_debugMode = true;
 	}
-	HRESULT HDRTextureLoader::GLoadImage(const wchar_t* path, Image::IImage** ppImg)
+	HRESULT HDRTextureLoader::GLoadImage(_In_ const wchar_t* path, _Out_opt_ Image::IImage** ppImg)
 	{
 		if (m_debugMode)
 		{
@@ -40,7 +40,7 @@ namespace GNF::Texturing
 			return false;
 		}
 	}
-	HRESULT HDRTextureLoader::GLoadImage_DBG(const wchar_t* path, Image::IImage** ppImg)
+	HRESULT HDRTextureLoader::GLoadImage_DBG(_In_ const wchar_t* path, _Out_opt_ Image::IImage** ppImg)
 	{
 		if (ppImg == nullptr)
 		{
@@ -86,7 +86,7 @@ namespace GNF::Texturing
 		return S_OK;
 	
 	}
-	HRESULT HDRTextureLoader::GLoadImage_NONDBG(const wchar_t* path, Image::IImage** ppImg)
+	HRESULT HDRTextureLoader::GLoadImage_NONDBG(_In_ const wchar_t* path, _Out_opt_ Image::IImage** ppImg)
 	{
 		if (ppImg == nullptr)
 		{
@@ -116,7 +116,7 @@ namespace GNF::Texturing
 		}
 
 		hr = DirectX::LoadFromHDRFile(path, &imag->m_metaData, imag->m_image);
-
+		
 		if (FAILED(hr))
 		{
 			return hr;
@@ -129,5 +129,9 @@ namespace GNF::Texturing
 	ID3D11Device3* HDRTextureLoader::GetDevice()
 	{
 		return m_device;
+	}
+	Image::IImage* HDRTextureLoader::CreateInstanceFromResponsibleImage()
+	{
+		return new Image::HDRImage();
 	}
 }

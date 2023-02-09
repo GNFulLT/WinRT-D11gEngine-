@@ -44,6 +44,8 @@ namespace GNF::Texturing
 		);
 		ID3D11Device3* GetDevice() override;
 	private:
+		virtual Image::IImage* CreateInstanceFromResponsibleImage() override;
+
 		ID3D11Device3* m_device;
 		DDS_READ_FLAG m_selectedFlag = DEFAULT;
 	private:

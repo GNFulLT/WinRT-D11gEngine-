@@ -255,9 +255,6 @@
     <ClInclude Include="Core\Bindable\Miscellaneous\TextureBindable.h">
       <Filter>Core\Bindable\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Texture.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\IFixedWindowChild.h">
       <Filter>GUI</Filter>
     </ClInclude>

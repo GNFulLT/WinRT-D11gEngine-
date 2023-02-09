@@ -32,6 +32,12 @@ namespace GNF::Core
 		void Init();
 		Texture::TextureID CreateTexture(const wchar_t* filepath);
 
+		Image::ImageID CreateImage(const wchar_t* filePath);
+		
+		Texture::TextureID CreateTextureFromImageAndDelete(Image::ImageID id);
+
+		bool IsImageAvailable(Image::ImageID id);
+		bool ChangeImageToCubemap(Image::ImageID id);
 		void BindTexture(Texture::TextureID id,Texture::TextureState state = Texture::DEFAULT);
 		bool IsTextureAvailable(Texture::TextureID id);
 		Image::ImageType GetImageTypeFromPath(const wchar_t* path);
@@ -40,6 +46,7 @@ namespace GNF::Core
 		HRESULT LoadeImage(const wchar_t* filePath,Image::IImage** pPImage);
 	private:
 		std::unordered_map<Texture::TextureID, std::unique_ptr<Core::Bindable::Miscellaneous::TextureBindable>> m_textureMap;
+
 		std::unordered_map<Image::ImageID, std::unique_ptr<Image::IImage>> m_imageMap;
 
 		std::unordered_map<Texture::TextureState, Microsoft::WRL::ComPtr<ID3D11SamplerState>> m_stateMap;

@@ -38,6 +38,11 @@ namespace GNF::Texturing
 		return m_device;
 	}
 
+	Image::IImage* DDSTextureLoader::CreateInstanceFromResponsibleImage()
+	{
+		return new Image::DDSImage();
+	}
+
 	HRESULT DDSTextureLoader::GLoadImage_DBG(
 		_In_ const wchar_t* path,
 		_Out_opt_ Image::IImage** img

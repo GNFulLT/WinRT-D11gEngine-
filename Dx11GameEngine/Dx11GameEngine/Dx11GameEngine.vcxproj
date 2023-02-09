@@ -213,7 +213,6 @@
     <ClInclude Include="Core\Scene\TextureManager.h" />
     <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="Core\State\IState.h" />
-    <ClInclude Include="Core\Texture.h" />
     <ClInclude Include="Core\VertexBuffer\IVertexBuffer.h" />
     <ClInclude Include="Core\VertexBuffer\OnlyVertexBuffer.h" />
     <ClInclude Include="directx_wrapper.h" />

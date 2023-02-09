@@ -38,6 +38,11 @@ namespace GNF::Texturing
 			_In_opt_ UINT cpuaccessFlag = 0
 		);
 
+		virtual HRESULT ConvertImageToCubemap(
+			_In_ Image::IImage* pImage,_Out_opt_ Image::IImage** outImg);
+
+	private:
+		virtual Image::IImage* CreateInstanceFromResponsibleImage() = 0;
 	private:
 	};
 }

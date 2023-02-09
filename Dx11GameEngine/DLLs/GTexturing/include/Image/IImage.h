@@ -41,6 +41,8 @@ namespace GNF::Image
 
 		virtual ImageType GetImageType() const = 0;
 
+		virtual const bool IsCubemap() const noexcept;
+
 	protected:
 		DirectX::ScratchImage m_image;
 		DirectX::TexMetadata m_metaData;

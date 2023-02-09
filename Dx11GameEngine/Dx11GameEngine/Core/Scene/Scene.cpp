@@ -23,12 +23,15 @@ namespace GNF::Core::Scene
 		m_textureManager->Init();
 		m_sceneRenderer->Init();
 		
-		auto id = m_textureManager->CreateTexture(L"Assets/bg.hdr");
+		auto id = m_textureManager->CreateImage(L"Assets/bg.hdr");
 
+		bool succeed = m_textureManager->ChangeImageToCubemap(id);
+
+		auto textureID = m_textureManager->CreateTextureFromImageAndDelete(id);
 
 		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();
 		m_triangle->OnCreated();
-		m_triangle->SetTexture(id);
+		m_triangle->SetTexture(textureID);
 		m_triangle->ReSetVerticesIndices();
 
 	}

@@ -38,6 +38,7 @@ namespace GNF::Texturing
 		ID3D11Device3* GetDevice() override;
 
 	private:
+		virtual Image::IImage* CreateInstanceFromResponsibleImage() override;
 		ID3D11Device3* m_device;
 	private:
 		std::function<void(const char*)> m_logDebug;

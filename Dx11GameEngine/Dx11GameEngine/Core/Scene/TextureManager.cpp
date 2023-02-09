@@ -55,6 +55,38 @@ namespace GNF::Core
 		return m_textureMap.find(id) != m_textureMap.end();
 	}
 
+	bool TextureManager::ChangeImageToCubemap(Image::ImageID id)
+	{
+		Image::IImage* selectedImage = nullptr ;
+		auto hr = S_OK;
+		switch (m_imageMap[id]->GetImageType())
+		{
+		case Image::DDS:
+			hr = m_ddsTextureLoader->ConvertImageToCubemap(m_imageMap[id].get(), &selectedImage);
+			break;
+		case Image::HDR:
+			hr = m_hdrTextureLoader->ConvertImageToCubemap(m_imageMap[id].get(),&selectedImage);
+			break;
+		default:
+			throw std::runtime_error("Not implemented image type for cubemapping");
+			break;
+		}
+
+		if (FAILED(hr))
+		{
+			return false;
+		}
+
+		if (selectedImage->IsCubemap())
+		{
+			m_imageMap.erase(id);
+			m_imageMap.emplace(id, selectedImage);
+			return true;
+		}
+		delete selectedImage;
+		return false;
+	}
+
 	void TextureManager::BindTexture(Texture::TextureID id,Texture::TextureState state)
 	{
 		if (id == 0)
@@ -110,14 +142,42 @@ namespace GNF::Core
 		
 		auto texture = new Core::Bindable::Miscellaneous::TextureBindable(m_ddsTextureLoader.get(), pImage);
 		Texture::TextureID textureId = Common::Utils::CreateUniqueID();
-		Image::ImageID imgId = Common::Utils::CreateUniqueID();
 
 		m_textureMap.emplace(textureId, texture);
 
 		delete pImage;
-		//m_imageMap.emplace(imgId,pImage);
 
 		return textureId;
+	}
+
+	Image::ImageID TextureManager::CreateImage(const wchar_t* filePath)
+	{
+		Image::IImage* img;
+		auto hr = LoadeImage(filePath, &img);
+		if (FAILED(hr))
+			return 0;
+		Image::ImageID imgId = Common::Utils::CreateUniqueID();
+		
+		m_imageMap.emplace(imgId, img);
+		bool a = img->IsCubemap();
+		return imgId;
+	}
+
+	Texture::TextureID TextureManager::CreateTextureFromImageAndDelete(Image::ImageID id)
+	{
+		auto texture = new Core::Bindable::Miscellaneous::TextureBindable(m_ddsTextureLoader.get(), m_imageMap[id].get());
+		Texture::TextureID textureId = Common::Utils::CreateUniqueID();
+
+		m_textureMap.emplace(textureId, texture);
+
+		m_imageMap.erase(id);
+
+		return textureId;
+	}
+
+	bool TextureManager::IsImageAvailable(Image::ImageID id)
+	{
+		return m_imageMap.find(id) != m_imageMap.end();
 	}
 
 	HRESULT TextureManager::LoadeImage(const wchar_t* filePath, Image::IImage** ppImage)
