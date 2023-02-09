@@ -15,7 +15,7 @@ namespace GNF::GUI
 
 	void IFixedWindowChild::Init()
 	{
-		Core::Game::GetInstance()->AddWindowSizeChanged(boost::bind(&IFixedWindowChild::OnWindowSizeChanged, this, _1, _2,_3));
+		sizeChangedConnection = Core::Game::GetInstance()->AddWindowSizeChanged(boost::bind(&IFixedWindowChild::OnWindowSizeChanged, this, _1, _2,_3));
 		m_height = Core::Game::GetInstance()->GetWindow()->GetHeight()* m_heightP;
 		m_width = Core::Game::GetInstance()->GetWindow()->GetHeight() * m_widthP;
 		

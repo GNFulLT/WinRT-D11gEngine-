@@ -109,7 +109,7 @@ namespace GNF::Core
 
 	void Game::FrameSizeChanged()
 	{
-		m_scene->SceneSizeChanged(m_frameSize.x, m_frameSize.y);
+		//m_scene->SceneSizeChanged(m_frameSize.x, m_frameSize.y);
 	}
 
 	void Game::RenderSGui()
@@ -282,6 +282,23 @@ namespace GNF::Core
 	{
 		return m_imgui;
 	}
+	void Game::FixedRender()
+	{
+		engine.SetRenderTarget();
+		engine.SetViewPort();
+
+		m_imgui->Begin();
+		RenderSGui();
+		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
+
+		m_frameSize = ImGui::GetContentRegionAvail();
+		ImGui::End();
+
+		m_imgui->Finish();
+		
+		FrameSizeChanged();
+
+	}
 
 	void Game::PreRender()
 	{
@@ -295,15 +312,8 @@ namespace GNF::Core
 		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
 		
 		m_frameSize = ImGui::GetContentRegionAvail();
-		if (m_scene.get() == nullptr)
-		{
-			m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
-			m_scene->Init();
-		}
-		else
-		{
-			FrameSizeChanged();
-		}
+		m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
+		m_scene->Init();
 		m_scene->Init();
 		ImGui::End();
 
@@ -324,9 +334,7 @@ namespace GNF::Core
 		double tickCount = 0;
 		double endTick = 0;
 		//m_menuBar->Init();
-		m_isFirstPreRender = true;
 		PreRender();
-		m_isFirstPreRender = false;
 		//auto triWeak = m_entityManager->CreateTriangle2D(1.f,{0,1.f,0});
 		//auto triWeak2 = m_entityManager->CreateTriangle2D(2.f, { 5.f,1.f,0 });
 
@@ -422,7 +430,7 @@ namespace GNF::Core
 			case NeedResize:
 				engine.SwapBuffers();
 				m_window->HandleEventsIfAny();
-				PreRender();
+				FixedRender();
 				m_swapState = Swap;
 				break;
 			}

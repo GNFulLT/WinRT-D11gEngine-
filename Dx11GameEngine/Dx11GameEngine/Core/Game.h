@@ -95,6 +95,7 @@ namespace GNF::Core
 
 		void RenderSGui();
 		void FrameSizeChanged();
+		void FixedRender();
 	private:
 		Game(const char* gameName);
 
@@ -126,11 +127,12 @@ namespace GNF::Core
 		//std::shared_ptr<Entity::IEntity> m_triangle;
 		//std::shared_ptr<Entity::IEntity> m_triangle1;
 
+
+
 		ImVec2 m_frameSize;
 		Layout m_layout;
 		bool m_layoutNeedValidate = true;
 		mutable SizeChangedSignal m_sizeChangedSignal;
-		bool m_isFirstPreRender = false;
 		SwapState m_swapState = SwapState::Swap;
 	private:
 		inline static std::unique_ptr<Game> g_instance;
