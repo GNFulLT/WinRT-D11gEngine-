@@ -29,6 +29,10 @@ namespace GNF::Core
 		float rightDownAlignment = 0.3f;
 	};
 
+	enum SwapState
+	{
+		Swap = 0,NeedResize
+	};
 
 	typedef boost::signals2::signal<void(int width,int height,bool isFullSize)> SizeChangedSignal;
 
@@ -130,6 +134,7 @@ namespace GNF::Core
 		mutable SizeChangedSignal m_sizeChangedSignal;
 		bool m_isFirstPreRender = false;
 		bool m_waitForFrame = false;
+		SwapState m_swapState = SwapState::Swap;
 	private:
 		inline static std::unique_ptr<Game> g_instance;
 	private:

@@ -37,7 +37,7 @@ namespace GNF::Core
 		//m_newFrameSizeShouldBeCalculated = true;
 		engine.Resize(width, height, isFullScreen, dpi);
 		m_sizeChangedSignal(width, height, isFullScreen);
-
+		m_swapState = SwapState::NeedResize;
 		//m_layoutNeedValidate = true;
 	}
 
@@ -298,13 +298,19 @@ namespace GNF::Core
 		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
 		
 		m_frameSize = ImGui::GetContentRegionAvail();
-
-		m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
+		if (m_scene.get() == nullptr)
+		{
+			m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
+			m_scene->Init();
+		}
+		else
+		{
+			FrameSizeChanged();
+		}
 		m_scene->Init();
 		ImGui::End();
 
 		m_imgui->Finish();
-		engine.SwapBuffers();
 		m_window->HandleEventsIfAny();
 	}
 
@@ -368,7 +374,7 @@ namespace GNF::Core
 			//!: Render Scene Method. Creates the Frame Buffer Texture
 			Render();
 			*/
-
+			
 			m_scene->AsRenderTarget();
 
 			m_scene->Update();
@@ -376,7 +382,7 @@ namespace GNF::Core
 			m_scene->Render();
 
 			auto frame = m_scene->GetSceneFrame();
-
+			
 			engine.SetRenderTarget();
 			engine.SetViewPort();
 			engine.ClearColor(1.f, 0.f, 0.f, 1.f);
@@ -390,6 +396,9 @@ namespace GNF::Core
 			ImGui::End();
 			
 			ImGui::Begin("Output",0, ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+			ImGui::Image(frame, m_frameSize);
+
+			/*
 			if (m_newFrameSizeCalculated)
 			{
 				m_frameSize = ImGui::GetContentRegionAvail();
@@ -401,16 +410,28 @@ namespace GNF::Core
 			{
 				ImGui::Image(frame, m_frameSize);
 			}
-			
+			*/
 			ImGui::End();
 			m_imgui->Finish();
 			
 
 
-
+			switch (m_swapState)
+			{
+			case Swap:
+				engine.SwapBuffers();
+				m_window->HandleEventsIfAny();
+				break;
+			case NeedResize:
+				engine.SwapBuffers();
+				m_window->HandleEventsIfAny();
+				PreRender();
+				m_swapState = Swap;
+				break;
+			}
 
 			//!: SwapBuff
-
+			/*
 			if (m_newFrameSizeShouldBeCalculated)
 			{
 				m_newFrameSizeCalculated = true;
@@ -428,8 +449,7 @@ namespace GNF::Core
 					engine.SwapBuffers();
 				}
 			}
-
-			m_window->HandleEventsIfAny();
+			*/
 
 		}
 	}
