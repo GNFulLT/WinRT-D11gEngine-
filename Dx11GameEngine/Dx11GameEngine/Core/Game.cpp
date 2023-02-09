@@ -75,6 +75,7 @@ namespace GNF::Core
 		ImGui::DockBuilderDockWindow("Output", dock_id_up);
 		ImGui::DockBuilderDockWindow("Dear ImGui Demo", dock_id_right_up);
 		ImGui::DockBuilderDockWindow("Global Settings", dock_id_right_down);
+		ImGui::DockBuilderDockWindow("Styles", dock_id_right_up);
 
 		ImGui::DockBuilderDockWindow("Properties", dock_id_right_down);
 		ImGui::DockBuilderFinish(m_dockId);
@@ -253,11 +254,11 @@ namespace GNF::Core
 		ImGui::DockSpace(m_dockId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_::ImGuiDockNodeFlags_NoResize
 			| ImGuiDockNodeFlags_PassthruCentralNode);
 		*/
-		/*
+		
 		ImGui::Begin("Styles");
 		ImGui::ShowStyleEditor();
 		ImGui::End();
-		*/
+		
 		
 		//ImGui::ShowDemoWindow();
 		m_scene->RenderSGui();
