@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TextureManager.h"
 
-#include "Game.h"
+#include "../Game.h"
 #include "Common/Utils/utils_common.h"
 #include <boost/filesystem.hpp>
 namespace GNF::Core
@@ -23,6 +23,7 @@ namespace GNF::Core
 		Common::Logger::LogDebug("Effect Factory is created");
 		Common::Logger::LogDebug("DDSTextureLoader is creating for texturing");
 		m_ddsTextureLoader.reset(new Texturing::DDSTextureLoader(Core::Game::GetInstance()->GetGraphicEngine()->GetD3DDevice(),&LogDebug,&LogCritical));
+		m_hdrTextureLoader.reset(new Texturing::HDRTextureLoader(Core::Game::GetInstance()->GetGraphicEngine()->GetD3DDevice(), &LogDebug, &LogCritical));
 		Common::Logger::LogDebug("DDSTextureLoader is created");
 		InitDefaultState();
 	}
@@ -109,9 +110,12 @@ namespace GNF::Core
 		
 		auto texture = new Core::Bindable::Miscellaneous::TextureBindable(m_ddsTextureLoader.get(), pImage);
 		Texture::TextureID textureId = Common::Utils::CreateUniqueID();
+		Image::ImageID imgId = Common::Utils::CreateUniqueID();
+
 		m_textureMap.emplace(textureId, texture);
 
 		delete pImage;
+		//m_imageMap.emplace(imgId,pImage);
 
 		return textureId;
 	}
@@ -129,6 +133,11 @@ namespace GNF::Core
 		case Image::DDS:
 			{
 				hr = m_ddsTextureLoader->GLoadImage(filePath, ppImage);
+				break;
+			}
+		case Image::HDR:
+			{
+				hr = m_hdrTextureLoader->GLoadImage(filePath, ppImage);
 				break;
 			}
 		}

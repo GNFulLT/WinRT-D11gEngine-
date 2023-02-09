@@ -8,7 +8,7 @@
 #include <DirectXTK/Effects.h>
 #include "Core/Bindable/Miscellaneous/TextureBindable.h"
 #include <DDSTextureLoader.h>
-
+#include <HDRTextureLoader.h>
 namespace GNF::Texture
 {
 	enum TextureState
@@ -45,13 +45,15 @@ namespace GNF::Core
 		std::unordered_map<Texture::TextureState, Microsoft::WRL::ComPtr<ID3D11SamplerState>> m_stateMap;
 		std::unique_ptr<DirectX::EffectFactory> m_effectFactory;
 		std::unique_ptr<Texturing::DDSTextureLoader> m_ddsTextureLoader;
+		std::unique_ptr<Texturing::HDRTextureLoader> m_hdrTextureLoader;
 		Core::Bindable::Miscellaneous::TextureBindable* m_bindedTexture;
 		Texture::TextureState m_textureState = Texture::NONE;
 	private:
 		
 		inline static std::unordered_map<std::wstring, Image::ImageType> m_extensionMap =
 		{
-			REX(.dds,Image::DDS)
+			REX(.dds,Image::DDS),
+			REX(.hdr,Image::HDR)
 		};
 
 		friend class Core::Bindable::Miscellaneous::TextureBindable;

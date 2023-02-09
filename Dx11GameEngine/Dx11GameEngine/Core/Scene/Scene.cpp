@@ -23,7 +23,7 @@ namespace GNF::Core::Scene
 		m_textureManager->Init();
 		m_sceneRenderer->Init();
 		
-		auto id = m_textureManager->CreateTexture(L"Assets/1texture.dds");
+		auto id = m_textureManager->CreateTexture(L"Assets/bg.hdr");
 
 
 		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();

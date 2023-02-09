@@ -168,7 +168,9 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="include\DDSTextureLoader.h" />
+    <ClInclude Include="include\HDRTextureLoader.h" />
     <ClInclude Include="include\Image\DDSImage.h" />
+    <ClInclude Include="include\Image\HDRImage.h" />
     <ClInclude Include="include\Image\IImage.h" />
     <ClInclude Include="include\ITextureLoader.h" />
     <ClInclude Include="pch.h" />
@@ -176,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="include\DDSTextureLoader.cpp" />
+    <ClCompile Include="include\HDRTextureLoader.cpp" />
     <ClCompile Include="include\Image\IImage.cpp" />
     <ClCompile Include="include\ITextureLoader.cpp" />
     <ClCompile Include="pch.cpp">

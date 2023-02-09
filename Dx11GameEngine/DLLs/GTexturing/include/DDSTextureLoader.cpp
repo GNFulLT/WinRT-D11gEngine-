@@ -46,7 +46,7 @@ namespace GNF::Texturing
 		if (img == nullptr)
 		{
 			OutputDebugString(L"Given Image pointer was nullptr");
-			return E_FAIL;
+			return E_INVALIDARG;
 		}
 
 		(*img) = nullptr;
@@ -56,13 +56,13 @@ namespace GNF::Texturing
 		if (!boost::filesystem::exists(fullPath))
 		{
 			m_logCritical("File is not exist");
-			return E_FAIL;
+			return E_INVALIDARG;
 		}
 
 		if (!IsFileDDS(fullPath.filename().wstring().c_str()))
 		{
 			m_logCritical("File is not dds");
-			return E_FAIL;
+			return E_INVALIDARG;
 		}
 		
 		Image::DDSImage* imag = new Image::DDSImage();
@@ -87,6 +87,11 @@ namespace GNF::Texturing
 		return S_OK;
 	}
 
+	void DDSTextureLoader::UseDefaultFormat()
+	{
+		
+	}
+
 	HRESULT DDSTextureLoader::GLoadImage_NONDBG(
 		_In_ const wchar_t* path,
 		_Out_opt_ Image::IImage** img
@@ -95,7 +100,7 @@ namespace GNF::Texturing
 		if (img == nullptr)
 		{
 			OutputDebugString(L"Given Image pointer was nullptr");
-			return E_FAIL;
+			return E_INVALIDARG;
 		}
 
 		(*img) = nullptr;
@@ -105,12 +110,12 @@ namespace GNF::Texturing
 
 		if (!boost::filesystem::exists(fullPath))
 		{
-			return E_FAIL;
+			return E_INVALIDARG;
 		}
 
 		if (!IsFileDDS(fullPath.filename().wstring().c_str()))
 		{
-			return E_FAIL;
+			return E_INVALIDARG;
 		}
 		
 		Image::DDSImage* imag = new Image::DDSImage();
