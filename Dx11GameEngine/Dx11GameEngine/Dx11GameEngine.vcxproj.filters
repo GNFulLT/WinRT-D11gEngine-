@@ -142,6 +142,9 @@
     <ClCompile Include="Core\TextureManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\Icon.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logger.h">
@@ -272,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="Core\TextureManager.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Icon.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

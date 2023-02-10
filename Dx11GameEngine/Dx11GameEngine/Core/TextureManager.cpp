@@ -29,6 +29,27 @@ namespace GNF::Core
 		Common::Logger::LogDebug("DDSTextureLoader is created");
 		InitDefaultState();
 	}
+
+	HRESULT TextureManager::CreateTextureAsShaderResource1(const wchar_t* path,ID3D11ShaderResourceView1** ptr)
+	{
+		Image::IImage* img = nullptr;
+		
+		auto hr = LoadeImage(path, &img);
+		
+		if (FAILED(hr))
+			return hr;
+
+		hr = m_ddsTextureLoader->CreateTextureFromImage2D(img, ptr);
+		
+		//!: After process the image, delete the image
+		delete img;
+
+		if (FAILED(hr))
+			return hr;
+		
+		return S_OK;
+	}
+
 	void TextureManager::InitDefaultState()
 	{
 		Common::Logger::LogDebug("Default Sampler State creating");
@@ -161,7 +182,7 @@ namespace GNF::Core
 		Image::ImageID imgId = Common::Utils::CreateUniqueID();
 		
 		m_imageMap.emplace(imgId, img);
-		bool a = img->IsCubemap();
+
 		return imgId;
 	}
 
@@ -226,9 +247,5 @@ namespace GNF::Core
 		//X: Be sure extension is lowercase
 
 		return m_extensionMap[exts];
-	}
-	ID3D11ShaderResourceView1* TextureManager::CreateTextureAsShaderResource1()
-	{
-		return nullptr;
 	}
 }

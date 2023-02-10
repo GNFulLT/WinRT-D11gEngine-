@@ -19,6 +19,11 @@ namespace GNF::Texture
 	};
 }
 
+namespace GNF::GUI
+{
+	class Icon;
+}
+
 namespace GNF::Image
 {
 	typedef unsigned long long ImageID;
@@ -44,7 +49,7 @@ namespace GNF::Core
 		bool IsTextureAvailable(Texture::TextureID id);
 		Image::ImageType GetImageTypeFromPath(const wchar_t* path);
 	private:
-		ID3D11ShaderResourceView1* CreateTextureAsShaderResource1();
+		HRESULT CreateTextureAsShaderResource1(const wchar_t* path,ID3D11ShaderResourceView1** ptr);
 		void InitDefaultState();
 		HRESULT LoadeImage(const wchar_t* filePath,Image::IImage** pPImage);
 	private:
@@ -75,5 +80,6 @@ namespace GNF::Core
 		};
 
 		friend class Core::Bindable::Miscellaneous::TextureBindable;
+		friend class GNF::GUI::Icon;
 	};
 }

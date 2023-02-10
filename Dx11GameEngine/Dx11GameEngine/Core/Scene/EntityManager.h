@@ -6,7 +6,8 @@
 #include "Common/Logger.h"
 #include <vector>
 #include <boost/signals2.hpp>
-#include "GUI/IFixedWindowChild.h"
+#include "GUI/Icon.h"
+#include "Core/TextureManager.h"
 /*
 namespace std
 {
@@ -83,7 +84,7 @@ namespace GNF::Core
 		
 		std::pair<std::shared_ptr<Entity::IEntity>, bool>* m_selectedEntity = nullptr;
 
-		std::unique_ptr<GUI::IFixedWindowChild> m_window;
+		std::unique_ptr<GUI::Icon> m_transformIcon;
 
 	//!: Signals
 	private:

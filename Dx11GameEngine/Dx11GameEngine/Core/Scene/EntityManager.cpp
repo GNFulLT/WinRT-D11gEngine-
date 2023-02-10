@@ -4,6 +4,7 @@
 #include "Common/Utils/utils_imgui.h"
 #include <sstream>
 #include "Common/Utils/utils_common.h"
+#include "Core/Game.h"
 namespace GNF::Core
 {
 	EntityManager::~EntityManager()
@@ -13,8 +14,7 @@ namespace GNF::Core
 
 	void EntityManager::Init()
 	{
-		m_window.reset(new GUI::IFixedWindowChild("Helllo", 0, 0, 0.2f, 0.2f));
-		m_window->Init();
+		m_transformIcon.reset(new GNF::GUI::Icon(L"Assets/transformIcon.png",Core::Game::GetInstance()->GetCurrentTextureManager(),32,32));
 	}
 
 	bool EntityManager::ChangeNameOf(Entity::EntityID id, const char* newName)
@@ -66,7 +66,18 @@ namespace GNF::Core
 			}
 			else
 			{
-
+				auto iconH = m_transformIcon->GetHeight();
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY()+iconH/4);
+				bool nodeOpen = ImGui::TreeNode("##HTransform");
+				ImGui::SameLine();
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - iconH / 4);
+				m_transformIcon->Draw();
+				ImGui::SameLine();
+				ImGui::Text("Transform");
+				if(nodeOpen)
+				{
+					ImGui::TreePop();
+				}
 			}
 		}
 		ImGui::End();
