@@ -14,6 +14,7 @@
 #include "imgui/imgui.h"
 #include "Scene/Scene.h"
 #include "Skybox.h"
+#include "TextureManager.h"
 //X: Change this
 #include "GUI/EntityNode.h"
 

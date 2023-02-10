@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./include/Image/Bitmap.h"
+#include "Bitmap.h"
 
 Bitmap convertEquirectangularMapToVerticalCross(const Bitmap& b);
 Bitmap convertVerticalCrossToCubeMapFaces(const Bitmap& b);

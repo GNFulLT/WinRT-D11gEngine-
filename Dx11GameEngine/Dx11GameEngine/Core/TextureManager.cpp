@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TextureManager.h"
 
-#include "../Game.h"
+#include "Game.h"
 #include "Common/Utils/utils_common.h"
 #include <boost/filesystem.hpp>
 namespace GNF::Core
@@ -24,6 +24,8 @@ namespace GNF::Core
 		Common::Logger::LogDebug("DDSTextureLoader is creating for texturing");
 		m_ddsTextureLoader.reset(new Texturing::DDSTextureLoader(Core::Game::GetInstance()->GetGraphicEngine()->GetD3DDevice(),&LogDebug,&LogCritical));
 		m_hdrTextureLoader.reset(new Texturing::HDRTextureLoader(Core::Game::GetInstance()->GetGraphicEngine()->GetD3DDevice(), &LogDebug, &LogCritical));
+		m_wicTextureLoader.reset(new Texturing::WICTextureLoader(Core::Game::GetInstance()->GetGraphicEngine()->GetD3DDevice(), &LogDebug, &LogCritical));
+
 		Common::Logger::LogDebug("DDSTextureLoader is created");
 		InitDefaultState();
 	}
@@ -200,6 +202,11 @@ namespace GNF::Core
 				hr = m_hdrTextureLoader->GLoadImage(filePath, ppImage);
 				break;
 			}
+		case Image::WIC:
+			{
+			hr = m_wicTextureLoader->GLoadImage(filePath, ppImage);
+			break;
+			}
 		}
 		
 		return hr;
@@ -219,5 +226,9 @@ namespace GNF::Core
 		//X: Be sure extension is lowercase
 
 		return m_extensionMap[exts];
+	}
+	ID3D11ShaderResourceView1* TextureManager::CreateTextureAsShaderResource1()
+	{
+		return nullptr;
 	}
 }

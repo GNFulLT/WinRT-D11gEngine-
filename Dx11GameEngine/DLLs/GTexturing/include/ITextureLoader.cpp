@@ -2,7 +2,7 @@
 
 #include "ITextureLoader.h"
 #include <directxpackedvector.h>
-#include "Image/Bitmap.h"
+#include "Bitmap.h"
 #include "UtilsCubemap.h"
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846

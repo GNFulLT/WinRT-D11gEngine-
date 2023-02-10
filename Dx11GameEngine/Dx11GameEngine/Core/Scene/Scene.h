@@ -3,7 +3,6 @@
 #include "Renderer/SceneRenderer.h"
 #include "EntityManager.h"
 #include <memory>
-#include "TextureManager.h"
 
 namespace GNF::Core::Scene
 {

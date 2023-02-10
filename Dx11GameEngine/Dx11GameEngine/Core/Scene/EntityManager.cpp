@@ -60,7 +60,14 @@ namespace GNF::Core
 
 		if (ImGui::Begin("Properties", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
 		{
-			ImGui::Text("First Select an entity");
+			if (m_selectedEntity == nullptr)
+			{
+				ImGui::Text("First Select an entity");
+			}
+			else
+			{
+
+			}
 		}
 		ImGui::End();
 	}

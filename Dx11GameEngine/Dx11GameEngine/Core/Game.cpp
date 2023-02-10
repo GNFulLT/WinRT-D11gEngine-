@@ -77,9 +77,9 @@ namespace GNF::Core
 		ImGui::DockBuilderDockWindow("Output", dock_id_up);
 		ImGui::DockBuilderDockWindow("Dear ImGui Demo", dock_id_right_up);
 		ImGui::DockBuilderDockWindow("Global Settings", dock_id_right_down);
-		ImGui::DockBuilderDockWindow("Styles", dock_id_right_up);
+		ImGui::DockBuilderDockWindow("Styles", dock_id_right_down);
 
-		ImGui::DockBuilderDockWindow("Properties", dock_id_right_down);
+		ImGui::DockBuilderDockWindow("Properties", dock_id_right_up);
 		ImGui::DockBuilderFinish(m_dockId);
 
 		/*

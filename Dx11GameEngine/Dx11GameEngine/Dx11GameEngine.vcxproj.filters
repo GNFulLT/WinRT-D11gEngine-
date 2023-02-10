@@ -139,8 +139,8 @@
     <ClCompile Include="Core\Scene\EntityManager.cpp">
       <Filter>Core\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Scene\TextureManager.cpp">
-      <Filter>Core\Scene</Filter>
+    <ClCompile Include="Core\TextureManager.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -267,11 +267,11 @@
     <ClInclude Include="Core\Scene\EntityManager.h">
       <Filter>Core\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Scene\TextureManager.h">
-      <Filter>Core\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Core\VertexBuffer\SkyboxVertexBuffer.h">
       <Filter>Core\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\TextureManager.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -21,7 +21,7 @@ namespace GNF::Core::Scene
 		m_entityManager->Init();
 		m_sceneRenderer->Init();
 		
-		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateTexture(L"Assets/1texture.dds");
+		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateTexture(L"Assets/texture.jpg");
 
 
 		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();

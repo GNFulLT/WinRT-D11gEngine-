@@ -18,7 +18,7 @@ namespace GNF::Image
 {
 	enum ImageType
 	{
-		UNKNOWN = 0,DDS,HDR
+		UNKNOWN = 0,DDS,HDR,WIC
 	};
 
 	class GTEXTURING_API IImage

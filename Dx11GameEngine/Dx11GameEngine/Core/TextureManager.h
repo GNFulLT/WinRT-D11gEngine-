@@ -9,6 +9,8 @@
 #include "Core/Bindable/Miscellaneous/TextureBindable.h"
 #include <DDSTextureLoader.h>
 #include <HDRTextureLoader.h>
+#include <WICTextureLoader.h>
+
 namespace GNF::Texture
 {
 	enum TextureState
@@ -42,6 +44,7 @@ namespace GNF::Core
 		bool IsTextureAvailable(Texture::TextureID id);
 		Image::ImageType GetImageTypeFromPath(const wchar_t* path);
 	private:
+		ID3D11ShaderResourceView1* CreateTextureAsShaderResource1();
 		void InitDefaultState();
 		HRESULT LoadeImage(const wchar_t* filePath,Image::IImage** pPImage);
 	private:
@@ -53,6 +56,7 @@ namespace GNF::Core
 		std::unique_ptr<DirectX::EffectFactory> m_effectFactory;
 		std::unique_ptr<Texturing::DDSTextureLoader> m_ddsTextureLoader;
 		std::unique_ptr<Texturing::HDRTextureLoader> m_hdrTextureLoader;
+		std::unique_ptr<Texturing::WICTextureLoader> m_wicTextureLoader;
 		Core::Bindable::Miscellaneous::TextureBindable* m_bindedTexture;
 		Texture::TextureState m_textureState = Texture::NONE;
 	private:
@@ -60,7 +64,14 @@ namespace GNF::Core
 		inline static std::unordered_map<std::wstring, Image::ImageType> m_extensionMap =
 		{
 			REX(.dds,Image::DDS),
-			REX(.hdr,Image::HDR)
+			REX(.hdr,Image::HDR),
+			REX(.jpg,Image::WIC),
+			REX(.jpeg,Image::WIC),
+			REX(.png,Image::WIC),
+			REX(.ico,Image::WIC),
+			REX(.bmp,Image::WIC),
+			REX(.tiff,Image::WIC)
+
 		};
 
 		friend class Core::Bindable::Miscellaneous::TextureBindable;
