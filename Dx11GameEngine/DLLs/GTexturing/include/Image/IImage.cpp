@@ -38,7 +38,7 @@ namespace GNF::Image
 
 	const bool IImage::IsCubemap() const noexcept
 	{
-		return m_isCubeMap ||  m_image.GetMetadata().IsCubemap();
+		return m_image.GetMetadata().IsCubemap();
 	}
 
 	void IImage::InitPrivateData()

@@ -9,7 +9,6 @@
 #include <d3d11_4.h>
 #include <DirectXTex/DirectXTex.h>
 #include <cstdint>
-#include "Bitmap.h"
 namespace GNF::Texturing
 {
 	class ITextureLoader;
@@ -49,8 +48,6 @@ namespace GNF::Image
 		size_t m_imageCount = 0;
 		const DirectX::Image* m_rawImage = nullptr;
 		virtual void InitPrivateData();
-		Bitmap m_cube;
-		bool m_isCubeMap = false;
 	private:
 		friend class Texturing::ITextureLoader;
 

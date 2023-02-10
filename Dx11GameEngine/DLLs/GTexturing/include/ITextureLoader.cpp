@@ -45,9 +45,12 @@ namespace GNF::Texturing
 			for (int i = 0; i < 6; i++)
 			{
 				auto selectedImg = img->m_image.GetImage(0, i, 0);
-				initData[i].pSysMem = img->m_cube.data_.data() + ( img->m_cube.w_ * img->m_cube.h_ * i * DirectX::BitsPerPixel(img->GetFormat())/8);
-				initData[i].SysMemPitch = img->m_cube.w_ * DirectX::BitsPerPixel(img->GetFormat()) / 8;
-				initData[i].SysMemSlicePitch = initData[i].SysMemPitch * img->m_cube.h_;
+				//initData[i].pSysMem = img->m_cube.data_.data() + ( img->m_cube.w_ * img->m_cube.h_ * i * DirectX::BitsPerPixel(img->GetFormat())/8);
+				initData[i].pSysMem = selectedImg->pixels;
+				//initData[i].SysMemPitch = img->m_cube.w_ * DirectX::BitsPerPixel(img->GetFormat()) / 8;
+				initData[i].SysMemPitch = selectedImg->rowPitch;
+				//initData[i].SysMemSlicePitch = initData[i].SysMemPitch * img->m_cube.h_;
+				initData[i].SysMemSlicePitch = selectedImg->slicePitch;
 			}
 			hr = device->CreateTexture2D1(&desc1, initData, &texture);
 
@@ -316,18 +319,41 @@ namespace GNF::Texturing
 		if (outImg == nullptr)
 			return E_INVALIDARG;
 		//!: First EquirectangularMap To VerticalCross Map
-		
-
-		//!: Vertical Cross to CubeMap
+		//! 
+		//!: After Vertical Cross to CubeMap
 		
 		auto img = CreateInstanceFromResponsibleImage();
 
 		Bitmap in(pImage->GetWidth(), pImage->GetHeight(), 4, eBitmapFormat_Float, pImage->m_image.GetPixels());
 		Bitmap out = convertEquirectangularMapToVerticalCross(in);
-		img->m_cube = convertVerticalCrossToCubeMapFaces(out);
-		img->m_isCubeMap = true;
-		img->m_image.InitializeCube(pImage->GetFormat(),img->m_cube.w_,img->m_cube.h_,1,1);
-	/*
+		//!: Destroy in image and create cube faces from out 
+		in = convertVerticalCrossToCubeMapFaces(out);
+		//!: Destroy out image
+		out = Bitmap();
+		
+		//img->m_isCubeMap = true;
+		img->m_image.InitializeCube(pImage->GetFormat(), in.w_, in.h_,1,1);
+		
+		auto src = in.data_.data();
+		auto dst = img->m_image.GetPixels();
+		auto pixelSize = DirectX::BitsPerPixel(img->GetFormat()) / 8;
+
+		for (int face = 0; face < 6; face++)
+		{
+			for (int h = 0; h < in.h_; h++)
+			{
+				for (int w = 0; w < in.w_; w++)
+				{
+					//!: Copy one pixel from dst to src
+					memcpy(dst, src, pixelSize);
+
+					//! Go to the next pixel
+					src += pixelSize;
+					dst += pixelSize;
+				}
+			}
+		}
+		/*
 		auto hr = img->m_image.InitializeCube(pImage->GetFormat(), cube.w_, cube.w_, 1, 1);
 
 		if (FAILED(hr))
