@@ -270,6 +270,9 @@
     <ClInclude Include="Core\Scene\TextureManager.h">
       <Filter>Core\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Core\VertexBuffer\SkyboxVertexBuffer.h">
+      <Filter>Core\VertexBuffer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\BasicVertexShader.hlsl">
@@ -282,6 +285,12 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Shader\SimpleVertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SkyboxPixelShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SkyboxVertexShader.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -90,6 +90,7 @@ namespace GNF::Core::GraphicEngine
 			return new Bindable::Buffer::IndexBufferBindable(GNF::Core::Bindable::Buffer::STATIC_DYNAMIC_DRAW, data.data(), data.size());
 		}
 
+
 		//! Getters
 	public:
 		inline ID3D11DeviceContext3* GetD3DContext()

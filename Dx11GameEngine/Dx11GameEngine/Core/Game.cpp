@@ -471,12 +471,16 @@ namespace GNF::Core
 			*/
 			
 			m_scene->AsRenderTarget();
+
+
 			m_vertexShader->Bind();
 
 			m_pixelShader->Bind();
 			m_scene->Update();
 
 			m_scene->Render();
+
+			m_skybox->Draw();
 
 			auto frame = m_scene->GetSceneFrame();
 			

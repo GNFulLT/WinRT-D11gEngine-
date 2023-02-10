@@ -10,11 +10,12 @@ namespace GNF::Common::Camera::CameraPositioner
 	class FPSCameraPositioner final : public ICameraPositioner
 	{
 	public:
-		FPSCameraPositioner(const DirectX::SimpleMath::Vector3& pos, float aspect = 0.75f, const DirectX::SimpleMath::Vector3& target = def, float fov = DirectX::XM_PI / 4.f, float nearplane = 0.1f, float farplane = 10.f);
+		FPSCameraPositioner(const DirectX::SimpleMath::Vector3& pos, float aspect = 0.75f, const DirectX::SimpleMath::Vector3& target = def, float fov = DirectX::XM_PI / 4.f, float nearplane = 0.1f, float farplane = 1000.f);
 		
 		void Update(const float deltaTime) override;
 		const DirectX::SimpleMath::Matrix& GetViewProjection() override;
 		void RenderGui() override;
+		const DirectX::SimpleMath::Vector3& GetPos() override;
 	private:
 		void ReCalculateView();
 	private:

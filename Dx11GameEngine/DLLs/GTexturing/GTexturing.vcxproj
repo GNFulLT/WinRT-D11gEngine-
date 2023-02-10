@@ -169,11 +169,13 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="include\DDSTextureLoader.h" />
     <ClInclude Include="include\HDRTextureLoader.h" />
+    <ClInclude Include="include\Image\Bitmap.h" />
     <ClInclude Include="include\Image\DDSImage.h" />
     <ClInclude Include="include\Image\HDRImage.h" />
     <ClInclude Include="include\Image\IImage.h" />
     <ClInclude Include="include\ITextureLoader.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="UtilsCubemap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -187,6 +189,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="UtilsCubemap.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

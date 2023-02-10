@@ -13,6 +13,8 @@ namespace GNF::Common::Camera::CameraPositioner
 		virtual void Update(const float deltaTime) = 0;
 		virtual const DirectX::SimpleMath::Matrix& GetViewProjection() = 0;
 		virtual void RenderGui() = 0;
+		virtual const DirectX::SimpleMath::Vector3& GetPos() = 0;
+
 	private:
 		
 	};

@@ -104,6 +104,7 @@ namespace GNF::Common::Camera::CameraPositioner
 
 			mpitch += gpitch;
 			myaw += gyaw;
+			/*
 			if (mpitch > MAX_PITCH_IN_RADIAN)
 				mpitch = MAX_PITCH_IN_RADIAN;
 			else if (mpitch < MIN_PITCH_IN_RADIAN)
@@ -112,7 +113,7 @@ namespace GNF::Common::Camera::CameraPositioner
 				myaw = MAX_YAW_IN_RADIAN;
 			else if (myaw < MIN_YAW_IN_RADIAN)
 				myaw = MIN_YAW_IN_RADIAN;
-
+			*/
 			/*SimpleMath::Vector3 eulerAngles(myaw, mpitch, 0.f);
 			SimpleMath::Matrix pitchMatrix = SimpleMath::Matrix::CreateRotationX(eulerAngles.x);
 			SimpleMath::Matrix yawMatrix = SimpleMath::Matrix::CreateRotationY(eulerAngles.y);
@@ -120,7 +121,7 @@ namespace GNF::Common::Camera::CameraPositioner
 
 			SimpleMath::Matrix rotationMatrix = rollMatrix * yawMatrix * pitchMatrix;*/
 
-			m_view = SimpleMath::Quaternion::CreateFromYawPitchRoll(mpitch,myaw,0.f);
+			m_view = SimpleMath::Quaternion::CreateFromYawPitchRoll(gpitch, gyaw,0.f) * m_view;
 
 			m_view.Normalize();
 			
@@ -242,6 +243,11 @@ namespace GNF::Common::Camera::CameraPositioner
 		ImGui::Spacing();
 		Utils::ImGui_LeftLabeledSlideFloat(g_str_mouse_epsilon, &g_epsilon, 0.00001f, 0.1f, twidth, g_gapBtw,"%.6f");
 
+	}
+
+	const DirectX::SimpleMath::Vector3& FPSCameraPositioner::GetPos()
+	{
+		return m_pos;
 	}
 
 	const DirectX::SimpleMath::Matrix& FPSCameraPositioner::GetViewProjection()

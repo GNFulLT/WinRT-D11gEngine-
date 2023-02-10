@@ -62,6 +62,10 @@ namespace GNF::Common::Camera
 		void Update(const float deltaTime);
 		void Use(const DirectX::SimpleMath::Matrix& modelMatrix);
 		void RenderGui();
+		const DirectX::SimpleMath::Vector3& GetPos()
+		{
+			return p_positioner->GetPos();
+		}
 	private:
 		CameraPositioner::ICameraPositioner* p_positioner;
 		std::unique_ptr<Core::Bindable::Buffer::ConstantBufferBindable> m_constBuffer;

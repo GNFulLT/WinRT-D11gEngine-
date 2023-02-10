@@ -83,7 +83,7 @@ namespace GNF::Core
 			m_imageMap.emplace(id, selectedImage);
 			return true;
 		}
-		delete selectedImage;
+	
 		return false;
 	}
 
