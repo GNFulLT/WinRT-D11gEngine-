@@ -120,7 +120,7 @@ namespace GNF::Core::GraphicEngine
 		void Init_ViewPort();
 
 		//!: Depth-Stencil 
-		//void InitDSV();
+		void InitDSV();
 
 		inline float LogicalSizeToOutputSize(float size);
 	private:
@@ -135,11 +135,11 @@ namespace GNF::Core::GraphicEngine
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext3> m_d3d_deviceContext;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_d3d_renderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_d3d_frameBufferTargetView;
-		//Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_d3d_depthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_d3d_depthStencilView;
 
 		//!: Resources
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3d_renderTarget;
-		//Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3d_depthStencilTarget;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3d_depthStencilTarget;
 		//Microsoft::WRL::ComPtr<ID3D11Texture2D> m_d3d_frameBufferTarget;
 		
 		//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_d3d_frameResource;
@@ -169,7 +169,5 @@ namespace GNF::Core::GraphicEngine
 		int m_width;
 		int m_height;
 
-		int m_frameScreenWidth;
-		int m_frameScreenHeight;
 	};
 }

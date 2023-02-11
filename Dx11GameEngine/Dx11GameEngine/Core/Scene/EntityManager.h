@@ -32,6 +32,8 @@ namespace GNF::Core
 	public:
 		~EntityManager();
 
+		void PreRender();
+
 		bool ChangeNameOf(Entity::EntityID, const char* newName);
 
 		inline auto AddSlotEntityChanged(const EntityChangedSignal::slot_type& slot) const noexcept
@@ -85,7 +87,9 @@ namespace GNF::Core
 		std::pair<std::shared_ptr<Entity::IEntity>, bool>* m_selectedEntity = nullptr;
 
 		std::unique_ptr<GUI::Icon> m_transformIcon;
-
+		//!: Const Values
+	private:
+		float m_iconCenterY;
 	//!: Signals
 	private:
 		mutable EntityChangedSignal SelectedEntityChanged;

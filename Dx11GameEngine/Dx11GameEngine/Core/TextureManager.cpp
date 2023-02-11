@@ -30,7 +30,7 @@ namespace GNF::Core
 		InitDefaultState();
 	}
 
-	HRESULT TextureManager::CreateTextureAsShaderResource1(const wchar_t* path,ID3D11ShaderResourceView1** ptr)
+	HRESULT TextureManager::CreateTextureAsShaderResource1(const wchar_t* path,ID3D11ShaderResourceView1** ptr, Image::IImage** ppImage)
 	{
 		Image::IImage* img = nullptr;
 		
@@ -42,7 +42,14 @@ namespace GNF::Core
 		hr = m_ddsTextureLoader->CreateTextureFromImage2D(img, ptr);
 		
 		//!: After process the image, delete the image
-		delete img;
+		if (ppImage == nullptr)
+		{
+			delete img;
+		}
+		else
+		{
+			(*ppImage) = img;
+		}
 
 		if (FAILED(hr))
 			return hr;

@@ -11,6 +11,11 @@ namespace GNF::Core::Scene
 		m_sceneRenderer.reset(new Renderer::SceneRenderer(width, height, format, device, context));
 	}
 
+	void Scene::PreRender()
+	{
+		m_entityManager->PreRender();
+	}
+
 	void Scene::RenderSGui()
 	{
 		m_entityManager->RenderSGui();

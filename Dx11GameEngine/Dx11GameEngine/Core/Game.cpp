@@ -401,12 +401,15 @@ namespace GNF::Core
 		m_imgui->Begin();
 		m_menuBar->Init_PreRender();
 		PreRenderSGui();
+		
+
 		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
 		
 		m_frameSize = ImGui::GetContentRegionAvail();
 		m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
 		m_scene->Init();
 		ImGui::End();
+		m_scene->PreRender();
 
 		m_imgui->Finish();
 		m_window->HandleEventsIfAny();

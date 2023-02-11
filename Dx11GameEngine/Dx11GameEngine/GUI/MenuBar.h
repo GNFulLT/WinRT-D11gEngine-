@@ -3,7 +3,7 @@
 #include <string>
 #include "Renderer/ImGuiRenderer.h"
 #include "Common/Windowing/IMouse.h"
-
+#include "Icon.h"
 namespace GNF::GUI
 {
 	class MenuBar
@@ -52,5 +52,6 @@ namespace GNF::GUI
 		//!: Settings
 	private:
 		ViewSettings m_viewSettings;
+		std::unique_ptr<Icon> m_icon;
 	};
 }

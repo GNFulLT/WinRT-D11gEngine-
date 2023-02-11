@@ -63,9 +63,9 @@ namespace GNF::Entity
 			return m_pos;
 		}
 
-		inline const DirectX::SimpleMath::Quaternion& GetRotation()
+		inline const DirectX::SimpleMath::Vector3& GetRotation()
 		{
-			return m_rotationQuat;
+			return m_rotation;
 		}
 	protected:
 		inline void SetVertices(const std::vector<GNF::Core::VertexBuffer::OnlyVertexBuffer>& vertices)
@@ -96,9 +96,9 @@ namespace GNF::Entity
 			return m_scale;
 		}
 
-		inline DirectX::SimpleMath::Quaternion& GetRotationChangable()
+		inline DirectX::SimpleMath::Vector3& GetRotationChangable()
 		{
-			return m_rotationQuat;
+			return m_rotation;
 		}
 
 		void SetId(EntityID entityId)
@@ -109,7 +109,12 @@ namespace GNF::Entity
 
 		inline DirectX::SimpleMath::Matrix GetModelMatrix()
 		{
-			return DirectX::SimpleMath::Matrix::CreateTranslation(m_pos) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(m_rotationQuat) * DirectX::SimpleMath::Matrix::CreateScale(m_scale);
+
+			//!: Angles To yawPitchRoll
+			yawPitchRoll.x = m_rotation.x * (DirectX::XM_PI / 180.f);
+			yawPitchRoll.y = m_rotation.y * (DirectX::XM_PI / 180.f);
+			yawPitchRoll.z = m_rotation.z* (DirectX::XM_PI / 180.f);
+			return  DirectX::SimpleMath::Matrix::CreateScale(m_scale) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(yawPitchRoll)) * DirectX::SimpleMath::Matrix::CreateTranslation(m_pos);
 		}
 
 		std::string m_name;
@@ -128,7 +133,10 @@ namespace GNF::Entity
 		//!: DirectX Stuff
 	private:
 		DirectX::SimpleMath::Vector3 m_scale = DirectX::SimpleMath::Vector3(1.f, 1.f, 1.f);
-		DirectX::SimpleMath::Quaternion m_rotationQuat;
+		//DirectX::SimpleMath::Quaternion m_rotationQuat;
+		DirectX::SimpleMath::Vector3 m_rotation = DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f);
+		
+		DirectX::SimpleMath::Vector3 yawPitchRoll = DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f);
 		DirectX::SimpleMath::Vector3 m_pos = DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f);
 
 		std::unique_ptr<Core::Bindable::IBindable> m_vertexBuffer;

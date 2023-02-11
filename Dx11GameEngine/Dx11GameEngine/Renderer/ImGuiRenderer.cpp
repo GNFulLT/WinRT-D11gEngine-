@@ -70,6 +70,7 @@ namespace GNF::Renderer
 			colors[ImGuiCol_::ImGuiCol_Border] = ImVec4(1.f, 1.f, 1.f, 0.f);
 			style.WindowBorderSize = 0;
 			style.WindowRounding = 0;
+			style.WindowMenuButtonPosition = ImGuiDir_::ImGuiDir_None;
 			
 		}
 
@@ -77,6 +78,7 @@ namespace GNF::Renderer
 		{
 			m_fonts.emplace(ImGuiFonts::FONT_DEFAULT, ImGui::GetIO().Fonts->AddFontFromFileTTF("./fonts/DefaultFont.ttf", 16.0f));
 			m_fonts.emplace(ImGuiFonts::FONT_HEADER, ImGui::GetIO().Fonts->AddFontFromFileTTF("./fonts/HeaderFont.ttf", 24.0f));
+			m_fonts.emplace(ImGuiFonts::FONT_ENTITY_HEADER, ImGui::GetIO().Fonts->AddFontFromFileTTF("./fonts/Entity_Header.ttf", 16.0f));
 			ImGui::GetIO().FontDefault = m_fonts[FONT_DEFAULT].get();
 			ImGui::GetIO().Fonts->Build();
 			ImGui_ImplDX11_InvalidateDeviceObjects();

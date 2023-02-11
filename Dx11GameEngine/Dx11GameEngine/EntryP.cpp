@@ -12,6 +12,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevinstance
 	game->Init();
 	game->Run();
 	game->Destroy();
+	system("pause");
 
 	return 0;
 }
@@ -31,8 +32,16 @@ int main()
 	char* pcDynamicHeapStart = new char[17u];
 	strcpy_s(pcDynamicHeapStart, 17u, "DynamicHeapStart");
 	auto game = GNF::Core::Game::Build();
-	game->Init();
-	game->Run();
+
+	try
+	{
+		game->Init();
+		game->Run();
+	}
+	catch (std::exception ex)
+	{
+		spdlog::error(std::format("Exception throwed to main msg : \n\n{}",ex.what()).c_str());
+	}
 	game->Destroy();
 
 	char* pcHeapLeakStart = new char[17u];
@@ -40,6 +49,7 @@ int main()
 
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
 	_CrtDumpMemoryLeaks();
+
 	return 0;
 }
 

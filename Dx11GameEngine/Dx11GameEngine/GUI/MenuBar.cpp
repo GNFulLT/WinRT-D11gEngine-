@@ -9,6 +9,8 @@ namespace GNF::GUI
 	void MenuBar::Init(ID3D11DeviceContext* context)
 	{
 		wp_guiRenderer = Core::Game::GetInstance()->GetImGuiRenderer();
+		m_icon.reset(new Icon(L"Assets/nameIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 128, 32));
+		m_icon->SetSize(m_icon->GetFullWidth(), m_icon->GetFullHeight());
 	}
 	void MenuBar::Init_PreRender()
 	{
@@ -130,11 +132,20 @@ namespace GNF::GUI
 				if (isFirstMouseDown)
 					isFirstMouseDown = false;
 			}
-
+			/*
+			float aspect = m_icon->GetFullWidth() / m_icon->GetFullHeight();
+			m_icon->SetSize(32*aspect,32);
+			*/
+			m_icon->Draw();
 
 			ImGui::PopStyleColor(3);
 			ImGui::EndMainMenuBar();
-
+			/*
+			ImGui::Begin("Image");
+			m_icon->SetSize(m_icon->GetFullWidth(), m_icon->GetFullHeight());
+			m_icon->Draw();
+			ImGui::End();
+			*/
 		}
 	}
 }

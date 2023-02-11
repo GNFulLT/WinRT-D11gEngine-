@@ -25,7 +25,7 @@ namespace GNF::Core::Scene
 		void Render();
 		void AsRenderTarget();
 		ID3D11ShaderResourceView* GetSceneFrame();
-
+		void PreRender();
 	private:
 		UINT m_width;
 		UINT m_height;

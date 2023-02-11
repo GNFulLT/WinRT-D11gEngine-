@@ -5,9 +5,23 @@ namespace GNF::GUI
 {
 	Icon::Icon(const wchar_t* filePath, Core::TextureManager* manager, float width, float height) : m_size(width,height)
 	{
-		auto hr = manager->CreateTextureAsShaderResource1(filePath, m_resourceView.GetAddressOf());
+		Image::IImage* ptr;
+		auto hr = manager->CreateTextureAsShaderResource1(filePath, m_resourceView.GetAddressOf(),&ptr);
 		if (SUCCEEDED(hr))
 			m_isLoaded = true;
+		m_fullSize.x = ptr->GetWidth();
+		m_fullSize.y = ptr->GetHeight();
+		delete ptr;
+	}
+
+	float Icon::GetFullWidth() const noexcept
+	{
+		return m_fullSize.x;
+	}
+
+	float Icon::GetFullHeight() const noexcept
+	{
+		return m_fullSize.y;
 	}
 
 	float Icon::GetWidth() const noexcept

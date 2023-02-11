@@ -11,7 +11,8 @@ namespace GNF::Renderer
 	enum ImGuiFonts
 	{
 		FONT_DEFAULT = 0,
-		FONT_HEADER
+		FONT_HEADER,
+		FONT_ENTITY_HEADER
 	};
 	class ImGuiRenderer : public RendererBase
 	{

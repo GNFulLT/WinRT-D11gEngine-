@@ -49,7 +49,7 @@ namespace GNF::Core
 		bool IsTextureAvailable(Texture::TextureID id);
 		Image::ImageType GetImageTypeFromPath(const wchar_t* path);
 	private:
-		HRESULT CreateTextureAsShaderResource1(const wchar_t* path,ID3D11ShaderResourceView1** ptr);
+		HRESULT CreateTextureAsShaderResource1(const wchar_t* path,ID3D11ShaderResourceView1** ptr,Image::IImage** ppImage = nullptr);
 		void InitDefaultState();
 		HRESULT LoadeImage(const wchar_t* filePath,Image::IImage** pPImage);
 	private:

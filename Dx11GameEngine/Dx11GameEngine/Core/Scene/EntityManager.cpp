@@ -5,8 +5,24 @@
 #include <sstream>
 #include "Common/Utils/utils_common.h"
 #include "Core/Game.h"
+
 namespace GNF::Core
 {
+	constexpr static ImVec4 g_xBtnColor = ImVec4(0.2f,0.7f,0.3f,1.f);
+	constexpr static ImVec4 g_xBtnColorHovered = ImVec4(0.3f, 0.8f, 0.2f, 1.f);
+	constexpr static ImVec4 g_xBtnColorActive = ImVec4(0.2f, 0.7f, 0.2f, 1.f);
+
+	constexpr static ImVec4 g_yBtnColor = ImVec4(220.f/255.f, 105.f/255.f, 29.f/255.f, 1.f);
+	constexpr static ImVec4 g_yBtnColorHovered = ImVec4(230.f/255.f, 125.f/255.f, 23.f/255.f, 1.f);
+	constexpr static ImVec4 g_yBtnColorActive = ImVec4(220.f / 255.f, 105.f / 255.f, 23.f / 255.f, 1.f);
+
+	constexpr static ImVec4 g_zBtnColor = ImVec4(16.f / 255.f, 129.f / 255.f, 224.f / 255.f, 1.f);
+	constexpr static ImVec4 g_zBtnColorHovered = ImVec4(30.f / 255.f, 135.f / 255.f, 240.f / 255.f, 1.f);
+	constexpr static ImVec4 g_zBtnColorActive = ImVec4(16.f / 255.f, 129.f / 255.f, 240.f / 255.f, 1.f);
+
+	static ImVec2 g_btnSize = ImVec2(20.f, 20.f);
+	static ImVec2 g_inputSize = ImVec2(100.f, 20.f);
+
 	EntityManager::~EntityManager()
 	{
 		int a = 5;
@@ -42,8 +58,48 @@ namespace GNF::Core
 		
 	}
 
+	void EntityManager::PreRender()
+	{
+		m_iconCenterY = m_transformIcon->GetHeight() / 4;
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + m_iconCenterY);
+		bool nodeOpen = ImGui::TreeNode("##HTransform");
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - m_iconCenterY);
+		m_transformIcon->Draw();
+		ImGui::SameLine();
+		ImGui::Text("Transform");
+		if (nodeOpen)
+		{
+			ImGui::TreePop();
+		}
+		//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding, ImVec2(0.f,ImGui::GetStyle().FramePadding.y));
+			//ImGui::GetStyle().Inn
+		ImGui::Text("Position");
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_xBtnColor);
+		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_xBtnColorHovered);
+		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_xBtnColorActive);
+
+		g_btnSize.x = ImGui::CalcTextSize("Position").y * 5 / 4;
+		g_btnSize.y = g_btnSize.x;
+		g_inputSize.y = g_btnSize.y;
+		/*
+		if (ImGui::Button("X", g_btnSize))
+		{
+
+		}
+		*/
+		ImGui::PopStyleColor(3);
+		//ImGui::PopStyleVar();
+	}
+
 	void EntityManager::RenderSGui()
 	{
+		auto imguiManager = Core::Game::GetInstance()->GetImGuiRenderer().lock();
+		if (!imguiManager)
+			return;
+		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_HeaderHovered, ImVec4(0,0,0,0.4f));
 		if(ImGui::Begin("Scene",0,ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
 		{
 			for (auto& entity : m_map)
@@ -66,21 +122,266 @@ namespace GNF::Core
 			}
 			else
 			{
-				auto iconH = m_transformIcon->GetHeight();
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY()+iconH/4);
-				bool nodeOpen = ImGui::TreeNode("##HTransform");
+				ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding, ImVec2(4,8));
+				bool nodeOpen = ImGui::TreeNodeEx("##HTransform", ImGuiTreeNodeFlags_FramePadding);
+				ImGui::PopStyleVar();
 				ImGui::SameLine();
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - iconH / 4);
+				//ImGui::SetCursorPosY(ImGui::GetCursorPosY() + m_iconCenterY/4);
 				m_transformIcon->Draw();
+				//ImGui::SetCursorPosY(ImGui::GetCursorPosY() - m_iconCenterY/4);
 				ImGui::SameLine();
+				imguiManager->SetFont(Renderer::FONT_ENTITY_HEADER);
 				ImGui::Text("Transform");
+				imguiManager->SetFontDefault();
 				if(nodeOpen)
 				{
+					ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg,ImVec4(25.f/255.f,29.f/255.f,40.f/255.f,1));
+					auto fullWidth = ImGui::GetContentRegionAvail().x;
+				
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().IndentSpacing);
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
+					auto leftS = ImGui::GetCursorPosX();
+					//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding, ImVec2(0.f,ImGui::GetStyle().FramePadding.y));
+					//ImGui::GetStyle().Inn
+					ImGui::Text("Position");
+					ImGui::SameLine();
+					
+		
+					ImGui::SetCursorPosX(leftS + fullWidth - g_inputSize.x *5/ 8 - g_btnSize.x);
+					
+					if(ImGui::BeginTable("##PosTable", 2, ImGuiTableFlags_::ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_::ImGuiTableFlags_NoPadOuterX))
+					{
+						
+						ImGui::TableSetupColumn("##Btn_Col", ImGuiTableColumnFlags_::ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableSetupColumn("##Input_Col");
+
+						ImGui::TableNextRow();
+
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_xBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_xBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_xBtnColorActive);
+
+						if (ImGui::Button("X", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosX", &m_selectedEntity->first->GetPositionChangable().x);
+						ImGui::PopItemWidth();
+
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_yBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_yBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_yBtnColorActive);
+						if (ImGui::Button("Y", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosY", &m_selectedEntity->first->GetPositionChangable().y);
+						ImGui::PopItemWidth();
+
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_zBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_zBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_zBtnColorActive);
+						if (ImGui::Button("Z", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosZ", &m_selectedEntity->first->GetPositionChangable().z);
+						ImGui::PopItemWidth();
+
+						ImGui::EndTable();
+					}
+
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().IndentSpacing);
+
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
+
+
+					ImGui::Text("Scale");
+					ImGui::SameLine();
+
+
+					ImGui::SetCursorPosX(leftS + fullWidth - g_inputSize.x * 5 / 8 - g_btnSize.x);
+
+					if (ImGui::BeginTable("##ScaleTable", 2, ImGuiTableFlags_::ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_::ImGuiTableFlags_NoPadOuterX))
+					{
+
+						ImGui::TableSetupColumn("##Btn_Col", ImGuiTableColumnFlags_::ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableSetupColumn("##Input_Col");
+
+						ImGui::TableNextRow();
+
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_xBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_xBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_xBtnColorActive);
+
+						if (ImGui::Button("X", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosX", &m_selectedEntity->first->GetScaleChangable().x);
+						ImGui::PopItemWidth();
+
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_yBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_yBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_yBtnColorActive);
+						if (ImGui::Button("Y", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosY", &m_selectedEntity->first->GetScaleChangable().y);
+						ImGui::PopItemWidth();
+
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_zBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_zBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_zBtnColorActive);
+						if (ImGui::Button("Z", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosZ", &m_selectedEntity->first->GetScaleChangable().z);
+						ImGui::PopItemWidth();
+
+						ImGui::EndTable();
+					}
+
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().IndentSpacing);
+
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
+
+
+					ImGui::Text("Rotation");
+					ImGui::SameLine();
+
+
+					ImGui::SetCursorPosX(leftS + fullWidth - g_inputSize.x * 5 / 8 - g_btnSize.x);
+
+					if (ImGui::BeginTable("##RotateTable", 2, ImGuiTableFlags_::ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_::ImGuiTableFlags_NoPadOuterX))
+					{
+
+						ImGui::TableSetupColumn("##Btn_Col", ImGuiTableColumnFlags_::ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableSetupColumn("##Input_Col");
+
+						ImGui::TableNextRow();
+
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_xBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_xBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_xBtnColorActive);
+
+						if (ImGui::Button("X", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosX", &m_selectedEntity->first->GetRotationChangable().x);
+						ImGui::PopItemWidth();
+
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_yBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_yBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_yBtnColorActive);
+						if (ImGui::Button("Y", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosY", &m_selectedEntity->first->GetRotationChangable().y);
+						ImGui::PopItemWidth();
+
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, g_zBtnColor);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, g_zBtnColorHovered);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, g_zBtnColorActive);
+						if (ImGui::Button("Z", ImVec2(20, 0.0f)))
+						{
+
+						}
+
+						ImGui::PopStyleColor(3);
+
+						ImGui::TableSetColumnIndex(1);
+						ImGui::PushItemWidth(-FLT_MIN);
+						ImGui::InputFloat("##InputPosZ", &m_selectedEntity->first->GetRotationChangable().z);
+						ImGui::PopItemWidth();
+
+						ImGui::EndTable();
+					}
+					//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+					//ImGui::SameLine();
+
+					//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding, ImVec2(g_inputSize.x/4, g_inputSize.y/8));
+					
+					//ImGui::InputFloat("##InputPosX", &m_selectedEntity->first->GetPositionChangable().x);
+					//ImGui::PopStyleVar();
+					ImGui::PopStyleColor();
 					ImGui::TreePop();
 				}
+				ImGui::Spacing();
+				ImGui::Spacing();
+				ImGui::Separator();
 			}
 		}
 		ImGui::End();
+		ImGui::PopStyleColor();
 	}
 
 	std::weak_ptr<Entity::IEntity> EntityManager::CreateTriangle2D(const float edgeSize, DirectX::SimpleMath::Vector3 worldPos)

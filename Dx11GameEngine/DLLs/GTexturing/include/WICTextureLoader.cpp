@@ -70,16 +70,49 @@ namespace GNF::Texturing
 
 		if (FAILED(hr))
 		{
-			m_logCritical(std::format("Couldn't loaded metadata of WIC file returned with code : {}", hr).c_str());
-			return hr;
+			if (hr == E_NOINTERFACE)
+			{
+				m_logDebug(std::format("COM objs not found. Initialize COM", hr).c_str());
+				hr = CoInitialize(nullptr);
+				if (FAILED(hr))
+				{
+					m_logCritical("Couldn't loaded COM");
+					return hr;
+				}
+				hr = DirectX::GetMetadataFromWICFile(path, (DirectX::WIC_FLAGS)m_currentFlag, imag->m_metaData);
+				if (FAILED(hr))
+				{
+					m_logCritical("Couldn't loaded metadata");
+					return hr;
+				}
+			}
+			else
+			{
+				m_logCritical(std::format("Couldn't loaded metadata of WIC file returned with code : {}", hr).c_str());
+				return hr;
+			}
 		}
-
+		
 		hr = DirectX::LoadFromWICFile(path, (DirectX::WIC_FLAGS)m_currentFlag,&imag->m_metaData, imag->m_image);
 
 		if (FAILED(hr))
 		{
-			m_logCritical(std::format("Couldn't loaded WIC file returned with code : {}", hr).c_str());
-			return hr;
+			if (hr == E_NOINTERFACE)
+			{
+				m_logDebug(std::format("COM objs not found. Initialize COM", hr).c_str());
+				hr = CoInitialize(nullptr);
+				if (FAILED(hr))
+				{
+					m_logCritical("Couldn't loaded COM");
+					return hr;
+				}
+			}
+			else
+			{
+				m_logCritical(std::format("Couldn't loaded WIC file returned with code : {}", hr).c_str());
+				return hr;
+			}
+			
 		}
 
 		(*ppImg) = imag;
