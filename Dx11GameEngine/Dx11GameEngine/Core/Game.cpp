@@ -110,7 +110,7 @@ namespace GNF::Core
 
 	void Game::FrameSizeChanged()
 	{
-		//m_scene->SceneSizeChanged(m_frameSize.x, m_frameSize.y);
+		m_scene->SceneSizeChanged(m_frameSize.x, m_frameSize.y);
 	}
 	void Game::PreRenderSGui()
 	{
@@ -406,6 +406,10 @@ namespace GNF::Core
 		ImGui::Begin("Output", 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize);
 		
 		m_frameSize = ImGui::GetContentRegionAvail();
+		if (m_frameSize.x < 0)
+			m_frameSize.x = 16;
+		if (m_frameSize.y < 0)
+			m_frameSize.y = 16;
 		m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
 		m_scene->Init();
 		ImGui::End();

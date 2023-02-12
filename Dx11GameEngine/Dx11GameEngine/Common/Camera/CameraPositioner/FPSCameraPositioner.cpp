@@ -121,10 +121,9 @@ namespace GNF::Common::Camera::CameraPositioner
 
 			SimpleMath::Matrix rotationMatrix = rollMatrix * yawMatrix * pitchMatrix;*/
 
-			m_view = SimpleMath::Quaternion::CreateFromYawPitchRoll(gpitch, gyaw,0.f) * m_view;
 
+			m_view = SimpleMath::Quaternion::CreateFromYawPitchRoll(gpitch,gyaw,0.f) * m_view;
 			m_view.Normalize();
-			
 			UpdateUpVector();
 
 			mouse->CenterMouse();

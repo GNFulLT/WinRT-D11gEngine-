@@ -87,6 +87,11 @@ namespace GNF::Core
 		std::pair<std::shared_ptr<Entity::IEntity>, bool>* m_selectedEntity = nullptr;
 
 		std::unique_ptr<GUI::Icon> m_transformIcon;
+		std::unique_ptr<GUI::Icon> m_objectIcon;
+
+		char m_entityPrevName[ENTITY_NAME_MAX_LENGTH] = { 0 };
+		uint_fast8_t m_charUsage = 0;
+
 		//!: Const Values
 	private:
 		float m_iconCenterY;

@@ -31,6 +31,7 @@ namespace GNF::Core
 	void EntityManager::Init()
 	{
 		m_transformIcon.reset(new GNF::GUI::Icon(L"Assets/transformIcon.png",Core::Game::GetInstance()->GetCurrentTextureManager(),32,32));
+		m_objectIcon.reset(new GNF::GUI::Icon(L"Assets/objectIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 32, 32));
 	}
 
 	bool EntityManager::ChangeNameOf(Entity::EntityID id, const char* newName)
@@ -108,6 +109,9 @@ namespace GNF::Core
 				if (ImGui::Selectable(entity.second.first->GetName().c_str(),isSelected))
 				{
 					m_selectedEntity = &entity.second;
+					memset(m_entityPrevName, 0, m_charUsage);
+					std::copy(m_selectedEntity->first->m_name.begin(), m_selectedEntity->first->m_name.end(), m_entityPrevName);
+					m_charUsage = m_selectedEntity->first->m_name.size();
 					SelectedEntityChanged(m_selectedEntity->first);
 				}
 			}
@@ -122,7 +126,63 @@ namespace GNF::Core
 			}
 			else
 			{
+				ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, ImVec4(25.f / 255.f, 29.f / 255.f, 40.f / 255.f, 1));
+				ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBgHovered, ImVec4(30.f / 255.f, 35.f / 255.f, 45.f / 255.f, 1));
+				ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBgActive, ImVec4(25.f / 255.f, 29.f / 255.f, 45.f / 255.f, 1));
+
+				ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_CellPadding, ImVec2(4, 18));
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 9);
+				if (ImGui::BeginTable("##PosTable", 3))
+				{
+					ImGui::TableSetupColumn("##Icon_Col", ImGuiTableColumnFlags_::ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableSetupColumn("##Input_Col");
+					ImGui::TableSetupColumn("##Check_Col", ImGuiTableColumnFlags_::ImGuiTableColumnFlags_WidthFixed);
+
+					ImGui::TableNextRow();
+
+					ImGui::TableSetColumnIndex(0);
+
+					m_objectIcon->Draw();
+
+					ImGui::TableSetColumnIndex(1);
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + m_objectIcon->GetHeight() / 8);
+					ImGui::PushItemWidth(-FLT_MIN);
+					if (m_selectedEntity->first->m_isNamed)
+					{
+						if (ImGui::InputText("##InputName", m_entityPrevName, ENTITY_NAME_MAX_LENGTH, ImGuiInputTextFlags_::ImGuiInputTextFlags_EnterReturnsTrue))
+						{
+							//!: This is for deleting the spaces end of the array
+							/*std::stringstream ss;
+							ss.str(m_entityPrevName);
+							std::string entityPrevNameWithoutSpaces;
+							ss >> entityPrevNameWithoutSpaces;
+							std::string finalString = entityPrevNameWithoutSpaces.substr(0, entityPrevNameWithoutSpaces.find_last_not_of(" ") + 1);*/
+
+							std::string finalString = Common::Utils::DeleteLastSpaces(m_entityPrevName);
+							ChangeNameOf(m_selectedEntity->first->m_entityId, finalString.c_str());
+
+						}
+					}
+					else
+					{
+						ImGui::InputText("##InputName", m_entityPrevName, ENTITY_NAME_MAX_LENGTH, ImGuiInputTextFlags_ReadOnly);
+
+					}
+					ImGui::PopItemWidth();
+
+					ImGui::TableSetColumnIndex(2);
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + m_objectIcon->GetHeight() / 8);
+					ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding,ImVec2(2,2));
+					bool a;
+					ImGui::Checkbox("", &m_selectedEntity->first->m_isNamed);
+					ImGui::PopStyleVar();
+					ImGui::EndTable();
+				}
+				
+				ImGui::PopStyleVar();
+
 				ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding, ImVec2(4,8));
+
 				bool nodeOpen = ImGui::TreeNodeEx("##HTransform", ImGuiTreeNodeFlags_FramePadding);
 				ImGui::PopStyleVar();
 				ImGui::SameLine();
@@ -133,14 +193,16 @@ namespace GNF::Core
 				imguiManager->SetFont(Renderer::FONT_ENTITY_HEADER);
 				ImGui::Text("Transform");
 				imguiManager->SetFontDefault();
+				
+				
 				if(nodeOpen)
 				{
-					ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg,ImVec4(25.f/255.f,29.f/255.f,40.f/255.f,1));
 					auto fullWidth = ImGui::GetContentRegionAvail().x;
-				
+						
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().IndentSpacing);
+					auto leftS = ImGui::GetCursorPosX();				
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-					auto leftS = ImGui::GetCursorPosX();
+
 					//ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_FramePadding, ImVec2(0.f,ImGui::GetStyle().FramePadding.y));
 					//ImGui::GetStyle().Inn
 					ImGui::Text("Position");
@@ -372,9 +434,11 @@ namespace GNF::Core
 					
 					//ImGui::InputFloat("##InputPosX", &m_selectedEntity->first->GetPositionChangable().x);
 					//ImGui::PopStyleVar();
-					ImGui::PopStyleColor();
 					ImGui::TreePop();
 				}
+
+				ImGui::PopStyleColor(3);
+
 				ImGui::Spacing();
 				ImGui::Spacing();
 				ImGui::Separator();

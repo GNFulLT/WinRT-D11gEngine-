@@ -5,8 +5,8 @@
 #include "../Game.h"
 #include <DirectXTK/DirectXHelpers.h>
 
-#define DEBUG_GRAPHIC_CARD
-//#define SINGLE_THREADED_GPU
+//#define DEBUG_GRAPHIC_CARD
+#define SINGLE_THREADED_GPU
 #ifdef _DEBUG
 #define GIVE_DEBUG_NAME(dxobj,name) GThrowIfFailed( \
 dxobj->SetPrivateData(WKPDID_D3DDebugObjectName,sizeof(name)-1,name)	\
@@ -54,7 +54,7 @@ namespace GNF::Core::GraphicEngine
 		Init_RTV();
 		Init_ViewPort();
 		SetViewPort();
-		//InitDSV();
+		InitDSV();
 	}
 
 	void GraphicEngine::Destroy()
@@ -127,7 +127,7 @@ namespace GNF::Core::GraphicEngine
 		Init_RTV();
 		Init_ViewPort();
 		SetViewPort();
-		//InitDSV();
+		InitDSV();
 	}
 
 	void GraphicEngine::SetDPI(UINT dpi)
@@ -149,7 +149,7 @@ namespace GNF::Core::GraphicEngine
 	void GraphicEngine::SetRenderTarget()
 	{
 		ID3D11RenderTargetView* targetViews[] = {m_d3d_renderTargetView.Get()};
-		m_d3d_deviceContext->OMSetRenderTargets(ARRAYSIZE(targetViews), targetViews, nullptr);
+		m_d3d_deviceContext->OMSetRenderTargets(ARRAYSIZE(targetViews), targetViews, m_d3d_depthStencilView.Get());
 	}
 	/*void GraphicEngine::FrameBuffer_SetRenderTarget()
 	{
@@ -181,7 +181,7 @@ namespace GNF::Core::GraphicEngine
 	{
 		float color[] = { r,g,b,a };
 		m_d3d_deviceContext->ClearRenderTargetView(m_d3d_renderTargetView.Get(),color);
-		//m_d3d_deviceContext->ClearDepthStencilView(m_d3d_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		m_d3d_deviceContext->ClearDepthStencilView(m_d3d_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	Bindable::Shader::PixelShaderBindable* GraphicEngine::CreatePixelShader(const wchar_t* path)
@@ -346,7 +346,7 @@ namespace GNF::Core::GraphicEngine
 		GThrowIfFailed(m_d2d_device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, m_d2d_deviceContext.GetAddressOf()));
 		
 	}
-	/*
+	
 	void GraphicEngine::InitDSV()
 	{
 		
@@ -354,8 +354,8 @@ namespace GNF::Core::GraphicEngine
 		//!: Texture Desc of DepthStencil
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(
 			ms_depthStencilFormat,
-			m_frameScreenWidth,
-			m_frameScreenHeight,
+			m_width,
+			m_height,
 			1U, //! DSV only has one texture
 			1U, //!: Single Mipmap
 			D3D11_BIND_DEPTH_STENCIL
@@ -405,7 +405,7 @@ namespace GNF::Core::GraphicEngine
 		GThrowIfFailed(m_d3d_device->CreateTexture2D(&depthStencilDesc, NULL, m_d3d_depthStencilTarget.GetAddressOf()));
 		GThrowIfFailed(m_d3d_device->CreateDepthStencilView(m_d3d_depthStencilTarget.Get(), NULL, m_d3d_depthStencilView.GetAddressOf()));
 	*/
-	/*}*/
+	}
 
 	void GraphicEngine::Init_MSAA_Features()
 	{
