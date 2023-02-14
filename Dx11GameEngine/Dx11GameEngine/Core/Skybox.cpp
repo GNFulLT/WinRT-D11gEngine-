@@ -5,7 +5,7 @@
 #include "Core/VertexBuffer/SkyboxVertexBuffer.h"
 namespace GNF::Core
 {
-	Skybox::Skybox(const wchar_t* imgPath) : m_imagePath(imgPath)
+	Skybox::Skybox(const wchar_t* imgPath) : m_imagePath(imgPath),IResource("Skybox")
 	{
 
 	}

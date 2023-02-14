@@ -6,7 +6,7 @@
 #include <boost/filesystem.hpp>
 namespace GNF::Core
 {
-	TextureManager::TextureManager()
+	TextureManager::TextureManager() : IEngineManager("TextureManager")
 	{
 		//!: For WIC, creates COM objects in main thread not in a side thread
 		CoInitializeEx(nullptr, COINIT_MULTITHREADED);

@@ -297,6 +297,12 @@
     <ClInclude Include="Common\IResource.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Core\IEngineManager_1.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IResource_1.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\BasicVertexShader.hlsl">

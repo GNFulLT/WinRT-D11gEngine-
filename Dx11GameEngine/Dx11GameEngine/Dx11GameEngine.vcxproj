@@ -187,6 +187,7 @@
     <ClInclude Include="Common\Camera\CameraPositioner\FPSCameraPositioner.h" />
     <ClInclude Include="Common\Camera\CameraPositioner\ICameraPositioner.h" />
     <ClInclude Include="Common\IResource.h" />
+    <ClInclude Include="Common\IResource_1.h" />
     <ClInclude Include="Common\Logger.h" />
     <ClInclude Include="Common\Statistic\Statistic.h" />
     <ClInclude Include="Common\Utils\utils_common.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Core\GraphicEngine\GraphicEngine.h" />
     <ClInclude Include="Core\IEngineManager.h" />
+    <ClInclude Include="Core\IEngineManager_1.h" />
     <ClInclude Include="Core\Scene\EntityManager.h" />
     <ClInclude Include="Core\Scene\Scene.h" />
     <ClInclude Include="Core\Skybox.h" />

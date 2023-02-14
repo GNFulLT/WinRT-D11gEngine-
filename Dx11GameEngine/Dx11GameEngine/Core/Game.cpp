@@ -319,6 +319,7 @@ namespace GNF::Core
 		//m_textureManager->Init();
 		m_fpsCameraPositioner.reset(new GNF::Common::Camera::CameraPositioner::FPSCameraPositioner({1.0f,1.0f,2.f},(float)(float)1920/(float)1080));
 		m_camera.reset(new GNF::Common::Camera::Camera(m_fpsCameraPositioner.get()));
+		m_scene.reset(new Scene::Scene(16, 16, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
 
 		auto imGuiRenderer = new Renderer::ImGuiRenderer(hwnd,engine.GetD3DDevice(),engine.GetD3DContext());
 		AddContainerAsSingleton(imGuiRenderer);
@@ -326,16 +327,19 @@ namespace GNF::Core
 		tf::Executor exec;
 		tf::Taskflow flow;
 		flow.name("Game Init flow");
+
 		auto imguiTask = imGuiRenderer->Async_Init(flow);
 		auto textureManagerTask = m_textureManager->Async_Init(flow);
 		auto barTask = m_menuBar->Async_Init(flow);
 		auto skyboxTask = m_skybox->Async_Init(flow);
+		auto sceneTask = m_scene->Async_Init(flow);
 
 		std::fstream file("./taskflow_output.txt", std::ios::out);
 		
 		textureManagerTask.precede(imguiTask);
 
-		imguiTask.precede(barTask,skyboxTask);
+
+		imguiTask.precede(barTask,skyboxTask,sceneTask);
 
 
 		flow.dump(file);
@@ -437,8 +441,9 @@ namespace GNF::Core
 			m_frameSize.x = 16;
 		if (m_frameSize.y < 0)
 			m_frameSize.y = 16;
-		m_scene.reset(new Scene::Scene(m_frameSize.x, m_frameSize.y, engine.GetSwapChainFormat(), engine.GetD3DDevice(), engine.GetD3DContext()));
-		m_scene->Init();
+		
+		m_scene->SceneSizeChanged(m_frameSize.x, m_frameSize.y);
+		
 		ImGui::End();
 		m_scene->PreRender();
 

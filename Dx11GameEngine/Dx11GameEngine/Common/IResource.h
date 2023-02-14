@@ -1,7 +1,7 @@
 #pragma once
 
 #include <taskflow/taskflow.hpp>
-
+#include "Common/Logger.h"
 namespace GNF::Common
 {
 	class IResource
@@ -23,7 +23,7 @@ namespace GNF::Common
 			m_isInitialized = true;
 		}
 
-		tf::Task Async_Init(tf::Taskflow& flow)
+		virtual tf::Task Async_Init(tf::Taskflow& flow)
 		{
 			auto task = flow.emplace([n = this] 
 				{
@@ -39,6 +39,29 @@ namespace GNF::Common
 					}
 					if(initalizedSucceed)
 						n->Initialized(); 
+				});
+#ifdef _DEBUG
+			task.name(GetName());
+#endif
+			return task;
+		}
+
+		virtual tf::Task Async_Init(tf::Subflow& flow)
+		{
+			auto task = flow.emplace([n = this]
+				{
+					bool initalizedSucceed = true;
+					try
+					{
+						n->Init();
+					}
+					catch (const std::exception& ex)
+					{
+						initalizedSucceed = false;
+						Logger::LogError(ex.what());
+					}
+					if (initalizedSucceed)
+						n->Initialized();
 				});
 #ifdef _DEBUG
 			task.name(GetName());

@@ -3,7 +3,7 @@
 
 #include <taskflow/taskflow.hpp>
 #include <functional>
-
+#include "Common/Logger.h"
 namespace GNF::Core
 {
 	class IEngineManager
@@ -25,7 +25,7 @@ namespace GNF::Core
 			m_isInitialized = true;
 		}
 
-		tf::Task Async_Init(tf::Taskflow& flow)
+		virtual tf::Task Async_Init(tf::Taskflow& flow)
 		{
 			auto task = flow.emplace([n = this]
 				{

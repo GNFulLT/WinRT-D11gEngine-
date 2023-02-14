@@ -3,10 +3,11 @@
 #include "Renderer/SceneRenderer.h"
 #include "EntityManager.h"
 #include <memory>
+#include "Core/IEngineManager_1.h"
 
 namespace GNF::Core::Scene
 {
-	class Scene
+	class Scene : public Core::IEngineManager_1
 	{
 	public:
 		Scene(UINT width,UINT height,DXGI_FORMAT format,ID3D11Device3* device,ID3D11DeviceContext3* context);
@@ -15,6 +16,8 @@ namespace GNF::Core::Scene
 		void SceneSizeChanged(UINT width, UINT height);
 
 		void RenderSGui();
+
+		void Subflow_Init() override;
 
 		//!: Init Resources
 		void Init();

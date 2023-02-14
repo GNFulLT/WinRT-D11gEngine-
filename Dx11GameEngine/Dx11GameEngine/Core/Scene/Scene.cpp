@@ -5,12 +5,16 @@
 namespace GNF::Core::Scene
 {
 	Scene::Scene(UINT width, UINT height, DXGI_FORMAT format, ID3D11Device3* device, ID3D11DeviceContext3* context)
-		:m_width(width),m_height(height)
+		:m_width(width),m_height(height),Core::IEngineManager_1("Scene")
 	{
 		m_entityManager.reset(new EntityManager());
 		m_sceneRenderer.reset(new Renderer::SceneRenderer(width, height, format, device, context));
 	}
 
+	void Subflow_Init()
+	{
+
+	}
 	void Scene::PreRender()
 	{
 		m_entityManager->PreRender();
@@ -24,10 +28,10 @@ namespace GNF::Core::Scene
 	void Scene::Init()
 	{
 		m_entityManager->Init();
+
 		m_sceneRenderer->Init();
 		
 		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateTexture(L"Assets/texture.jpg");
-
 
 		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();
 		m_triangle->OnCreated();
