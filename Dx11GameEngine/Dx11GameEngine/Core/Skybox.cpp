@@ -5,9 +5,14 @@
 #include "Core/VertexBuffer/SkyboxVertexBuffer.h"
 namespace GNF::Core
 {
-	void Skybox::Init(const wchar_t* imgPath)
+	Skybox::Skybox(const wchar_t* imgPath) : m_imagePath(imgPath)
 	{
-		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateImage(imgPath);
+
+	}
+
+	void Skybox::Init()
+	{
+		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateImage(m_imagePath.c_str());
 		
 		if (id == 0)
 			throw std::runtime_error("Skybox couldn't loaded");

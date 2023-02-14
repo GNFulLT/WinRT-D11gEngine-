@@ -6,6 +6,13 @@
 #include <boost/filesystem.hpp>
 namespace GNF::Core
 {
+	TextureManager::TextureManager()
+	{
+		//!: For WIC, creates COM objects in main thread not in a side thread
+		CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+		m_bindedTexture = nullptr;
+	}
+
 	void LogDebug(const char* msg)
 	{
 		Common::Logger::LogDebug(msg);

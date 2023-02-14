@@ -7,12 +7,15 @@
 #include "Core/Bindable/Buffer/VertexBufferBindable.h"
 #include "Core/Bindable/Buffer/IndexBufferBindable.h"
 #include <wrl/client.h>
+#include "Common/IResource.h"
+
 namespace GNF::Core
 {
-	class Skybox
+	class Skybox : public Common::IResource
 	{
 	public:
-		void Init(const wchar_t* imgPath);
+		Skybox(const wchar_t* imgPath);
+		void Init();
 
 		void Draw();
 	private:
@@ -26,6 +29,7 @@ namespace GNF::Core
 		std::unique_ptr<Bindable::Buffer::IndexBufferBindable> m_indexBuffer;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
-
+		
+		std::wstring m_imagePath;
 	};
 }

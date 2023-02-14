@@ -10,7 +10,7 @@
 #include <DDSTextureLoader.h>
 #include <HDRTextureLoader.h>
 #include <WICTextureLoader.h>
-
+#include "IEngineManager.h"
 namespace GNF::Texture
 {
 	enum TextureState
@@ -32,9 +32,11 @@ namespace GNF::Image
 namespace GNF::Core
 {	
 #define REX(str,imgType) {L#str,imgType}
-	class TextureManager
+	class TextureManager : public IEngineManager
 	{
 	public:
+		TextureManager();
+
 		//!: Depends on Graphic Engine
 		void Init();
 		Texture::TextureID CreateTexture(const wchar_t* filepath);

@@ -27,7 +27,7 @@ namespace GNF::Core
 		m_window.reset(wnd);
 		m_menuBar.reset(new GUI::MenuBar());
 		m_textureManager.reset(new TextureManager());
-		m_skybox.reset(new Skybox());
+		m_skybox.reset(new Skybox(L"Assets/bg.hdr"));
 		//m_scene.reset(new Scene::Scene());
 		//m_entityNode.reset(new GUI::EntityNode());
 
@@ -316,8 +316,7 @@ namespace GNF::Core
 		m_pixelShader.reset(engine.CreatePixelShader(L"./SimplePixelShader.cso"));
 		
 		m_statistic.reset(new Common::Statistic::Statistic());
-		m_textureManager->Init();
-		m_skybox->Init(L"Assets/bg.hdr");
+		//m_textureManager->Init();
 		m_fpsCameraPositioner.reset(new GNF::Common::Camera::CameraPositioner::FPSCameraPositioner({1.0f,1.0f,2.f},(float)(float)1920/(float)1080));
 		m_camera.reset(new GNF::Common::Camera::Camera(m_fpsCameraPositioner.get()));
 
@@ -328,16 +327,20 @@ namespace GNF::Core
 		tf::Taskflow flow;
 		flow.name("Game Init flow");
 		auto imguiTask = imGuiRenderer->Async_Init(flow);
-	
+		auto textureManagerTask = m_textureManager->Async_Init(flow);
 		auto barTask = m_menuBar->Async_Init(flow);
-		
+		auto skyboxTask = m_skybox->Async_Init(flow);
+
 		std::fstream file("./taskflow_output.txt", std::ios::out);
+		
+		textureManagerTask.precede(imguiTask);
+
+		imguiTask.precede(barTask,skyboxTask);
+
 
 		flow.dump(file);
-		
+
 		file.close();
-		
-		imguiTask.precede(barTask);
 
 		exec.run(flow).wait();
 		
