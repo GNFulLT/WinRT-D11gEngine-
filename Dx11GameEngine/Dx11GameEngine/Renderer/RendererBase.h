@@ -11,6 +11,8 @@ namespace GNF::Renderer
 
 		}
 		virtual ~RendererBase() = default;
+
+
 	protected:
 		ID3D11Device3* p_device;
 		ID3D11DeviceContext3* p_deviceContext;

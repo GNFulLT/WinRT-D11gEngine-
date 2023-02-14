@@ -14,7 +14,7 @@
 namespace GNF::Renderer
 {
 	
-		ImGuiRenderer::ImGuiRenderer(HWND hwnd, ID3D11Device3* device, ID3D11DeviceContext3* deviceContext) : RendererBase(device,deviceContext)
+		ImGuiRenderer::ImGuiRenderer(HWND hwnd, ID3D11Device3* device, ID3D11DeviceContext3* deviceContext) : RendererBase(device,deviceContext),IEngineManager("ImGuiRenderer")
 		{
 			m_hwnd = hwnd;
 		}

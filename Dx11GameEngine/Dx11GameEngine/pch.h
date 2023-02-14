@@ -1,7 +1,10 @@
 #pragma once
-
+#define _SILENCE_ALL_CXX23_DEPRECATION_WARNINGS
+#include <taskflow/taskflow.hpp>
 #include <unknwn.h>
 #include <windows.h>
+#undef min
+#undef max
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Core.h>

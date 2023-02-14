@@ -8,6 +8,9 @@
 #include <system_error>
 #include <vector>
 #include <Windows.h>
+#include <string>
+#include <format>
+
 #include "../Logger.h"
 namespace GNF::Common::Utils
 {

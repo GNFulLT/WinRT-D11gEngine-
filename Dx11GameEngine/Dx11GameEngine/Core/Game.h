@@ -8,7 +8,6 @@
 #include "Bindable/Buffer/VertexBufferBindable.h"
 #include "Common/Statistic/Statistic.h"
 #include "Common/Camera/Camera.h"
-#include "Renderer/ImGuiRenderer.h"
 #include "GUI/MenuBar.h"
 #include "Scene/EntityManager.h"
 #include "imgui/imgui.h"
@@ -17,7 +16,9 @@
 #include "TextureManager.h"
 //X: Change this
 #include "GUI/EntityNode.h"
-
+#include "IEngineManager.h"
+#include <typeindex>
+#include <any>
 namespace GNF::Core
 {
 	struct Layout
@@ -43,6 +44,8 @@ namespace GNF::Core
 		~Game();
 		Game(const Game&) = delete;
 		Game& operator=(const Game&) = delete;
+
+		
 
 		void ValidateLayout(ImGuiID id);
 		
@@ -91,14 +94,46 @@ namespace GNF::Core
 			return &engine;
 		}
 
-		std::weak_ptr<Renderer::ImGuiRenderer> GetImGuiRenderer();
+		//std::weak_ptr<Renderer::ImGuiRenderer> GetImGuiRenderer();
 
 		void RenderSGui();
 		void PreRenderSGui();
 		void FrameSizeChanged();
 		void FixedRender();
+		
+		template<class T>
+		std::shared_ptr<T> GetEngineManager()
+		{
+			//!: Type Founded in container
+			if (const auto i = m_container.find(typeid(T)); i != m_container.end())
+			{
+				//!: Check If desired variable is singleton
+				if (i->second.first)
+				{
+					//!: Variable is singleton so second value is a shared_ptr
+					return std::any_cast<std::shared_ptr<T>>(i->second.second);
+				}
+				else
+				{
+					//!: Variable is not singleton so second value is a method
+					return std::any_cast<std::function<std::shared_ptr<T>()>>(i->second.second)();
+				}
+			}
+			else
+			{
+				throw std::runtime_error{ std::format("Could not find factory method for type [{}] in container",typeid(T).name()) };
+			}
+		}
+
 	private:
 		Game(const char* gameName);
+
+		template<class T>
+		Game* AddContainerAsSingleton(T* instance)
+		{
+			m_container.emplace(typeid(T),std::make_pair(true,std::shared_ptr<T>(instance)));
+			return g_instance.get();
+		}
 
 		//!: Render statement for just once
 		void PreRender();
@@ -110,6 +145,7 @@ namespace GNF::Core
 		float m_deltaTime = 0;
 		std::stack<std::unique_ptr<State::IState>> m_states;
 		std::unique_ptr<Common::Windowing::IWindow> m_window;
+		
 		GraphicEngine::GraphicEngine engine;
 		
 		std::unique_ptr<Bindable::Shader::PixelShaderBindable> m_pixelShader;
@@ -122,13 +158,16 @@ namespace GNF::Core
 		std::unique_ptr<Common::Statistic::Statistic> m_statistic;
 		std::unique_ptr<Common::Camera::CameraPositioner::ICameraPositioner> m_fpsCameraPositioner;
 		std::unique_ptr<Common::Camera::Camera> m_camera;
-		std::shared_ptr<Renderer::ImGuiRenderer> m_imgui;
+		//std::shared_ptr<Renderer::ImGuiRenderer> m_imgui;
 		std::unique_ptr<Scene::Scene> m_scene;
 		std::unique_ptr<TextureManager> m_textureManager;
 
 		//std::shared_ptr<Entity::IEntity> m_triangle;
 		//std::shared_ptr<Entity::IEntity> m_triangle1;
+		
 
+		//!: Container 
+		std::unordered_map<std::type_index, std::pair<bool,std::any>> m_container;
 
 
 		ImVec2 m_frameSize;

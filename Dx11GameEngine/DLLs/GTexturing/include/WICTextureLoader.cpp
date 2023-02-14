@@ -9,6 +9,8 @@ namespace GNF::Texturing
 	WICTextureLoader::WICTextureLoader(ID3D11Device3* device)
 	{
 		m_device = device;
+		auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	}
 	WICTextureLoader::WICTextureLoader(ID3D11Device3* device, std::function<void(const char*)> logDebug, std::function<void(const char*)> logCritical)
 	{
@@ -16,6 +18,7 @@ namespace GNF::Texturing
 		m_logDebug = logDebug;
 		m_logCritical = logCritical;
 		m_debugMode = true;
+		auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	}
 	HRESULT WICTextureLoader::GLoadImage(_In_ const wchar_t* path, _Out_opt_ Image::IImage** ppImg)
 	{
@@ -73,7 +76,7 @@ namespace GNF::Texturing
 			if (hr == E_NOINTERFACE)
 			{
 				m_logDebug(std::format("COM objs not found. Initialize COM", hr).c_str());
-				hr = CoInitialize(nullptr);
+				hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 				if (FAILED(hr))
 				{
 					m_logCritical("Couldn't loaded COM");
@@ -100,7 +103,7 @@ namespace GNF::Texturing
 			if (hr == E_NOINTERFACE)
 			{
 				m_logDebug(std::format("COM objs not found. Initialize COM", hr).c_str());
-				hr = CoInitialize(nullptr);
+				hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 				if (FAILED(hr))
 				{
 					m_logCritical("Couldn't loaded COM");

@@ -4,7 +4,7 @@
 #include "RendererBase.h"
 #include <vector>
 #include <functional>
-
+#include "Core/IEngineManager.h"
 
 namespace GNF::Renderer
 {
@@ -14,15 +14,15 @@ namespace GNF::Renderer
 		FONT_HEADER,
 		FONT_ENTITY_HEADER
 	};
-	class ImGuiRenderer : public RendererBase
+	class ImGuiRenderer : public RendererBase, public Core::IEngineManager
 	{
 	public:
 		ImGuiRenderer(HWND hwnd,ID3D11Device3* device,ID3D11DeviceContext3* deviceContext);
 		~ImGuiRenderer();
-		void Init();
+		void Init() override;
 		void Begin();
 		void Draw();
-		void Finish();
+		void Finish();	
 
 		inline void SetFont(ImGuiFonts font)
 		{
@@ -42,5 +42,7 @@ namespace GNF::Renderer
 		HWND m_hwnd;
 		std::vector<std::function<void()>> m_renderFunctions;
 		std::unordered_map<ImGuiFonts, std::unique_ptr<ImFont>> m_fonts;
+		
+
 	};
 }

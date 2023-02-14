@@ -4,9 +4,10 @@
 #include "Renderer/ImGuiRenderer.h"
 #include "Common/Windowing/IMouse.h"
 #include "Icon.h"
+#include "Common/IResource.h"
 namespace GNF::GUI
 {
-	class MenuBar
+	class MenuBar : public Common::IResource
 	{
 		struct ViewSettings
 		{
@@ -18,7 +19,7 @@ namespace GNF::GUI
 		MenuBar() = default;
 
 		//!: Initializing Images Needed for Buttons
-		void Init(ID3D11DeviceContext* context);
+		void Init() final override;
 		//!: Should Be Init after the loading fonts and inside PreRender
 		void Init_PreRender();
 		void RenderSGui();

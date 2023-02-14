@@ -6,7 +6,7 @@
 #include <DirectXTK/DirectXHelpers.h>
 
 //#define DEBUG_GRAPHIC_CARD
-#define SINGLE_THREADED_GPU
+//#define SINGLE_THREADED_GPU
 #ifdef _DEBUG
 #define GIVE_DEBUG_NAME(dxobj,name) GThrowIfFailed( \
 dxobj->SetPrivateData(WKPDID_D3DDebugObjectName,sizeof(name)-1,name)	\

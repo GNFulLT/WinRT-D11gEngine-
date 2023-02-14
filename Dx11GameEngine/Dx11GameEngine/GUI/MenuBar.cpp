@@ -4,11 +4,12 @@
 #include "imgui/imgui.h"
 #include "Core/Game.h"
 #include "Common/Utils/utils_imgui.h"
+#include "Renderer/ImGuiRenderer.h"
 namespace GNF::GUI
 {
-	void MenuBar::Init(ID3D11DeviceContext* context)
+	void MenuBar::Init()
 	{
-		wp_guiRenderer = Core::Game::GetInstance()->GetImGuiRenderer();
+		wp_guiRenderer = Core::Game::GetInstance()->GetEngineManager<Renderer::ImGuiRenderer>();
 		m_icon.reset(new Icon(L"Assets/nameIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 128, 32));
 		m_icon->SetSize(m_icon->GetFullWidth(), m_icon->GetFullHeight());
 	}

@@ -65,6 +65,9 @@
     <Filter Include="Core\Scene">
       <UniqueIdentifier>{63e01fb2-4a90-4c7a-8fb5-589d5b1e54d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Command">
+      <UniqueIdentifier>{b8b0c31f-2c90-4ecf-9095-b1812104d1a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EntryP.cpp" />
@@ -144,6 +147,9 @@
     </ClCompile>
     <ClCompile Include="GUI\Icon.cpp">
       <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Command\CommandManager.cpp">
+      <Filter>Core\Command</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,6 +284,18 @@
     </ClInclude>
     <ClInclude Include="GUI\Icon.h">
       <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Command\ICommand.h">
+      <Filter>Core\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Command\CommandManager.h">
+      <Filter>Core\Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IEngineManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IResource.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

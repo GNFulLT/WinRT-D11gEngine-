@@ -316,14 +316,34 @@ namespace GNF::Core
 		m_pixelShader.reset(engine.CreatePixelShader(L"./SimplePixelShader.cso"));
 		
 		m_statistic.reset(new Common::Statistic::Statistic());
-			
+		m_textureManager->Init();
+		m_skybox->Init(L"Assets/bg.hdr");
 		m_fpsCameraPositioner.reset(new GNF::Common::Camera::CameraPositioner::FPSCameraPositioner({1.0f,1.0f,2.f},(float)(float)1920/(float)1080));
 		m_camera.reset(new GNF::Common::Camera::Camera(m_fpsCameraPositioner.get()));
-		m_imgui.reset(new Renderer::ImGuiRenderer(hwnd,engine.GetD3DDevice(),engine.GetD3DContext()));
-		
-		m_imgui->Init();
 
-		m_menuBar->Init(engine.GetD3DContext());
+		auto imGuiRenderer = new Renderer::ImGuiRenderer(hwnd,engine.GetD3DDevice(),engine.GetD3DContext());
+		AddContainerAsSingleton(imGuiRenderer);
+
+		tf::Executor exec;
+		tf::Taskflow flow;
+		flow.name("Game Init flow");
+		auto imguiTask = imGuiRenderer->Async_Init(flow);
+	
+		auto barTask = m_menuBar->Async_Init(flow);
+		
+		std::fstream file("./taskflow_output.txt", std::ios::out);
+
+		flow.dump(file);
+		
+		file.close();
+		
+		imguiTask.precede(barTask);
+
+		exec.run(flow).wait();
+		
+		if (!m_menuBar->IsInitialized())
+			throw std::runtime_error("Menu Bar couldn't initialized");
+
 		/*m_entityManager->Init();
 		m_entityNode->Init();*/
 		
@@ -366,18 +386,21 @@ namespace GNF::Core
 	{
 		//m_entityManager.reset(new EntityManager());
 		engine.Init();
-		m_textureManager->Init();
 		m_window->Init();
-		m_skybox->Init(L"Assets/bg.hdr");
+		
 	}
+
+	/*
 	std::weak_ptr<Renderer::ImGuiRenderer> Game::GetImGuiRenderer()
 	{
 		return m_imgui;
 	}
+	*/
 	void Game::FixedRender()
 	{
 		engine.SetRenderTarget();
 		engine.SetViewPort();
+		auto m_imgui = GetEngineManager<Renderer::ImGuiRenderer>();
 
 		m_imgui->Begin();
 		PreRenderSGui();
@@ -398,6 +421,7 @@ namespace GNF::Core
 		engine.SetViewPort();
 		engine.ClearColor(0.f, 1.f, 0.f, 1.f);
 		
+		auto m_imgui = GetEngineManager<Renderer::ImGuiRenderer>();
 		m_imgui->Begin();
 		m_menuBar->Init_PreRender();
 		PreRenderSGui();
@@ -444,6 +468,8 @@ namespace GNF::Core
 		//m_triangle->ReSetVerticesIndices();
 		//m_triangle1->ReSetVerticesIndices();
 		//m_triangle->SetTexture(id);
+		auto m_imgui = GetEngineManager<Renderer::ImGuiRenderer>();
+
 		while (m_window->IsOpen())
 		{
 			endTick = tickCount;

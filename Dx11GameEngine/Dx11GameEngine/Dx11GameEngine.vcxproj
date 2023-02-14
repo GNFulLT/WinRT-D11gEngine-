@@ -159,6 +159,7 @@
     <ClCompile Include="Core\Bindable\Miscellaneous\TextureBindable.cpp" />
     <ClCompile Include="Core\Bindable\Shader\PixelShaderBindable.cpp" />
     <ClCompile Include="Core\Bindable\Shader\VertexShaderBindable.cpp" />
+    <ClCompile Include="Core\Command\CommandManager.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Core\GraphicEngine\GraphicEngine.cpp" />
     <ClCompile Include="Core\Scene\EntityManager.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="Common\Camera\Camera.h" />
     <ClInclude Include="Common\Camera\CameraPositioner\FPSCameraPositioner.h" />
     <ClInclude Include="Common\Camera\CameraPositioner\ICameraPositioner.h" />
+    <ClInclude Include="Common\IResource.h" />
     <ClInclude Include="Common\Logger.h" />
     <ClInclude Include="Common\Statistic\Statistic.h" />
     <ClInclude Include="Common\Utils\utils_common.h" />
@@ -207,8 +209,11 @@
     <ClInclude Include="Core\Bindable\Miscellaneous\TextureBindable.h" />
     <ClInclude Include="Core\Bindable\Shader\PixelShaderBindable.h" />
     <ClInclude Include="Core\Bindable\Shader\VertexShaderBindable.h" />
+    <ClInclude Include="Core\Command\CommandManager.h" />
+    <ClInclude Include="Core\Command\ICommand.h" />
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Core\GraphicEngine\GraphicEngine.h" />
+    <ClInclude Include="Core\IEngineManager.h" />
     <ClInclude Include="Core\Scene\EntityManager.h" />
     <ClInclude Include="Core\Scene\Scene.h" />
     <ClInclude Include="Core\Skybox.h" />
