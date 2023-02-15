@@ -1,6 +1,7 @@
 #pragma once	
 #include "IResource.h"
 #include <vector>
+
 namespace GNF::Common
 {
 	//!: This interface helps to implement subflow tasking
@@ -12,22 +13,21 @@ namespace GNF::Common
 
 		virtual ~IResource_1() = default;
 
-		virtual tf::Task Async_Init(tf::Taskflow& flow)
+		virtual tf::Task Async_Init(tf::Taskflow& flow) override;
+		inline tf::Subflow** GetSubflow()
 		{
-			//!: Calls Subflow Init and initialize subflow tasks fills inside of m_subflowTasks
-			Subflow_Init();
-			auto task = flow.emplace([n = this](tf::Subflow& subflow) {
-
-				});
+			return &m_subflow;
 		}
-	protected:
-		virtual void AddAsSubflowTask(const tf::Task& task)
-		{
-			m_subflowTasks.push_back(task);
-		}
-
-	private:
-		std::vector<tf::Task> m_subflowTasks;
+	public:
 		virtual void Subflow_Init() = 0;
+	protected:
+		//!: Subflow
+		tf::Task AddAsSubflowTask(Common::IResource* res);
+		tf::Task AddAsSubflowTask(Common::IResource_1* res);
+
+		tf::Task InitAsTask();
+	private:
+		tf::Subflow* m_subflow = nullptr;
+
 	};
 }

@@ -163,6 +163,9 @@
     <ClCompile Include="GUI\Icon_1.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Common\IResource_1.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logger.h">

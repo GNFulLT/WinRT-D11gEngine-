@@ -35,14 +35,16 @@ namespace GNF::Core
 
 	void EntityManager::Subflow_Init()
 	{
-
+		Common::Logger::LogDebug("Entity Manager Async Init");
+	  	AddAsSubflowTask(m_transformIcon.get());
+		AddAsSubflowTask(m_objectIcon.get());
 	}
 
 	void EntityManager::Init()
-	{
+	{	
 		Common::Logger::LogDebug("Entity Manager Init");
-		m_transformIcon->Init();
-		m_objectIcon->Init();
+		/*m_transformIcon->Init();
+		m_objectIcon->Init();*/
 	}
 
 	bool EntityManager::ChangeNameOf(Entity::EntityID id, const char* newName)

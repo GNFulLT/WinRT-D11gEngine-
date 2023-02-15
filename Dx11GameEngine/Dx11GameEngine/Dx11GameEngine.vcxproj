@@ -150,6 +150,7 @@
     <ClCompile Include="Common\Camera\Camera.cpp" />
     <ClCompile Include="Common\Camera\CameraPositioner\FPSCameraPositioner.cpp" />
     <ClCompile Include="Common\IResource.cpp" />
+    <ClCompile Include="Common\IResource_1.cpp" />
     <ClCompile Include="Common\Statistic\Statistic.cpp" />
     <ClCompile Include="Common\Utils\utils_win32.cpp" />
     <ClCompile Include="Common\Windowing\Win32\Win32_Window.cpp" />

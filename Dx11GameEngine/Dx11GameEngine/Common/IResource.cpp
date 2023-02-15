@@ -5,7 +5,7 @@ namespace GNF::Common
 {
 	tf::Task IResource::Async_Init(tf::Taskflow& flow)
 	{
-	auto task = flow.emplace([n = this]
+	auto task = flow.emplace([n = this]()
 		{
 			bool initalizedSucceed = true;
 			try
