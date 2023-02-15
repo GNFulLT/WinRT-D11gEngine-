@@ -154,6 +154,9 @@
     <ClCompile Include="Core\IEngineManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Common\IResource.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
     <ClCompile Include="Core\IEngineManager_1.cpp">
       <Filter>Core</Filter>
     </ClCompile>

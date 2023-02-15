@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="Common\Camera\Camera.cpp" />
     <ClCompile Include="Common\Camera\CameraPositioner\FPSCameraPositioner.cpp" />
+    <ClCompile Include="Common\IResource.cpp" />
     <ClCompile Include="Common\Statistic\Statistic.cpp" />
     <ClCompile Include="Common\Utils\utils_win32.cpp" />
     <ClCompile Include="Common\Windowing\Win32\Win32_Window.cpp" />
@@ -162,7 +163,12 @@
     <ClCompile Include="Core\Command\CommandManager.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Core\GraphicEngine\GraphicEngine.cpp" />
-    <ClCompile Include="Core\IEngineManager.cpp" />
+    <ClCompile Include="Core\IEngineManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Core\IEngineManager_1.cpp" />
     <ClCompile Include="Core\Scene\EntityManager.cpp" />
     <ClCompile Include="Core\Scene\Scene.cpp" />
