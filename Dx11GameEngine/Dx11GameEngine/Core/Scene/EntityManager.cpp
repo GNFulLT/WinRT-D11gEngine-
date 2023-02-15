@@ -23,16 +23,26 @@ namespace GNF::Core
 	static ImVec2 g_btnSize = ImVec2(20.f, 20.f);
 	static ImVec2 g_inputSize = ImVec2(100.f, 20.f);
 
+	EntityManager::EntityManager() : IEngineManager_1("EntityManager")
+	{
+		m_transformIcon.reset(new GNF::GUI::Icon_1(L"Assets/transformIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 32, 32));
+		m_objectIcon.reset(new GNF::GUI::Icon_1(L"Assets/objectIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 32, 32));
+	}
 	EntityManager::~EntityManager()
 	{
 		int a = 5;
 	}
 
+	void EntityManager::Subflow_Init()
+	{
+
+	}
+
 	void EntityManager::Init()
 	{
 		Common::Logger::LogDebug("Entity Manager Init");
-		m_transformIcon.reset(new GNF::GUI::Icon(L"Assets/transformIcon.png",Core::Game::GetInstance()->GetCurrentTextureManager(),32,32));
-		m_objectIcon.reset(new GNF::GUI::Icon(L"Assets/objectIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 32, 32));
+		m_transformIcon->Init();
+		m_objectIcon->Init();
 	}
 
 	bool EntityManager::ChangeNameOf(Entity::EntityID id, const char* newName)

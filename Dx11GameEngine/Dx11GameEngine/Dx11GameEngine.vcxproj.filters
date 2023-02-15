@@ -160,6 +160,9 @@
     <ClCompile Include="Core\IEngineManager_1.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\Icon_1.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logger.h">
@@ -311,6 +314,9 @@
     </ClInclude>
     <ClInclude Include="Common\IResource_1.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Icon_1.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

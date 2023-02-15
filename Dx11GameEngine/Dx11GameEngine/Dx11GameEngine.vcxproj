@@ -179,6 +179,7 @@
     <ClCompile Include="Entitiy\Triangle2D.cpp" />
     <ClCompile Include="EntryP.cpp" />
     <ClCompile Include="GUI\Icon.cpp" />
+    <ClCompile Include="GUI\Icon_1.cpp" />
     <ClCompile Include="GUI\IFixedWindowChild.cpp" />
     <ClCompile Include="GUI\MenuBar.cpp" />
     <ClCompile Include="pch.cpp">
@@ -236,6 +237,7 @@
     <ClInclude Include="Entitiy\IEntity.h" />
     <ClInclude Include="Entitiy\Triangle2D.h" />
     <ClInclude Include="GUI\Icon.h" />
+    <ClInclude Include="GUI\Icon_1.h" />
     <ClInclude Include="GUI\IFixedWindowChild.h" />
     <ClInclude Include="GUI\MenuBar.h" />
     <ClInclude Include="imgui_wrapper.h" />

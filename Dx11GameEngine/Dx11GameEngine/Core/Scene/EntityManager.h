@@ -6,9 +6,10 @@
 #include "Common/Logger.h"
 #include <vector>
 #include <boost/signals2.hpp>
-#include "GUI/Icon.h"
+#include "GUI/Icon_1.h"
 #include "Core/TextureManager.h"
 #include "Common/IResource.h"
+#include "Core/IEngineManager_1.h"
 /*
 namespace std
 {
@@ -27,17 +28,18 @@ namespace GNF::Core
 {
 	typedef boost::signals2::signal<void(const std::weak_ptr<Entity::IEntity>&)> EntityChangedSignal;
 
-	class EntityManager : public Common::IResource
+	class EntityManager : public IEngineManager_1
 	{
 
 	public:
-		EntityManager() : IResource("EntityManager")
-		{}
+		EntityManager();
 		~EntityManager();
 
 		void PreRender();
 
 		bool ChangeNameOf(Entity::EntityID, const char* newName);
+		
+		void Subflow_Init() override;
 
 		inline auto AddSlotEntityChanged(const EntityChangedSignal::slot_type& slot) const noexcept
 		{
@@ -89,8 +91,8 @@ namespace GNF::Core
 		
 		std::pair<std::shared_ptr<Entity::IEntity>, bool>* m_selectedEntity = nullptr;
 
-		std::unique_ptr<GUI::Icon> m_transformIcon;
-		std::unique_ptr<GUI::Icon> m_objectIcon;
+		std::unique_ptr<GUI::Icon_1> m_transformIcon;
+		std::unique_ptr<GUI::Icon_1> m_objectIcon;
 
 		char m_entityPrevName[ENTITY_NAME_MAX_LENGTH] = { 0 };
 		uint_fast8_t m_charUsage = 0;
