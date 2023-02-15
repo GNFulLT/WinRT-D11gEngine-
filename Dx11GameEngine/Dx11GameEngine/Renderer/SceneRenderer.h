@@ -2,9 +2,11 @@
 
 #include "RendererBase.h"
 #include <wrl/client.h>
+#include "Common/IResource.h"
+
 namespace GNF::Renderer
 {
-	class SceneRenderer : public RendererBase
+	class SceneRenderer : public RendererBase, public Common::IResource
 	{
 	public:
 		SceneRenderer(UINT width,UINT height,DXGI_FORMAT swapChainFormat,ID3D11Device3* device, ID3D11DeviceContext3* deviceContext);
@@ -17,7 +19,7 @@ namespace GNF::Renderer
 		void ChangeResolution(UINT width, UINT height);
 
 		//!: Initialize Resources
-		void Init();
+		void Init() override;
 
 		//!: Clears RTV DTV
 		void Clear();

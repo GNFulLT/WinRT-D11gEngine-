@@ -30,6 +30,7 @@ namespace GNF::Core
 
 	void EntityManager::Init()
 	{
+		Common::Logger::LogDebug("Entity Manager Init");
 		m_transformIcon.reset(new GNF::GUI::Icon(L"Assets/transformIcon.png",Core::Game::GetInstance()->GetCurrentTextureManager(),32,32));
 		m_objectIcon.reset(new GNF::GUI::Icon(L"Assets/objectIcon.png", Core::Game::GetInstance()->GetCurrentTextureManager(), 32, 32));
 	}
@@ -38,9 +39,9 @@ namespace GNF::Core
 	{
 		if (auto entity = m_map.find(id); entity != m_map.end())
 		{
-			if (m_nameMap.find(newName) != m_nameMap.end())
+			if (m_nameMap.find(newName) != m_nameMap.end() || std::strlen(newName) == 0)
 			{
-				Common::Logger::LogWarn("There is already named entity with that name");
+				Common::Logger::LogWarn("There is already named entity with that name or name length = 0");
 				return false;
 			}
 			else

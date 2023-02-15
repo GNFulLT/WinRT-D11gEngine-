@@ -341,16 +341,16 @@ namespace GNF::Core
 
 		imguiTask.precede(barTask,skyboxTask,sceneTask);
 
-
+		exec.run(flow).wait();
+		
 		flow.dump(file);
 
 		file.close();
 
-		exec.run(flow).wait();
-		
 		if (!m_menuBar->IsInitialized())
 			throw std::runtime_error("Menu Bar couldn't initialized");
 
+		//m_scene->Init();
 		/*m_entityManager->Init();
 		m_entityNode->Init();*/
 		

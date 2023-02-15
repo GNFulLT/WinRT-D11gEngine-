@@ -13,38 +13,16 @@ namespace GNF::Core
 
 		virtual ~IEngineManager_1() = default;
 
-		
-	protected:
+		virtual tf::Task Async_Init(tf::Taskflow& flow) override;
+
+	public:
 		virtual void Subflow_Init() = 0;
-
-		tf::Subflow& GetSubflow()
-		{
-			return m_subflow;
-		}
-
+	protected:
 		//!: Subflow
-		tf::Task AddAsSubflowTask(Common::IResource* res)
-		{
-			tf::Task& task = m_subflow.emplace([res = res]() {
-				bool initalizedSucceed = true;
-				try
-				{
-					res->Init();
-				}
-				catch (const std::exception& ex)
-				{
-					initalizedSucceed = false;
-					Common::Logger::LogError(std::format("Exception in method named with {}\n{}", res->GetName(), ex.what()).c_str());
-				}
-				if (initalizedSucceed)
-					res->Initialized();
-			}).name(res->GetName());
-			
-			return task;
-		}
-
+		tf::Task AddAsSubflowTask(Common::IResource* res);
+		tf::Task InitAsTask();
 	private:
-		tf::Subflow m_subflow;
+		tf::Subflow* m_subflow = nullptr;
 		
 	};
 }

@@ -8,6 +8,7 @@
 #include <boost/signals2.hpp>
 #include "GUI/Icon.h"
 #include "Core/TextureManager.h"
+#include "Common/IResource.h"
 /*
 namespace std
 {
@@ -26,10 +27,12 @@ namespace GNF::Core
 {
 	typedef boost::signals2::signal<void(const std::weak_ptr<Entity::IEntity>&)> EntityChangedSignal;
 
-	class EntityManager
+	class EntityManager : public Common::IResource
 	{
 
 	public:
+		EntityManager() : IResource("EntityManager")
+		{}
 		~EntityManager();
 
 		void PreRender();
@@ -41,7 +44,7 @@ namespace GNF::Core
 			return SelectedEntityChanged.connect(slot);
 		}
 
-		void Init();
+		void Init() override;
 		void RenderSGui();
 		std::weak_ptr<Entity::IEntity> CreateTriangle2D(const float edgeSize,DirectX::SimpleMath::Vector3 worldPos = Entity::DEFAULT_WORLD_POS);
 		inline std::weak_ptr<Entity::IEntity> GetFocusedEntity() const noexcept

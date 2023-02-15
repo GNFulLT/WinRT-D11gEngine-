@@ -7,7 +7,8 @@ namespace GNF::Renderer
 		m_width(width),
 		m_height(height),
 		m_renderBufferFormat(swapChainFormat),
-		RendererBase(device,deviceContext)
+		RendererBase(device,deviceContext),
+		Common::IResource("SceneRenderer")
 	{
 		m_renderViewPort = CD3D11_VIEWPORT(0.f, 0.f, (float)width, (float)height);
 	}

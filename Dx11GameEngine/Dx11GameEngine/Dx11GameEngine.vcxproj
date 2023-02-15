@@ -162,6 +162,8 @@
     <ClCompile Include="Core\Command\CommandManager.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Core\GraphicEngine\GraphicEngine.cpp" />
+    <ClCompile Include="Core\IEngineManager.cpp" />
+    <ClCompile Include="Core\IEngineManager_1.cpp" />
     <ClCompile Include="Core\Scene\EntityManager.cpp" />
     <ClCompile Include="Core\Scene\Scene.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />

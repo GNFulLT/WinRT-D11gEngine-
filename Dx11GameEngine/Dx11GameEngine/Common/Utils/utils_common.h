@@ -13,16 +13,16 @@ namespace GNF::Common::Utils
 	inline std::string DeleteLastSpaces(const char* pStr)
 	{
 		std::string str(pStr);
-		auto lastIndex = str.size() - 1;
+		int lastIndex = ((int)str.size()) - 1;
 		while (lastIndex >= 0 && str[lastIndex] == ' ')
 			lastIndex--;
 
-		return str.substr(0, lastIndex);
+		return str.substr(0, lastIndex + 1);
 	}
 
 	inline std::string DeleteLastSpaces(const std::string& str)
 	{
-		int last = str.size() - 1;
+		int last = ((int)str.size()) - 1;
 		while (last >= 0 && str[last] == ' ')
 			--last;
 		return str.substr(0, last + 1);

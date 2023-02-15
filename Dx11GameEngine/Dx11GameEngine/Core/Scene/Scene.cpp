@@ -11,9 +11,16 @@ namespace GNF::Core::Scene
 		m_sceneRenderer.reset(new Renderer::SceneRenderer(width, height, format, device, context));
 	}
 
-	void Subflow_Init()
+	void Scene::Subflow_Init()
 	{
+		auto entityTask = AddAsSubflowTask(m_entityManager.get());
+		auto rendererTask = AddAsSubflowTask(m_sceneRenderer.get());
+		auto initTask = InitAsTask();
 
+		//!: Should Init after entity manager loaded
+		initTask.succeed(entityTask,rendererTask);
+
+		//m_sceneRenderer->Init();
 	}
 	void Scene::PreRender()
 	{
@@ -26,11 +33,8 @@ namespace GNF::Core::Scene
 	}
 
 	void Scene::Init()
-	{
-		m_entityManager->Init();
-
-		m_sceneRenderer->Init();
-		
+	{	
+		Common::Logger::LogDebug("Scene Init");
 		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateTexture(L"Assets/texture.jpg");
 
 		m_triangle = m_entityManager->CreateTriangle2D(1.f, { 0,1.f,0 }).lock();
