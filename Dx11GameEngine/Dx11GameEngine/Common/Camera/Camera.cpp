@@ -38,10 +38,10 @@ namespace GNF::Common::Camera
 		queryDesc.Query = D3D11_QUERY_EVENT;
 		auto hr = Core::Game::GetInstance()->GetGraphicEngine()->GetD3DDevice()->CreateQuery(&queryDesc, &pQuery);
 		ctx->End(pQuery);
-
+		pQuery->Release();
 		const auto& vp = p_positioner->GetViewProjection();
 		data.mvp = (modelMatrix * vp).Transpose();
-
+		
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		hr = ctx->Map(m_constBuffer->GetBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

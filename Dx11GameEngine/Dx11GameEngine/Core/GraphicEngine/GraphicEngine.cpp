@@ -69,11 +69,6 @@ namespace GNF::Core::GraphicEngine
 #endif
 	}
 
-	/*void GraphicEngine::SetFrameScreen(int width,int height)
-	{
-		m_frameScreenWidth = width;
-		m_frameScreenHeight = height;
-	}*/
 
 	void GraphicEngine::SetWindow(HWND hwnd,UINT width,UINT height, bool isFullScreen,UINT dpi)
 	{
@@ -135,11 +130,6 @@ namespace GNF::Core::GraphicEngine
 		m_dpi = dpi;
 	}
 
-	/*void GraphicEngine::FrameBuffer_SetViewPort()
-	{
-		m_d3d_deviceContext->RSSetViewports(1, &m_d3d_frameScreenViewPort);
-
-	}*/
 
 	void GraphicEngine::SetViewPort()
 	{
@@ -151,11 +141,7 @@ namespace GNF::Core::GraphicEngine
 		ID3D11RenderTargetView* targetViews[] = {m_d3d_renderTargetView.Get()};
 		m_d3d_deviceContext->OMSetRenderTargets(ARRAYSIZE(targetViews), targetViews, m_d3d_depthStencilView.Get());
 	}
-	/*void GraphicEngine::FrameBuffer_SetRenderTarget()
-	{
-		ID3D11RenderTargetView* targetViews[] = { m_d3d_frameBufferTargetView.Get()};
-		m_d3d_deviceContext->OMSetRenderTargets(ARRAYSIZE(targetViews), targetViews, m_d3d_depthStencilView.Get());
-	}*/
+	
 	void
 		GraphicEngine::DrawTriangleStrip(int count)
 	{
@@ -167,15 +153,6 @@ namespace GNF::Core::GraphicEngine
 	
 		m_dxgi_swapChain->Present(1,0);
 	}
-
-	/*void GraphicEngine::FrameBuffer_ClearColor()
-	{
-		float color[] = { 0,1,0,1 };
-		m_d3d_deviceContext->ClearRenderTargetView(m_d3d_frameBufferTargetView.Get(), color);
-		m_d3d_deviceContext->ClearDepthStencilView(m_d3d_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	}*/
-
 	
 	void GraphicEngine::ClearColor(float r, float g, float b, float a)
 	{
@@ -388,23 +365,6 @@ namespace GNF::Core::GraphicEngine
 			m_d3d_depthStencilView.GetAddressOf()
 		));
 		
-		//Describe our Depth/Stencil Buffer
-		/*
-		D3D11_TEXTURE2D_DESC depthStencilDesc;
-		depthStencilDesc.Width = m_width;
-		depthStencilDesc.Height = m_height;
-		depthStencilDesc.MipLevels = 1;
-		depthStencilDesc.ArraySize = 1;
-		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthStencilDesc.SampleDesc.Count = 1;
-		depthStencilDesc.SampleDesc.Quality = 0;
-		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		depthStencilDesc.CPUAccessFlags = 0;
-		depthStencilDesc.MiscFlags = 0;
-		GThrowIfFailed(m_d3d_device->CreateTexture2D(&depthStencilDesc, NULL, m_d3d_depthStencilTarget.GetAddressOf()));
-		GThrowIfFailed(m_d3d_device->CreateDepthStencilView(m_d3d_depthStencilTarget.Get(), NULL, m_d3d_depthStencilView.GetAddressOf()));
-	*/
 	}
 
 	void GraphicEngine::Init_MSAA_Features()
@@ -421,21 +381,7 @@ namespace GNF::Core::GraphicEngine
 			GThrowIfFailed(m_dxgi_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_d3d_renderTarget.GetAddressOf())));
 			GThrowIfFailed(m_d3d_device->CreateRenderTargetView(m_d3d_renderTarget.Get(), nullptr, m_d3d_renderTargetView.GetAddressOf()));
 			GNF::Common::Logger::LogDebug("MSAA is Disable Creating Frame Buffer Target View");
-			/*
-			//!: If MSAA active MipMapLevel should be 1 and sample count and quality 
-			CD3D11_TEXTURE2D_DESC desc(ms_backBufferFormat, m_frameScreenWidth, m_frameScreenHeight, 1U, 0U, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, D3D11_USAGE_DEFAULT, 0U, 1, 0, 0U);
-			
-			GThrowIfFailed(m_d3d_device->CreateTexture2D(&desc,nullptr,m_d3d_frameBufferTarget.GetAddressOf()));
-			
-			//!: For MSAA Should be 2dms
-			CD3D11_RENDER_TARGET_VIEW_DESC ftv(m_d3d_frameBufferTarget.Get(), D3D11_RTV_DIMENSION_TEXTURE2D);
-			
-			GThrowIfFailed(m_d3d_device->CreateRenderTargetView(m_d3d_frameBufferTarget.Get(),&ftv,m_d3d_frameBufferTargetView.GetAddressOf()));
-			
-			CD3D11_SHADER_RESOURCE_VIEW_DESC frv(m_d3d_frameBufferTarget.Get(), D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D);
-
-			GThrowIfFailed(m_d3d_device->CreateShaderResourceView(m_d3d_frameBufferTarget.Get(),&frv, m_d3d_frameResource.GetAddressOf()));
-			*/
+		
 		}
 		else
 		{
@@ -443,24 +389,9 @@ namespace GNF::Core::GraphicEngine
 		}
 	}
 	
-	/*void GraphicEngine::FrameBuffer_ChangeViewPort(float width, float height)
-	{
-		m_d3d_frameScreenViewPort = CD3D11_VIEWPORT(
-			0.0f,
-			0.0f,
-			m_frameScreenWidth,
-			m_frameScreenHeight
-		);
-	}*/
 
 	void GraphicEngine::Init_ViewPort()
 	{
-		/*m_d3d_frameScreenViewPort = CD3D11_VIEWPORT(
-			0.0f,
-			0.0f,
-			m_frameScreenWidth,
-			m_frameScreenHeight
-		);*/
 
 		m_d3d_viewPort = CD3D11_VIEWPORT(
 			0.0f,

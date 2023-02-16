@@ -34,12 +34,9 @@ namespace GNF::Core
 	}
 	void Game::OnWindowResized(HWND hwnd, UINT width, UINT height, bool isFullScreen, UINT dpi)
 	{	
-		//CalculateFrameScreenBounds();
-		//m_newFrameSizeShouldBeCalculated = true;
 		engine.Resize(width, height, isFullScreen, dpi);
 		m_sizeChangedSignal(width, height, isFullScreen);
 		m_swapState = SwapState::NeedResize;
-		//m_layoutNeedValidate = true;
 	}
 
 	void Game::ValidateLayout(ImGuiID m_dockId)
@@ -100,13 +97,6 @@ namespace GNF::Core
 		UINT height = m_layout.topAlignment * m_window->GetHeight();
 		*/
 	}
-
-	//void Game::CalculateFrameScreenBounds()
-	//{
-
-	//	m_frameScreenSize.x = (1.f - (m_layout.rightAlignment + m_layout.leftAlignment)) * m_window->GetWidth();
-	//	m_frameScreenSize.y = m_layout.topAlignment * m_window->GetHeight();
-	//}
 
 	void Game::FrameSizeChanged()
 	{
@@ -207,13 +197,6 @@ namespace GNF::Core
 	}
 	void Game::RenderSGui()
 	{
-		/*
-		if (m_newFrameSizeShouldBeCalculated)
-		{
-			m_newFrameSizeShouldBeCalculated = false;
-			PreRender();
-		}
-		*/
 		m_menuBar->RenderSGui();
 
 	
@@ -324,7 +307,6 @@ namespace GNF::Core
 		auto imGuiRenderer = new Renderer::ImGuiRenderer(hwnd,engine.GetD3DDevice(),engine.GetD3DContext());
 		AddContainerAsSingleton(imGuiRenderer);
 
-		tf::Executor exec;
 		tf::Taskflow flow;
 		flow.name("Game Init flow");
 
@@ -340,8 +322,9 @@ namespace GNF::Core
 
 
 		imguiTask.precede(barTask,skyboxTask,sceneTask);
-
-		exec.run(flow).wait();
+		
+		tf::Executor m_exec;
+		m_exec.run(flow).wait();
 		
 		flow.dump(file);
 
@@ -359,8 +342,8 @@ namespace GNF::Core
 
 	Game::~Game()
 	{
-		m_uiCtx->ClearState();
-		m_uiCtx->Flush();
+		//m_uiCtx->ClearState();
+		//m_uiCtx->Flush();
 	}
 	Common::Windowing::Keyboard::IKeyboard* Game::GetKeyboard()
 	{
@@ -375,7 +358,7 @@ namespace GNF::Core
 	void Game::Destroy()
 	{
 
-		engine.Destroy();
+		//engine.Destroy();
 		g_instance.reset();
 	}
 	Game* Game::Build()
@@ -499,7 +482,8 @@ namespace GNF::Core
 		//m_triangle->SetTexture(id);
 		auto m_imgui = GetEngineManager<Renderer::ImGuiRenderer>();
 		tf::Taskflow flow;
-		tf::Executor exec;
+		tf::Executor m_exec;
+		auto workers = m_exec.num_workers();
 		auto sceneSet = [n = this]()
 		{
 			n->SetupScene();
@@ -539,7 +523,7 @@ namespace GNF::Core
 			*/
 			m_frame = m_scene->GetSceneFrame();
 
-			auto future =exec.run(flow);
+			auto future = m_exec.run(flow);
 			
 		
 			//m_uiCtx->ClearState();

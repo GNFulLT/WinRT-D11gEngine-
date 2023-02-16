@@ -168,6 +168,9 @@ namespace GNF::Core
 		//std::shared_ptr<Entity::IEntity> m_triangle;
 		//std::shared_ptr<Entity::IEntity> m_triangle1;
 		
+		
+		//!: Multihreading
+	public:
 
 		//!: Container 
 		std::unordered_map<std::type_index, std::pair<bool,std::any>> m_container;
