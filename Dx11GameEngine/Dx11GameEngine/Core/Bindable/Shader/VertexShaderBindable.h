@@ -12,6 +12,7 @@ namespace GNF::Core::Bindable::Shader
 		VertexShaderBindable(const VertexShaderBindable&) = delete;
 		VertexShaderBindable& operator=(VertexShaderBindable&) = delete;
 		virtual void Bind() override;
+		virtual void Bind(ID3D11DeviceContext3* ctx) override;
 	private:
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_shader;
 	};

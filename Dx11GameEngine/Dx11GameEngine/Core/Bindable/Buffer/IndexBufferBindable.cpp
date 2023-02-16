@@ -31,6 +31,11 @@ namespace GNF::Core::Bindable::Buffer
 		GThrowIfFailed(GraphicEngine::GraphicEngine::GetInstance()->GetD3DDevice()->CreateBuffer(&desc, &sbData, m_buffer.GetAddressOf()));		
 	}
 
+	void IndexBufferBindable::Bind(ID3D11DeviceContext3* ctx)
+	{
+		ctx->IASetIndexBuffer(m_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	}
+
 	void IndexBufferBindable::Bind()
 	{
 		GraphicEngine::GraphicEngine::GetInstance()->GetD3DContext()->IASetIndexBuffer(m_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);

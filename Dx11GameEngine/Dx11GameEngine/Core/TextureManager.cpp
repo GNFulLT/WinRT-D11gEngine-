@@ -124,6 +124,37 @@ namespace GNF::Core
 		return false;
 	}
 
+	void TextureManager::BindTexture(Texture::TextureID id, ID3D11DeviceContext3* ctx, Texture::TextureState state)
+	{
+		if (id == 0)
+		{
+			ID3D11ShaderResourceView* const pSRV[1] = { NULL };
+			ID3D11SamplerState* sampler[] = { NULL };
+			ctx->PSSetSamplers(0, 1, sampler);
+			ctx->PSSetShaderResources(0, 1, pSRV);
+			return;
+		}
+		if (auto texture = m_textureMap.find(id); texture != m_textureMap.end())
+		{
+			switch (state)
+			{
+			case Texture::DEFAULT:
+			{
+				ID3D11SamplerState* sampler[] = { m_stateMap[Texture::DEFAULT].Get() };
+				ctx->PSSetSamplers(0, 1, sampler);
+				texture->second->Bind(ctx);
+				break;
+			}
+			default:
+				Common::Logger::LogCritical("Unknown texture state or not impelmented texture state using default texture state");
+				ID3D11SamplerState* sampler[] = { m_stateMap[Texture::DEFAULT].Get() };
+				ctx->PSSetSamplers(0, 1, sampler);
+				texture->second->Bind(ctx);
+				break;
+			}
+		}
+	}
+
 	void TextureManager::BindTexture(Texture::TextureID id,Texture::TextureState state)
 	{
 		if (id == 0)

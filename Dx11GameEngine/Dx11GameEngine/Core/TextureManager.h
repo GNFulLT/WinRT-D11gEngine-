@@ -48,6 +48,8 @@ namespace GNF::Core
 		bool IsImageAvailable(Image::ImageID id);
 		bool ChangeImageToCubemap(Image::ImageID id);
 		void BindTexture(Texture::TextureID id,Texture::TextureState state = Texture::DEFAULT);
+		void BindTexture(Texture::TextureID id, ID3D11DeviceContext3* ctx,Texture::TextureState state = Texture::DEFAULT);
+
 		bool IsTextureAvailable(Texture::TextureID id);
 		Image::ImageType GetImageTypeFromPath(const wchar_t* path);
 	private:

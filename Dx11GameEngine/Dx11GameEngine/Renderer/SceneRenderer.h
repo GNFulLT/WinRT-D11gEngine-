@@ -13,7 +13,7 @@ namespace GNF::Renderer
 		SceneRenderer(const SceneRenderer&) = delete;
 		SceneRenderer& operator=(const SceneRenderer&) = delete;
 		//!: Set Render Target 
-		void SetAsRenderTarget();
+		void SetAsRenderTarget(ID3D11DeviceContext3* ctx);
 		
 		//!:
 		void ChangeResolution(UINT width, UINT height);
@@ -22,7 +22,7 @@ namespace GNF::Renderer
 		void Init() override;
 
 		//!: Clears RTV DTV
-		void Clear();
+		void Clear(ID3D11DeviceContext3* ctx);
 
 		//!: Destroys resources
 		void Destroy();

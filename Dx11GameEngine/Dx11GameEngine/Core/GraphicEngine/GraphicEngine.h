@@ -27,6 +27,27 @@ namespace GNF::Core::GraphicEngine
 		void SetDPI(UINT dpi);
 		void SetViewPort();
 		void SetRenderTarget();
+
+		inline void PlayCommandList(ID3D11CommandList* list)
+		{
+			m_d3d_deviceContext->ExecuteCommandList(list, false);
+		}
+
+		inline void SetRenderTargetAndVP(ID3D11DeviceContext* ctx)
+		{
+			ID3D11RenderTargetView* targetViews[] = { m_d3d_renderTargetView.Get() };
+			ctx->OMSetRenderTargets(ARRAYSIZE(targetViews), targetViews, m_d3d_depthStencilView.Get());
+			ctx->RSSetViewports(1, &m_d3d_viewPort);
+		}
+
+		inline void ClearColor(ID3D11DeviceContext* ctx)
+		{
+			float color[] = { 1.f,1.f,0,1.f };
+			ctx->ClearRenderTargetView(m_d3d_renderTargetView.Get(), color);
+			ctx->ClearDepthStencilView(m_d3d_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+		}
+
 		DXGI_FORMAT GetSwapChainFormat()
 		{
 			return ms_backBufferFormat;
@@ -45,6 +66,10 @@ namespace GNF::Core::GraphicEngine
 		void Resize(UINT width, UINT height, bool isFullScreen,UINT dpi);
 		Bindable::Shader::PixelShaderBindable* CreatePixelShader(const wchar_t* path);
 		
+		inline bool SpawnDeferredContext(ID3D11DeviceContext3** ppCtx)
+		{
+			return SUCCEEDED(m_d3d_device->CreateDeferredContext3(0, ppCtx));
+		}
 
 		//void FrameBuffer_InitRTV_VP(float width,float height);
 

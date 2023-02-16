@@ -11,6 +11,7 @@ namespace GNF::Core::Bindable::Shader
 		PixelShaderBindable(const PixelShaderBindable&) = delete;
 		PixelShaderBindable& operator=(PixelShaderBindable&) = delete;
 		virtual void Bind() override;
+		virtual void Bind(ID3D11DeviceContext3* ctx) override;
 	private:
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> m_shader;
 	};

@@ -10,6 +10,14 @@ namespace GNF::Core::Bindable::Miscellaneous
 		GThrowIfFailed(res);
 	}
 
+	void TextureBindable::Bind(ID3D11DeviceContext3* ctx)
+	{
+		ID3D11ShaderResourceView* views[] = { m_texture.Get() };
+
+		ctx->PSSetShaderResources(0, 1,
+			views);
+	}
+
 	void TextureBindable::Bind()
 	{
 		ID3D11ShaderResourceView* views[] = { m_texture.Get() };

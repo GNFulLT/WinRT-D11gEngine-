@@ -45,6 +45,17 @@ namespace GNF::Core::Bindable::Buffer
 		}
 	}
 
+	void VertexBufferBindable::Bind(ID3D11DeviceContext3* ctx)
+	{
+		ID3D11Buffer* buffers[] = { m_buffer.Get() };
+		UINT strides[] = { m_stride };
+		UINT offsets[] = { 0 };
+		//X TODO : NEED LOCK FOR THREAD - SAFE
+		ctx->IASetInputLayout(m_inputLayout.Get());
+		ctx->IASetVertexBuffers(0u, ARRAYSIZE(buffers), buffers, strides, offsets);
+
+	}
+
 	void VertexBufferBindable::Bind() 
 	{
 		ID3D11Buffer* buffers[] = { m_buffer.Get() };

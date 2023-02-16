@@ -45,7 +45,7 @@ namespace GNF::Core
 		Game(const Game&) = delete;
 		Game& operator=(const Game&) = delete;
 
-		
+		void SetupScene();
 
 		void ValidateLayout(ImGuiID id);
 		
@@ -134,7 +134,8 @@ namespace GNF::Core
 			m_container.emplace(typeid(T),std::make_pair(true,std::shared_ptr<T>(instance)));
 			return g_instance.get();
 		}
-
+		ID3D11CommandList* cmd;
+		ID3D11ShaderResourceView* m_frame;
 		//!: Render statement for just once
 		void PreRender();
 	private:
@@ -162,6 +163,8 @@ namespace GNF::Core
 		std::unique_ptr<Scene::Scene> m_scene;
 		std::unique_ptr<TextureManager> m_textureManager;
 
+		ID3D11DeviceContext3* m_uiCtx;
+		
 		//std::shared_ptr<Entity::IEntity> m_triangle;
 		//std::shared_ptr<Entity::IEntity> m_triangle1;
 		

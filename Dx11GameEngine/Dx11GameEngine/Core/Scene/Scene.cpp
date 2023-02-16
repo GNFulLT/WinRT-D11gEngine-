@@ -48,10 +48,10 @@ namespace GNF::Core::Scene
 		return m_sceneRenderer->GetFrame();
 	}
 
-	void Scene::AsRenderTarget()
+	void Scene::AsRenderTarget(ID3D11DeviceContext3* ctx)
 	{
-		m_sceneRenderer->SetAsRenderTarget();
-		m_sceneRenderer->Clear();
+		m_sceneRenderer->SetAsRenderTarget(ctx);
+		m_sceneRenderer->Clear(ctx);
 	}
 
 	void Scene::SceneSizeChanged(UINT width, UINT height)
@@ -60,9 +60,9 @@ namespace GNF::Core::Scene
 	}
 
 	//!: Render Things
-	void Scene::Render()
+	void Scene::Render(ID3D11DeviceContext3* ctx)
 	{
-		m_triangle->Draw();
+		m_triangle->Draw(ctx);
 	}
 
 	//!: Update Entities

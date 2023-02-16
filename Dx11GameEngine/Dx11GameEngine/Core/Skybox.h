@@ -18,6 +18,7 @@ namespace GNF::Core
 		void Init();
 
 		void Draw();
+		void Draw(ID3D11DeviceContext3* ctx);
 	private:
 		Texture::TextureID m_textureId = 0;
 		DirectX::SimpleMath::Matrix m_scaleMatrix = DirectX::SimpleMath::Matrix::CreateScale(DirectX::SimpleMath::Vector3(20,10,20));

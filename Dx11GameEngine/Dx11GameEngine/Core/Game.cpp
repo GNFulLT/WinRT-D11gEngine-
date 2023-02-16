@@ -350,17 +350,17 @@ namespace GNF::Core
 		if (!m_menuBar->IsInitialized())
 			throw std::runtime_error("Menu Bar couldn't initialized");
 
-		//m_scene->Init();
-		/*m_entityManager->Init();
-		m_entityNode->Init();*/
 		
-		//m_imgui->PushRenderFunc(std::bind(&Game::RenderSGui,this));
-		
+		bool isCreated = engine.SpawnDeferredContext(&m_uiCtx);
+	
+		if (!isCreated)
+			throw std::runtime_error("Couldn't created resources");
 	}
 
 	Game::~Game()
 	{
-		int a = 5;
+		m_uiCtx->ClearState();
+		m_uiCtx->Flush();
 	}
 	Common::Windowing::Keyboard::IKeyboard* Game::GetKeyboard()
 	{
@@ -458,6 +458,27 @@ namespace GNF::Core
 		engine.DrawTriangleStrip(3);
 	}
 
+	void Game::SetupScene()
+	{
+		m_scene->Update();
+
+		m_scene->AsRenderTarget(m_uiCtx);
+
+		m_skybox->Draw(m_uiCtx);
+
+		m_vertexShader->Bind(m_uiCtx);
+
+		m_pixelShader->Bind(m_uiCtx);
+
+		m_scene->Render(m_uiCtx);
+
+		m_uiCtx->FinishCommandList(false, &cmd);
+
+		m_uiCtx->Flush();
+
+		m_uiCtx->ClearState();
+	}
+
 	void Game::Run()
 	{
 		
@@ -477,7 +498,13 @@ namespace GNF::Core
 		//m_triangle1->ReSetVerticesIndices();
 		//m_triangle->SetTexture(id);
 		auto m_imgui = GetEngineManager<Renderer::ImGuiRenderer>();
-
+		tf::Taskflow flow;
+		tf::Executor exec;
+		auto sceneSet = [n = this]()
+		{
+			n->SetupScene();
+		};
+		flow.emplace(sceneSet);
 		while (m_window->IsOpen())
 		{
 			endTick = tickCount;
@@ -510,21 +537,14 @@ namespace GNF::Core
 			//!: Render Scene Method. Creates the Frame Buffer Texture
 			Render();
 			*/
+			m_frame = m_scene->GetSceneFrame();
+
+			auto future =exec.run(flow);
 			
-			m_scene->AsRenderTarget();
+		
+			//m_uiCtx->ClearState();
 
-
-			m_vertexShader->Bind();
-
-			m_pixelShader->Bind();
-			m_scene->Update();
-
-			m_scene->Render();
-
-			m_skybox->Draw();
-
-			auto frame = m_scene->GetSceneFrame();
-			
+			//!: This will be main thread
 			engine.SetRenderTarget();
 			engine.SetViewPort();
 			engine.ClearColor(1.f, 0.f, 0.f, 1.f);
@@ -538,7 +558,9 @@ namespace GNF::Core
 			ImGui::End();
 			
 			ImGui::Begin("Output",0, ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-			ImGui::Image(frame, m_frameSize);
+					
+
+			ImGui::Image(m_frame, m_frameSize);
 
 			/*
 			if (m_newFrameSizeCalculated)
@@ -556,7 +578,9 @@ namespace GNF::Core
 			ImGui::End();
 			m_imgui->Finish();
 			
-
+			future.wait();
+			engine.PlayCommandList(cmd);
+			cmd->Release();
 
 			switch (m_swapState)
 			{

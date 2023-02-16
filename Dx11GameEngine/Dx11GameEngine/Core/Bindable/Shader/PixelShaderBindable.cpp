@@ -10,6 +10,11 @@ namespace GNF::Core::Bindable::Shader
 			nullptr, m_shader.GetAddressOf()));
 	}
 
+	void PixelShaderBindable::Bind(ID3D11DeviceContext3* ctx)
+	{
+		ctx->PSSetShader(m_shader.Get(), nullptr, 0);
+	}
+
 	void PixelShaderBindable::Bind()
 	{
 		GraphicEngine::GraphicEngine::GetInstance()->GetD3DContext()->PSSetShader(m_shader.Get(),nullptr,0);

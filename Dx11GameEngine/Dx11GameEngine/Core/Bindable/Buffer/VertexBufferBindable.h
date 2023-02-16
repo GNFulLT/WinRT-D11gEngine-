@@ -12,7 +12,8 @@ namespace GNF::Core::Bindable::Buffer
 		VertexBufferBindable& operator=(VertexBufferBindable&) = delete;
 		
 		virtual void Bind() override;
-	
+		void Bind(ID3D11DeviceContext3* ctx) override;
+
 	private:
 		inline static UINT g_currentInputLayoutIndex = 0;
 

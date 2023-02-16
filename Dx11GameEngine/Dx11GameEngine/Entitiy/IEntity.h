@@ -50,6 +50,7 @@ namespace GNF::Entity
 		{
 			return m_entityId;
 		}
+		virtual void Draw(ID3D11DeviceContext3* ctx);
 		virtual void Draw();
 		void ReSetVerticesIndices();
 		

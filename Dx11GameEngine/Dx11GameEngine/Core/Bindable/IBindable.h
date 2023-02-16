@@ -1,6 +1,6 @@
 #pragma once
 
-#include <d3d11.h>
+#include <d3d11_3.h>
 #include <wrl/client.h>
 
 namespace GNF::Core::Bindable
@@ -11,6 +11,8 @@ namespace GNF::Core::Bindable
 		virtual ~IBindable() = default;
 		
 		virtual void Bind() = 0;
+
+		virtual void Bind(ID3D11DeviceContext3* ctx) = 0;
 	private:
 	};
 }

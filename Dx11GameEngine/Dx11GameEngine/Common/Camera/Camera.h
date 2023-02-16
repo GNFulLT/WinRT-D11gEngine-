@@ -61,6 +61,8 @@ namespace GNF::Common::Camera
 		CameraPositioner::ICameraPositioner* GetSelectedCameraPositioner();
 		void Update(const float deltaTime);
 		void Use(const DirectX::SimpleMath::Matrix& modelMatrix);
+		void Use(const DirectX::SimpleMath::Matrix& modelMatrix,ID3D11DeviceContext3* ctx);
+
 		void RenderGui();
 		const DirectX::SimpleMath::Vector3& GetPos()
 		{

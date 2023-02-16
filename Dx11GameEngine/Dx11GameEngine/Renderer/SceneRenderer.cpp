@@ -12,22 +12,22 @@ namespace GNF::Renderer
 	{
 		m_renderViewPort = CD3D11_VIEWPORT(0.f, 0.f, (float)width, (float)height);
 	}
-	void SceneRenderer::SetAsRenderTarget()
+	void SceneRenderer::SetAsRenderTarget(ID3D11DeviceContext3* ctx)
 	{
 		ID3D11RenderTargetView* targets[] = { m_renderTargetView.Get() };
 		
-		p_deviceContext->OMSetRenderTargets(1, targets,m_depthStencilView.Get());
+		ctx->OMSetRenderTargets(1, targets,m_depthStencilView.Get());
 
-		p_deviceContext->RSSetViewports(1, &m_renderViewPort);
+		ctx->RSSetViewports(1, &m_renderViewPort);
 
 		
 	}
 
-	void SceneRenderer::Clear()
+	void SceneRenderer::Clear(ID3D11DeviceContext3* ctx)
 	{
 		float color[] = { 0,1,0,1 };
-		p_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), color);
-		p_deviceContext->ClearDepthStencilView(m_depthStencilView.Get(),
+		ctx->ClearRenderTargetView(m_renderTargetView.Get(), color);
+		ctx->ClearDepthStencilView(m_depthStencilView.Get(),
 			D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 	ID3D11ShaderResourceView* SceneRenderer::GetFrame()
@@ -119,8 +119,8 @@ namespace GNF::Renderer
 
 	void SceneRenderer::Destroy()
 	{
-		ID3D11RenderTargetView* nullViews[] = { nullptr };
-		p_deviceContext->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
+		//ID3D11RenderTargetView* nullViews[] = { nullptr };
+		//p_deviceContext->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
 		//!: Destroy Views
 		m_renderResourceView.ReleaseAndGetAddressOf();
 		m_renderTargetView.ReleaseAndGetAddressOf();

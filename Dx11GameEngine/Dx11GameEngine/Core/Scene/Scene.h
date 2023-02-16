@@ -25,8 +25,8 @@ namespace GNF::Core::Scene
 		//!: Update Entities
 		void Update();
 		//!: Render Things
-		void Render();
-		void AsRenderTarget();
+		void Render(ID3D11DeviceContext3* ctx);
+		void AsRenderTarget(ID3D11DeviceContext3* ctx);
 		ID3D11ShaderResourceView* GetSceneFrame();
 		void PreRender();
 	private:

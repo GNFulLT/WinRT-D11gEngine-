@@ -25,6 +25,16 @@ namespace GNF::Entity
 		}
 	}
 
+	void IEntity::Draw(ID3D11DeviceContext3* ctx)
+	{
+		Core::Game::GetInstance()->GetCamera()->Use(GetModelMatrix(),ctx);
+		Core::Game::GetInstance()->GetCurrentTextureManager()->BindTexture(m_textureId,ctx);
+		m_vertexBuffer->Bind(ctx);
+		m_indexBuffer->Bind(ctx);
+
+		ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		ctx->DrawIndexed(m_indices.size(), 0, 0);
+	}
 	void IEntity::Draw()
 	{
 		Core::Game::GetInstance()->GetCamera()->Use(GetModelMatrix());

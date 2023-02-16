@@ -10,6 +10,10 @@ namespace GNF::Core::Bindable::Shader
 		GraphicEngine::GraphicEngine::GetInstance()->GetD3DDevice()->CreateVertexShader(byteCode, size, nullptr, m_shader.GetAddressOf());
 	}
 
+	void VertexShaderBindable::Bind(ID3D11DeviceContext3* ctx)
+	{
+		ctx->VSSetShader(m_shader.Get(),nullptr,0);
+	}
 	void VertexShaderBindable::Bind()
 	{
 		GraphicEngine::GraphicEngine::GetInstance()->GetD3DContext()->VSSetShader(m_shader.Get(), nullptr, 0);

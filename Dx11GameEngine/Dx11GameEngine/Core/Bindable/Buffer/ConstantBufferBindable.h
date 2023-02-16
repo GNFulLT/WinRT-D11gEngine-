@@ -12,7 +12,12 @@ namespace GNF::Core::Bindable::Buffer
 		ConstantBufferBindable& operator=(ConstantBufferBindable&) = delete;
 
 		virtual void Bind() override;
+		void Bind(ID3D11DeviceContext3* ctx) override;
 		void Update(const void* data);
+		inline ID3D11Buffer* GetBuffer()
+		{
+			return m_buffer.Get();
+		}
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
 	};

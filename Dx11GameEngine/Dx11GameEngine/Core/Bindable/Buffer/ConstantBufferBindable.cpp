@@ -12,8 +12,8 @@ namespace GNF::Core::Bindable::Buffer
 		bfd.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
 		bfd.MiscFlags = 0u;
 		bfd.ByteWidth = sizeOfData;
-		bfd.CPUAccessFlags = 0u;
-		bfd.Usage = D3D11_USAGE_DEFAULT;
+		bfd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bfd.Usage = D3D11_USAGE_DYNAMIC;
 
 		D3D11_SUBRESOURCE_DATA srd{ data,0,0 };
 		GraphicEngine::GraphicEngine::GetInstance()->GetD3DDevice()->CreateBuffer(&bfd, nullptr, m_buffer.GetAddressOf());
@@ -23,6 +23,15 @@ namespace GNF::Core::Bindable::Buffer
 	void ConstantBufferBindable::Update(const void* data)
 	{
 		GraphicEngine::GraphicEngine::GetInstance()->GetD3DContext()->UpdateSubresource(m_buffer.Get(),0,NULL,data,0,0);
+	}
+
+	void ConstantBufferBindable::Bind(ID3D11DeviceContext3* ctx)
+	{
+
+		ID3D11Buffer* buffers[] = { m_buffer.Get() };
+
+		ctx->VSSetConstantBuffers(0, 1, buffers);
+		
 	}
 
 	void ConstantBufferBindable::Bind() 

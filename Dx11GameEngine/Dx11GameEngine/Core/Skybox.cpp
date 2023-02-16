@@ -10,6 +10,36 @@ namespace GNF::Core
 
 	}
 
+	void Skybox::Draw(ID3D11DeviceContext3* ctx)
+	{
+		m_pixelShader->Bind(ctx);
+		m_vertexShader->Bind(ctx);
+
+		m_vertexBuffer->Bind(ctx);
+		m_indexBuffer->Bind(ctx);
+		Core::Game::GetInstance()->GetCurrentTextureManager()->BindTexture(m_textureId,ctx);
+		Core::Game::GetInstance()->GetCamera()->Use(m_scaleMatrix * DirectX::SimpleMath::Matrix::CreateTranslation(Core::Game::GetInstance()->GetCamera()->GetPos()),ctx);
+
+		ID3D11RasterizerState* prevRSState;
+		ctx->RSGetState(&prevRSState);
+		ctx->RSSetState(m_rasterizerState.Get());
+
+		ID3D11DepthStencilState* prevDSState;
+		UINT ref;
+		ctx->OMGetDepthStencilState(&prevDSState, &ref);
+		ctx->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
+
+		ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		ctx->DrawIndexed(36, 0, 0);
+
+
+		//!: Set Prev Raster States
+		ctx->RSSetState(prevRSState);
+		ctx->OMSetDepthStencilState(prevDSState, ref);
+
+
+	}
+
 	void Skybox::Init()
 	{
 		auto id = Core::Game::GetInstance()->GetCurrentTextureManager()->CreateImage(m_imagePath.c_str());
