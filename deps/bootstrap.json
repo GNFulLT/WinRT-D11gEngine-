@@ -1,0 +1,24 @@
+[
+  {
+    "name": "spdlog",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/gabime/spdlog.git"
+    }
+  },
+  {
+    "name": "glfw",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/glfw/glfw.git"
+    }
+  },
+  {
+    "name": "boost",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/boostorg/boost.git"
+    }
+  }
+  
+]

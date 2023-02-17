@@ -7,6 +7,9 @@
 *.sln.docstates
 
 # Build results
+deps/src
+deps/archives
+deps/.bootstrap.json
 imgui.ini
 .vs/
 lib/
