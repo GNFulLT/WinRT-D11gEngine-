@@ -342,8 +342,8 @@ namespace GNF::Core
 
 	Game::~Game()
 	{
-		//m_uiCtx->ClearState();
-		//m_uiCtx->Flush();
+		m_uiCtx->ClearState();
+		m_uiCtx->Flush();
 	}
 	Common::Windowing::Keyboard::IKeyboard* Game::GetKeyboard()
 	{
@@ -469,17 +469,7 @@ namespace GNF::Core
 		double endTick = 0;
 		//m_menuBar->Init();
 		PreRender();
-		//auto triWeak = m_entityManager->CreateTriangle2D(1.f,{0,1.f,0});
-		//auto triWeak2 = m_entityManager->CreateTriangle2D(2.f, { 5.f,1.f,0 });
-
-		//m_triangle = triWeak.lock();
-		//m_triangle1 = triWeak2.lock();
-		//
-		//m_triangle1->OnCreated();
-		//m_triangle->OnCreated();
-		//m_triangle->ReSetVerticesIndices();
-		//m_triangle1->ReSetVerticesIndices();
-		//m_triangle->SetTexture(id);
+		
 		auto m_imgui = GetEngineManager<Renderer::ImGuiRenderer>();
 		tf::Taskflow flow;
 		tf::Executor m_exec;
@@ -508,26 +498,10 @@ namespace GNF::Core
 			//! 
 			m_camera->Update(delta);
 
-
-			/*
-			engine.FrameBuffer_SetRenderTarget();
-			engine.FrameBuffer_SetViewPort();
-			engine.FrameBuffer_ClearColor();
-
-			m_vertexShader->Bind();
-
-			m_pixelShader->Bind();
-
-			//!: Render Scene Method. Creates the Frame Buffer Texture
-			Render();
-			*/
 			m_frame = m_scene->GetSceneFrame();
 
 			auto future = m_exec.run(flow);
 			
-		
-			//m_uiCtx->ClearState();
-
 			//!: This will be main thread
 			engine.SetRenderTarget();
 			engine.SetViewPort();

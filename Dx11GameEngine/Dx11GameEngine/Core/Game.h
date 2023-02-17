@@ -19,6 +19,7 @@
 #include "IEngineManager.h"
 #include <typeindex>
 #include <any>
+#include <vector>
 namespace GNF::Core
 {
 	struct Layout
@@ -165,6 +166,7 @@ namespace GNF::Core
 
 		ID3D11DeviceContext3* m_uiCtx;
 		
+
 		//std::shared_ptr<Entity::IEntity> m_triangle;
 		//std::shared_ptr<Entity::IEntity> m_triangle1;
 		
