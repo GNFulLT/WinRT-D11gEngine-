@@ -1,16 +1,12 @@
 ﻿// VulkanGameEngine.cpp : Defines the entry point for the application.
 //
-
-
-
 #include "core/string/unicode_char_utils.h"
 #include "VulkanGameEngine.h"
 #include "servers/configuration_server.h"
 #include <boost/bind.hpp>
-#include <codecvt>
 
 
-
+#include "window/viewport.h"
 #include <GLFW/glfw3.h>
 #include "core/templates/safe_num.h"
 #if defined(_DEBUG) && defined(_WINDOWS)
@@ -54,10 +50,9 @@ int main()
 	
 	Config conf(t);
 	auto prop = conf.get_config_prop<int>("sadsa");
-	auto strr = std::wstring_convert<
-		std::codecvt_utf8_utf16<char32_t>, char32_t>{}.to_bytes(prop->get_class_name());
-
+	
+	auto strr = string32_to_string(prop->get_class_name());
 	std::cout << strr.c_str();
-
+	std::cout << "as";
 	return 0;
 }
