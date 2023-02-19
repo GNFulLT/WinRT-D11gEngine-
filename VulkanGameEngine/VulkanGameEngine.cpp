@@ -1,11 +1,16 @@
 ﻿// VulkanGameEngine.cpp : Defines the entry point for the application.
 //
 
+
+
 #include "core/string/unicode_char_utils.h"
 #include "VulkanGameEngine.h"
-#define USE_GARR_SIZE
-#define USE_GARR_SIZE_TEMPLATED
-#include "core/typedefs.h"
+#include "servers/configuration_server.h"
+#include <boost/bind.hpp>
+#include <codecvt>
+
+
+
 #include <GLFW/glfw3.h>
 #include "core/templates/safe_num.h"
 #if defined(_DEBUG) && defined(_WINDOWS)
@@ -13,6 +18,12 @@
 #define _CRTDBG_MAP_ALLOC
 #include <heapapi.h>
 #endif
+
+#define USE_GARR_SIZE
+#define USE_GARR_SIZE_TEMPLATED
+#define USE_DEBUG_ALLOCATION
+#define USE_DEBUG_ALLOCATION_IMPLICIT
+#include "core/typedefs.h"
 
 int main()
 {
@@ -32,9 +43,21 @@ int main()
 #endif // _WINDOWS
 #endif // _DEBUG
 	int a[10] = { 5,2,3,4,5,10,10,10,10,10 };
-	SafeNum<int> b = 5;
-	std::atomic<int> t = 5;
-	std::cout << "Hello CMake. " << b.post_mul(5) << std::endl;
-	SafeNum<int> num = 5;
+	ConfigurationServer serv;
+	boost::function<void(int)> f1 = [](int changed)
+	{
+
+	};
+	boost::signals2::connection con;
+	ConfigProp<int>* b = new ConfigProp<int>{5,f1,&con};
+	ConfigPropRegistery t("sadsa", b);
+	
+	Config conf(t);
+	auto prop = conf.get_config_prop<int>("sadsa");
+	auto strr = std::wstring_convert<
+		std::codecvt_utf8_utf16<char32_t>, char32_t>{}.to_bytes(prop->get_class_name());
+
+	std::cout << strr.c_str();
+
 	return 0;
 }

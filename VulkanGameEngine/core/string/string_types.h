@@ -18,6 +18,4 @@ typedef std::stringstream StringBuilder;
 typedef std::u16stringstream StringBuilder16;
 typedef std::u32stringstream StringBuilder32;
 
-
-
 #endif // STRING_TYPE

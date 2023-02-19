@@ -10,6 +10,7 @@
 #ifndef _STR
 #define _STR(str) #str
 #define _STR_XDEF(str) _STR(str)
+#define _USTR(str) U#str
 #endif // _STR
 // Force compile to make inline the function, variable etc.
 
@@ -79,6 +80,7 @@ size_t arrlen(T(&)[N]){return N;}
 #define _GARR_SIZE(pArr)  ((sizeof(pArr) / sizeof(*(pArr))) / static_cast<size_t>(!(sizeof(pArr) % sizeof(*(pArr)))))
 #endif // _MSC_VER && USE_GARR_SIZE
 #endif // _GARR_SIZE
+#endif // TYPEDEFS_H
 
 #ifdef USE_DEBUG_ALLOCATION
 #ifndef DEBUG_NEW
@@ -92,7 +94,3 @@ size_t arrlen(T(&)[N]){return N;}
 #endif // USE_DEBUG_ALLOCATION_IMPLICIT
 #endif // DEBUG_NEW
 #endif // USE_DEBUG_ALLOCATION
-
-
-
-#endif // TYPEDEFS_H

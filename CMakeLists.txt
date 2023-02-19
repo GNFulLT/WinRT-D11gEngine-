@@ -21,18 +21,25 @@ if((NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/.bootstrap.json") OR ("${CMAKE_
 		RESULT_VARIABLE bootstrap_result
 	)
 	if (NOT (${bootstrap_result} EQUAL 0))
-		message(FATAL_ERROR "Cannot run bootstrap.py")
+		message(FATAL_ERROR "Cannot run bootstrap.py automatically")
 	endif()
 endif()
 
-include_directories(.)
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build" OR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/lib" OR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/include")
+	message(FATAL_ERROR "Please build boost library to ./build dir of boost dir firstly")
+endif()
+
+include_directories(./VulkanGameEngine)
 include_directories(./deps/src/glfw/include)
-
+include_directories(./deps/src/boost/build/include/boost-1_82)
 # Include sub-projects.
-add_subdirectory ("VulkanGameEngine")
 
+add_subdirectory ("VulkanGameEngine")
 # For Libs including dependencies main directory
 add_subdirectory(./deps/src/glfw)
+
+
+link_directories(./deps/src/boost/build/lib)
 
 if(WIN32)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)

@@ -15,6 +15,8 @@ class SafeNum
 	static_assert(std::atomic<T>::is_always_lock_free);
 
 public:
+	typedef T value_type;
+
 	SafeNum(T val)
 	{
 		m_val = val;
