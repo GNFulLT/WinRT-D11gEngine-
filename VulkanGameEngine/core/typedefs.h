@@ -29,7 +29,7 @@
 #ifdef _DEBUG
 #define _INLINE_ inline
 #else
-#define _INLINE_ _F_INLINE
+#define _INLINE_ _F_INLINE_
 #endif // _DEBUG
 #endif // _INLINe_
 

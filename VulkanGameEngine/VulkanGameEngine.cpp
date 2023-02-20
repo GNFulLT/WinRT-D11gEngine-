@@ -49,7 +49,7 @@ int main()
 	// They are singleton so their get_class_name is unique
 
 	// To initialize and make ready all servers there are 3 steps
-	// 1st step is create creation and configuration servers Creation -> Configuration
+	// 1st step is to create creation and configuration servers Creation -> Configuration
 	// 2nd step is let servers expose their configurations to configuration server. This step starts with scope_expose
 	// 3rd step is inject configurations to servers. This step starts with scope_init
 
