@@ -5,10 +5,10 @@
 #include "../../core/object/object.h"
 #include "../../core/string/string_types.h"
 #include "../../core/string/locales.h"
-#include "config/config.h"
+#include "../../config/config.h"
+#include "../../exception/file_not_found_ex.h"
 
 #include <unordered_map>
-#include "exception/file_not_found_ex.h"
 class LocalizationServer : public Object
 {
 	OBJECT_DEF(LocalizationServer,Object)

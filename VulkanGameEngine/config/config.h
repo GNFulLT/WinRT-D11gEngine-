@@ -6,9 +6,9 @@
 #include <any>
 
 
-#include "core/object/object.h"
+#include "../core/object/object.h"
 #include "config_prop.h"
-#include "core/string/string_utils.h"
+#include "../core/string/string_utils.h"
 
 
 template<typename T>

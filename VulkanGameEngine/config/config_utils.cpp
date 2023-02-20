@@ -1,5 +1,5 @@
 #include "config_utils.h"
-#include "servers/configuration_server.h"
+#include "../servers/configuration_server.h"
 
 
 void register_config(const String& confName, Config* conf)

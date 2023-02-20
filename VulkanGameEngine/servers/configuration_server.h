@@ -9,7 +9,7 @@
 #include "../core/object/object.h"
 #include "../config/config.h"
 #include "../core/scope.h"
-#include "core/string/string_utils.h"
+#include "../core/string/string_utils.h"
 
 
 class CreationServer;

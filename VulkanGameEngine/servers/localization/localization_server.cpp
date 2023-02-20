@@ -1,6 +1,6 @@
 #include "localization_server.h"
 
-#include "core/string/string_utils.h"
+#include "../../core/string/string_utils.h"
 
 void LocalizationServer::init()
 {

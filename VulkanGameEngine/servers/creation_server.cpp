@@ -1,6 +1,6 @@
 #include "creation_server.h"
 
-#include "platform/GLFW/window_server_glfw.h"
+#include "../platform/GLFW/window_server_glfw.h"
 
 WindowServer* CreationServer::create_the_window_server()
 {

@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include <memory>
-#include "core/string/string_utils.h"
+#include "../core/string/string_utils.h"
 
 
 void register_config(const String& confName,Config* conf);

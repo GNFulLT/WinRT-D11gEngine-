@@ -4,10 +4,10 @@
 
 #include <concepts>
 #include "config_prop_base.h"
-#include "core/typedefs.h"
+#include "../core/typedefs.h"
 #include <functional>
 #include <boost/signals2.hpp>
-#include "core/object/object.h"
+#include "../core/object/object.h"
 template<typename T>
 class ConfigProp : public Object
 {

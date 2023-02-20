@@ -7,8 +7,8 @@
 
 #define OBJECT_DEF(m_class,m_inherited)  \
 public : \
-virtual const String32& get_class_name() const noexcept override { static String32 g_className = _USTR(m_class); return g_className;}		 \
-virtual const String32& get_inherited_class_name() const noexcept override {static String32 g_inheritedClassName = _USTR(m_inherited); return g_inheritedClassName;}	 \
+virtual const String& get_class_name() const noexcept override { static String g_className = _STR(m_class); return g_className;}		 \
+virtual const String& get_inherited_class_name() const noexcept override {static String g_inheritedClassName = _STR(m_inherited); return g_inheritedClassName;}	 \
 private:   
 
 class Object
@@ -16,8 +16,8 @@ class Object
 public:
 	virtual ~Object() = default;
 
-	virtual const String32& get_class_name() const noexcept = 0;
-	virtual const String32& get_inherited_class_name() const noexcept = 0;
+	virtual const String& get_class_name() const noexcept = 0;
+	virtual const String& get_inherited_class_name() const noexcept = 0;
 
 	virtual const String32& get_object_name() const noexcept
 	{
