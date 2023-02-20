@@ -37,8 +37,6 @@ public:
 	requires (ConfigPropRegistery_Concept<Registries> && ...)
 	Config(const Registries&... registries)
 	{
-		//(..., (add_config_prop(String(registries.id), static_cast<ConfigProp<typename Registries::value_type>*>(registries.conf))));
-
 		([&]
 			{
 				String id = String(registries.id);
@@ -67,6 +65,14 @@ public:
 		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
 
 		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second)->subscribe_changed_event(onPropChanged);
+	}
+
+	template<typename T>
+	_INLINE_ void set_config_prop(const String& id,const T& newValue,Object* whoChanges)
+	{
+		assert(m_propMap.find(typeid(T)) != m_propMap.end());
+		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
+		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second)->set_prop(newValue);
 	}
 private:
 

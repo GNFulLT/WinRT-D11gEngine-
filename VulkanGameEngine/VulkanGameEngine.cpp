@@ -49,9 +49,9 @@ int main()
 	// They are singleton so their get_class_name is unique
 
 	// To initialize and make ready all servers there are 3 steps
-	// 1 step is create creation and configuration servers Creation -> Configuration
-	// 2 step is let servers expose their configurations to configuration server. This step starts with scope_expose
-	// 3 step is inject configurations to servers. This step starts with scope_init
+	// 1st step is create creation and configuration servers Creation -> Configuration
+	// 2nd step is let servers expose their configurations to configuration server. This step starts with scope_expose
+	// 3rd step is inject configurations to servers. This step starts with scope_init
 
 	// In this steps servers can initialized or exposed parallel. But steps must be in order
 
@@ -68,12 +68,13 @@ int main()
 	}
 	
 	// Begin change scope
+	// Change Default Config of Window Size
 	if (auto scope = configurationServer->scope_change())
 	{
 		auto config = configurationServer->get_config_read("WindowServer");
 		if (auto windowConfig = config.lock())
 		{
-
+			windowConfig->set_config_prop<UVec2>("size",{1000,480},configurationServer);
 		}
 	}
 
