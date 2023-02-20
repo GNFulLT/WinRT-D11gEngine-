@@ -7,6 +7,7 @@
 #include "../core/typedefs.h"
 #include <functional>
 #include <boost/signals2.hpp>
+
 #include "../core/object/object.h"
 template<typename T>
 class ConfigProp : public Object

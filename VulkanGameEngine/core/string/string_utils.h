@@ -2,7 +2,7 @@
 #define STRING_UTILS_H
 
 #include "string_types.h"
-#include "core/typedefs.h"
+#include "../typedefs.h"
 //X TODO : Change this deprecated library
 
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
