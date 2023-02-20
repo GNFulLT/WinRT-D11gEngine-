@@ -15,9 +15,9 @@ template<typename T>
 struct ConfigPropRegistery
 {
 	const char* id;
-	ConfigProp<T>* conf;
+	std::shared_ptr<ConfigProp<T>> conf;
 
-	ConfigPropRegistery(const char* id, ConfigProp<T>* confProp) : id(id),conf(confProp){}
+	ConfigPropRegistery(const char* id, std::shared_ptr<ConfigProp<T>> confProp) : id(id),conf(confProp){}
 
 	typedef T value_type;
 };
@@ -29,17 +29,21 @@ class Config : public Object
 {
 	OBJECT_DEF(Config, Object)
 public:
+	virtual ~Config() = default;
 	Config(const Config&) = delete;
 	Config& operator=(const Config&) = delete;
 
-	template<typename... Args>
-	requires (ConfigPropRegistery_Concept<Args> && ...)
-	Config(const Args&... args)
+	template<typename... Registries>
+	requires (ConfigPropRegistery_Concept<Registries> && ...)
+	Config(const Registries&... registries)
 	{
-		for (const auto arg : { args... }) {
-			String str(arg.id);
-			add_config_prop(str, (ConfigProp<typename Args::value_type...>*)arg.conf);
-		}
+		//(..., (add_config_prop(String(registries.id), static_cast<ConfigProp<typename Registries::value_type>*>(registries.conf))));
+
+		([&]
+			{
+				String id = String(registries.id);
+				add_config_prop(id, static_cast<std::shared_ptr<ConfigProp<Registries::value_type>>>(registries.conf));
+			} (), ...);
 	}
 
 	_INLINE_ Object* get_owner()
@@ -67,19 +71,19 @@ public:
 private:
 
 	template<typename T>
-	_INLINE_ void add_config_prop(String& id, ConfigProp<T>* prop)
+	_INLINE_ void add_config_prop(String& id, std::shared_ptr<ConfigProp<T>> prop)
 	{
 		
 		// Already a unordered map created for this type
 		if (std::unordered_map<std::type_index, std::unordered_map<size_t, std::any>>::iterator idMap = m_propMap.find(typeid(T));idMap != m_propMap.end())
 		{
-			idMap->second.emplace(hash_string(id), std::shared_ptr<ConfigProp<T>>(prop));
+			idMap->second.emplace(hash_string(id),prop);
 		}
 		else
 		{
 			// No created map First create map
 			m_propMap.emplace(typeid(T), std::unordered_map<size_t, std::any>());
-			m_propMap[typeid(T)].emplace(hash_string(id),std::shared_ptr<ConfigProp<T>>(prop));
+			m_propMap[typeid(T)].emplace(hash_string(id),prop);
 		}
 		
 	}

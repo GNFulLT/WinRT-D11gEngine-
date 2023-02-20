@@ -4,7 +4,8 @@
 #include "VulkanGameEngine.h"
 #include "servers/configuration_server.h"
 #include <boost/bind.hpp>
-
+#include "servers/window_server.h"
+#include "servers/creation_server.h"
 
 #include "window/viewport.h"
 #include <GLFW/glfw3.h>
@@ -20,6 +21,8 @@
 #define USE_DEBUG_ALLOCATION
 #define USE_DEBUG_ALLOCATION_IMPLICIT
 #include "core/typedefs.h"
+
+static WindowServer* windowServer = nullptr;
 
 int main()
 {
@@ -38,21 +41,54 @@ int main()
 	//_CrtSetBreakAlloc(47947);
 #endif // _WINDOWS
 #endif // _DEBUG
-	int a[10] = { 5,2,3,4,5,10,10,10,10,10 };
-	ConfigurationServer serv;
-	boost::function<void(int)> f1 = [](int changed)
-	{
+	
+	// What is a server ?
+	// Server is a singleton class that runs in program independently.
+	// If you want to know anything about game flow and settings
+	// You have to visit configuration server and see their config with their name
+	// They are singleton so their get_class_name is unique
 
-	};
-	boost::signals2::connection con;
-	ConfigProp<int>* b = new ConfigProp<int>{5,f1,&con};
-	ConfigPropRegistery t("sadsa", b);
+	// To initialize and make ready all servers there are 3 steps
+	// 1 step is create creation and configuration servers Creation -> Configuration
+	// 2 step is let servers expose their configurations to configuration server. This step starts with scope_expose
+	// 3 step is inject configurations to servers. This step starts with scope_init
+
+	// In this steps servers can initialized or exposed parallel. But steps must be in order
+
+	// To create servers we need creation server and also we need configuration server to properly config other servers.
+	auto creationServer = CreationServer::create_creation();
 	
-	Config conf(t);
-	auto prop = conf.get_config_prop<int>("sadsa");
+	// We can inject configurations after this
+	auto configurationServer = creationServer->create_configuration();
 	
-	auto strr = string32_to_string(prop->get_class_name());
-	std::cout << strr.c_str();
-	std::cout << "as";
+	// Begin expose scope. 
+	if (auto scope = configurationServer->scope_expose())
+	{
+		windowServer = creationServer->create_the_window_server();
+	}
+	
+	// Begin change scope
+	if (auto scope = configurationServer->scope_change())
+	{
+		
+	}
+
+	// Begin init scope.
+	if (auto scope = configurationServer->scope_init())
+	{
+		windowServer->init();
+	}
+
+	windowServer->show();
+	while (!windowServer->should_close())
+	{
+		windowServer->handle_events();
+	}
+
+	windowServer->destroy();
+	
+	configurationServer->destroy();
+	creationServer->destroy();
+	
 	return 0;
 }

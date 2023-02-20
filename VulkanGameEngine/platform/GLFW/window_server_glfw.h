@@ -11,20 +11,31 @@ public:
 	OBJECT_DEF(WindowServerGLFW, WindowServer)
 
 	WindowServerGLFW() : WindowServer()
-	{}
-
-	WindowServerGLFW(const String& windowId) : WindowServer(windowId)
-	{}
-
-	virtual void handle_events() override;
-
-	virtual WINDOW_SUPPORTER get_window_supporter() const noexcept override
 	{
-		return WINDOW_SUPPORTER_GLFW;
+		assert(false);
 	}
 
- private:
+	WindowServerGLFW(const String& windowId) : WindowServer(windowId)
+	{
+	}
 
+	~WindowServerGLFW();
+	virtual void handle_events() override;
+	virtual void init() override;
+
+	virtual bool should_close() override;
+
+	virtual void show() override;
+	virtual void hide() override;
+
+	virtual WINDOW_SUPPORTER get_window_supporter() const noexcept override;
+
+protected:
+
+private:
+	 friend class CreationServer;
+	 GLFWwindow* m_window = nullptr;
+ 
 };
 
 #endif // WINDOW_SERVER_GLFW_H

@@ -29,6 +29,10 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build" OR "${CMAKE_CUR
 	message(FATAL_ERROR "Please build boost library to ./build dir of boost dir firstly")
 endif()
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
 include_directories(./VulkanGameEngine)
 include_directories(./deps/src/glfw/include)
 include_directories(./deps/src/boost/build/include/boost-1_82)
@@ -37,7 +41,6 @@ include_directories(./deps/src/boost/build/include/boost-1_82)
 add_subdirectory ("VulkanGameEngine")
 # For Libs including dependencies main directory
 add_subdirectory(./deps/src/glfw)
-
 
 link_directories(./deps/src/boost/build/lib)
 

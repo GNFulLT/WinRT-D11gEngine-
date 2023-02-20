@@ -14,7 +14,11 @@ class ConfigProp : public Object
 	OBJECT_DEF(ConfigProp, Object)
 public:
 	typedef boost::signals2::signal<void(const T&)> ConfigChangedSignal;
-	
+	ConfigProp(const T& initalValue)
+	{
+		m_prop = initalValue;
+	}
+
 	ConfigProp(const T& initalValue,const typename ConfigProp<T>::ConfigChangedSignal::slot_type& ownerCallback,boost::signals2::connection* con)
 	{
 		m_prop = initalValue;
@@ -31,6 +35,17 @@ public:
 		return m_listeners.connect(fnc);
 	}
 	
+	_INLINE_ const T* get_prop() const 
+	{
+		return &m_prop;
+	}
+
+	_INLINE_ void set_prop(const T& prop)
+	{
+		m_prop = prop;
+		m_listeners(prop);
+	}
+
 	typedef T value_type;
 private:
 	T m_prop;
