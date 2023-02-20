@@ -1,5 +1,6 @@
 #include "window_server_glfw.h"
 
+#include <exception>
 
 WindowServerGLFW::~WindowServerGLFW()
 {
@@ -17,7 +18,7 @@ void WindowServerGLFW::init()
 
 	//X TODO : Custom Exception
 	if (!glfwInit())
-		throw std::exception("Couldn't initalized");
+		throw std::runtime_error("Couldn't initalized");
 
 	GLFWmonitor* monitor = nullptr;
 

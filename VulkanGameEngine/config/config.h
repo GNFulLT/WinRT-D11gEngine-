@@ -22,7 +22,7 @@ struct ConfigPropRegistery
 	typedef T value_type;
 };
 
-template<typename T, typename U = T::value_type>
+template<typename T, typename U = typename T::value_type>
 concept ConfigPropRegistery_Concept = std::convertible_to<T, ConfigPropRegistery<U>>;
 
 class Config : public Object
@@ -42,7 +42,7 @@ public:
 		([&]
 			{
 				String id = String(registries.id);
-				add_config_prop(id, static_cast<std::shared_ptr<ConfigProp<Registries::value_type>>>(registries.conf));
+				add_config_prop(id, static_cast<std::shared_ptr<ConfigProp<typename Registries::value_type>>>(registries.conf));
 			} (), ...);
 	}
 

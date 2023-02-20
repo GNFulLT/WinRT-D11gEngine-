@@ -41,6 +41,7 @@ include_directories(./deps/src/boost/build/include/boost-1_82)
 add_subdirectory ("VulkanGameEngine")
 # For Libs including dependencies main directory
 add_subdirectory(./deps/src/glfw)
+# add_subdirectory(./deps/src/boost)
 
 link_directories(./deps/src/boost/build/lib)
 

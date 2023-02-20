@@ -52,7 +52,7 @@ private:
 	mutable typename ConfigProp<T>::ConfigChangedSignal m_listeners;
 };
 
-template<typename T,typename U = T::value_type>
+template<typename T,typename U = typename T::value_type>
 concept ConfigurationProp = std::convertible_to<T, ConfigProp<U>>;
 
 #endif // CONFIG_PROP_H
