@@ -70,7 +70,11 @@ int main()
 	// Begin change scope
 	if (auto scope = configurationServer->scope_change())
 	{
-		
+		auto config = configurationServer->get_config_read("WindowServer");
+		if (auto windowConfig = config.lock())
+		{
+
+		}
 	}
 
 	// Begin init scope.
@@ -84,6 +88,9 @@ int main()
 	{
 		windowServer->handle_events();
 	}
+
+
+	auto strr = string32_to_string16(windowServer->get_object_name());
 
 	windowServer->destroy();
 	

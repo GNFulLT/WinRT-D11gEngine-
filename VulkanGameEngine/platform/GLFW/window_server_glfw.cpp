@@ -1,6 +1,5 @@
 #include "window_server_glfw.h"
-
-#include <exception>
+#include <stdexcept>
 
 WindowServerGLFW::~WindowServerGLFW()
 {
