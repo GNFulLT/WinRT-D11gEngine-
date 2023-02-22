@@ -37,7 +37,7 @@ set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost")
 set(BOOST_INCLUDEDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/include")
 set(BOOST_LIBRARYDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/lib")
 
-find_package(BOOST REQUIRED COMPONENTS system)
+find_package(BOOST REQUIRED COMPONENTS system filesystem locale)
 
 if(BOOST_FOUND)
 	message("BOOST IS OK")
@@ -55,12 +55,21 @@ else()
 	set(BOOST_CORRECT_INCLUDEDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/include/boost-1_82")
 	message("BOOST INCLUDE DIRECTORY : ${BOOST_CORRECT_INCLUDEDIR}")
 endif()
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/lib")
+	   message(FATAL_ERROR "Cant find boost libs. Looked at : ${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/lib")
+else()
+	message("LINKED LIB")
+	set(BOOST_CORRECT_LIBDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/lib")
+endif()
+
 add_subdirectory(./deps/src/glfw)
 
 include_directories(
 	${BOOST_CORRECT_INCLUDEDIR}
 	./deps/src/glfw/include
 )
+message("Lib Dır : ${BOOST_CORRECT_LIBDIR} ")
+
 add_subdirectory ("VulkanGameEngine")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

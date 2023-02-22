@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SIZE_H
 #define SIZE_H
 
@@ -16,7 +17,7 @@ struct UVec2
 	{
 
 	}
-	UVec2(unsigned int x, unsigned int y) : x(x),y(y)
+	UVec2(unsigned int x, unsigned int y) : x(x), y(y)
 	{
 
 	}

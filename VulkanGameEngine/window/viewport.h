@@ -2,7 +2,7 @@
 #define VIEWPORT_H
 
 #include "../core/object/object.h"
-#include "../core/vec2.h"
+#include "../plugin/pinclude/basic_shared_types.h"
 #include "../core/typedefs.h"
 #include "../config/config.h"
 #include <memory>
