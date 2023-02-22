@@ -35,7 +35,7 @@ public:
 
 	template<typename... Registries>
 	requires (ConfigPropRegistery_Concept<Registries> && ...)
-	Config(const Registries&... registries)
+	Config(Object* owner,const Registries&... registries) : m_owner(owner)
 	{
 		([&]
 			{
@@ -50,11 +50,25 @@ public:
 	}
 
 	template<typename T>
-	_INLINE_ const ConfigProp<T>* const get_config_prop(const String& id) const
+	_INLINE_ ConfigProp<T>* const get_config_prop(const String& id) const
 	{
 		assert(m_propMap.find(typeid(T)) != m_propMap.end());
 		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
+		
+		return std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second).get();
+	}
 
+	template<typename T>
+	_INLINE_ ConfigProp<T>* const try_get_config_prop(const String& id) const
+	{
+		if (m_propMap.find(typeid(T)) == m_propMap.end())
+		{
+			return nullptr;
+		}
+		if(m_propMap.find(typeid(T))->second.find(hash_string(id)) == m_propMap.find(typeid(T))->second.end())
+		{
+			return nullptr;
+		}
 		return std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second).get();
 	}
 
