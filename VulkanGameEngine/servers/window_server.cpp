@@ -7,7 +7,7 @@ Config* WindowServer::config_creation()
 	ConfigPropRegistery windowMode("window_mode", m_windowMode);
 	ConfigPropRegistery monitorSelection("monitor_selection", m_monitorSelection);
 	ConfigPropRegistery windowInitialPos("window_initial_position", m_windowInitialPosition);
-	Config* conf = new Config(size,windowMode);
+	Config* conf = new Config(this,size,windowMode,monitorSelection, windowInitialPos);
 	return conf;
 }
 
