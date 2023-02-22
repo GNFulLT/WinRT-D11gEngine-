@@ -4,11 +4,23 @@
 #include "string_types.h"
 #include "../typedefs.h"
 #include <stdexcept>
+#include <boost/locale.hpp>
 
 //X TODO : Create set of method that hashes the strings to size_t
 
 
 size_t hash_string(const String& str);
+
+_INLINE_ std::wstring string_to_wstr(const String& str)
+{
+    return boost::locale::conv::utf_to_utf<wchar_t>(str);
+}
+
+_INLINE_ std::wstring string16_to_wstr(const String16& str)
+{
+   return boost::locale::conv::utf_to_utf<wchar_t>(str);
+
+}
 
 _INLINE_ String16 string32_to_string16(const String32& str)
 {
