@@ -24,7 +24,7 @@ public:
 	};
 	
 
-	_INLINE_ const UVec2& get_size() const noexcept
+	_INLINE_ const core::UVec2& get_size() const noexcept
 	{
 		return *m_size->get_prop();
 	}
@@ -39,8 +39,8 @@ protected:
 
 protected:
 	std::shared_ptr<ConfigProp<MSAA>> m_msaa_settings;
-	std::shared_ptr<ConfigProp<UVec2>> m_size;
-	std::shared_ptr<ConfigProp<UVec2>> m_pos;
+	std::shared_ptr<ConfigProp<core::UVec2>> m_size;
+	std::shared_ptr<ConfigProp<core::UVec2>> m_pos;
 };
 
 #endif // VIEWPORT_H

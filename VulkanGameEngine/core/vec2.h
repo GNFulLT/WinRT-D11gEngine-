@@ -1,25 +1,19 @@
-#ifndef SIZE_H
-#define SIZE_H
+#ifndef VEC2_H
+#define VEC2_H
 
-
-struct UVec2
+namespace core
 {
-	union
+	struct UVec2
 	{
-		struct {
-			unsigned int x;
-			unsigned int y;
-		};
-		unsigned int v[2];
+		unsigned int x;
+		unsigned int y;
+		
+		UVec2() : UVec2(0,0)
+		{}
+
+		UVec2(unsigned int x,unsigned int y) : x(x),y(y)
+		{}
 	};
-	UVec2() : UVec2(0, 0)
-	{
-
-	}
-	UVec2(unsigned int x, unsigned int y) : x(x),y(y)
-	{
-
-	}
-};
+}
 
 #endif

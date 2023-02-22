@@ -4,13 +4,13 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Add source to this project's executable.
-add_executable (VulkanGameEngine "VulkanGameEngine.cpp" "VulkanGameEngine.h" "Core/engine.h" "core/string/locales.h" "core/typedefs.h" "core/string/unicode_char_range.h" "core/string/unicode_char_utils.h" "core/string/unicode_char_utils.cpp" "core/string/string_types.h" "core/templates/safe_num.h" "core/object/object.h" "core/object/object_id.h" "servers/localization/localization_server.h" "core/string/string_utils.h" "core/string/string_utils.cpp" "exception/file_not_found_ex.h" "servers/localization/localization_server.cpp" "servers/window_server.h" "servers/configuration_server.h" "config/config.h" "core/scope.h" "servers/configuration_server.cpp" "config/config_prop.h" "config/config_prop_base.h" "window/window.h" "window/viewport.h" "core/vec2.h" "window/window_id.h"  "core/templates/node.h" "platform/GLFW/window_server_glfw.h" "servers/creation_server.h" "servers/creation_server.cpp" "config/config_utils.h" "config/config_utils.cpp" "platform/GLFW/window_server_glfw.cpp" "window/viewport.cpp" "servers/window_server.cpp" "core/version.h")
+add_executable (VulkanGameEngine "VulkanGameEngine.cpp" "VulkanGameEngine.h" "Core/engine.h" "core/string/locales.h" "core/typedefs.h" "core/string/unicode_char_range.h" "core/string/unicode_char_utils.h" "core/string/unicode_char_utils.cpp" "core/string/string_types.h" "core/templates/safe_num.h" "core/object/object.h" "core/object/object_id.h" "servers/localization/localization_server.h" "core/string/string_utils.h" "core/string/string_utils.cpp" "exception/file_not_found_ex.h" "servers/localization/localization_server.cpp" "servers/window_server.h" "servers/configuration_server.h" "config/config.h" "core/scope.h" "servers/configuration_server.cpp" "config/config_prop.h" "config/config_prop_base.h" "window/window.h" "window/viewport.h"  "window/window_id.h"  "core/templates/node.h" "platform/GLFW/window_server_glfw.h" "servers/creation_server.h" "servers/creation_server.cpp" "config/config_utils.h" "config/config_utils.cpp" "platform/GLFW/window_server_glfw.cpp" "window/viewport.cpp" "servers/window_server.cpp" "core/version.h" "plugin/native_include/plugin_interface.h" "servers/plugin_server.h" "servers/plugin_server.cpp" "core/io/dynamic_library.h" "core/io/dynamic_library.cpp" "core/io/io_utils.h" "plugin/plugin_native.h" "plugin/plugin_adapter.h" "plugin/native_include/plugin_server_types.h" "plugin/native_include/plugin_common_types.h" "plugin/native_include/plugin_defs.h" "plugin/native_include/plugin_excepts.h" "core/vec2.h" "plugin/plugin.h" "plugin/plugin_native.cpp" "plugin/plugin_native_event.h" "plugin/plugin_native_event.cpp" "plugin/native_include/plugin_native_event_types.h" "servers/event_bus_server.h" "plugin/native_include/plugin_events.h" "servers/event_bus_server.cpp" "core/event/plugin_events_defs.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET VulkanGameEngine PROPERTY CXX_STANDARD 20)
 endif()
 
 target_link_libraries(VulkanGameEngine glfw)
-
+target_link_libraries(VulkanGameEngine Dexode::EventBus)
 
 # TODO: Add tests and install targets if needed.

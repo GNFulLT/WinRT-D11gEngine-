@@ -25,7 +25,7 @@ public:
 		m_windowInitialPosition(new ConfigProp<WINDOW_INITIAL_POSITION>(WINDOW_INITIAL_POSITION_CENTER))
 	{
 		// Default Window Size is 640 480
-		m_size.reset(new ConfigProp<UVec2>({640,480}));
+		m_size.reset(new ConfigProp<core::UVec2>({640,480}));
 	}
 	
 	enum MONITOR_SELECTION

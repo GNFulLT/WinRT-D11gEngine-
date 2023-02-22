@@ -2,8 +2,8 @@
 
 Viewport::Viewport() :
 	m_msaa_settings(new ConfigProp<MSAA>(MSAA_DISABLED)),
-	m_pos(new ConfigProp<UVec2>({0,0})),
-	m_size(new ConfigProp<UVec2>({0,0}))
+	m_pos(new ConfigProp<core::UVec2>({0,0})),
+	m_size(new ConfigProp<core::UVec2>({0,0}))
 {
 	
 }

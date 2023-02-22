@@ -1,6 +1,5 @@
 #include "configuration_server.h"
 
-
 void ConfigurationServer::scope_init_begins()
 {
 	m_init_scope_started = true;

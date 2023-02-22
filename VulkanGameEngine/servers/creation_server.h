@@ -5,6 +5,9 @@
 #include "window_server.h"
 #include "configuration_server.h"
 #include "../config/config.h"
+#include "plugin_server.h"
+#include "event_bus_server.h"
+
 class CreationServer : public Object
 {
 	OBJECT_DEF(CreationServer,Object)
@@ -23,9 +26,10 @@ public:
 	{
 		return singleton;
 	}
-
-	ConfigurationServer* create_configuration();
+	EventBusServer* create_event_bus_server();
+	ConfigurationServer* create_configuration_server();
 	WindowServer* create_the_window_server();
+	PluginServer* create_plugin_server();
 	static void destroy();	
 
 private:

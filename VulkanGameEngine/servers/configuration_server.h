@@ -69,6 +69,7 @@ public:
 		return std::any_cast<std::shared_ptr<Config>>(m_container[hash_string(configName)]);
 	}
 
+
 	static void destroy();
 
 private:

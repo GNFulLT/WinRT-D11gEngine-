@@ -3,7 +3,6 @@
 #include "core/string/unicode_char_utils.h"
 #include "VulkanGameEngine.h"
 #include "servers/configuration_server.h"
-#include <boost/bind.hpp>
 #include "servers/window_server.h"
 #include "servers/creation_server.h"
 
@@ -18,8 +17,6 @@
 
 #define USE_GARR_SIZE
 #define USE_GARR_SIZE_TEMPLATED
-#define USE_DEBUG_ALLOCATION
-#define USE_DEBUG_ALLOCATION_IMPLICIT
 #include "core/typedefs.h"
 
 static WindowServer* windowServer = nullptr;
@@ -59,23 +56,26 @@ int main()
 	auto creationServer = CreationServer::create_creation();
 	
 	// We can inject configurations after this
-	auto configurationServer = creationServer->create_configuration();
+	auto configurationServer = creationServer->create_configuration_server();
 	
+	auto eventServer = creationServer->create_event_bus_server();
+
+	auto pluginServer = creationServer->create_plugin_server();
+
 	// Begin expose scope. 
 	if (auto scope = configurationServer->scope_expose())
 	{
 		windowServer = creationServer->create_the_window_server();
+
+		pluginServer->load_all_plugins();
+		pluginServer->init_all_plugins();
 	}
 	
 	// Begin change scope
 	// Change Default Config of Window Size
 	if (auto scope = configurationServer->scope_change())
 	{
-		auto config = configurationServer->get_config_read("WindowServer");
-		if (auto windowConfig = config.lock())
-		{
-			windowConfig->set_config_prop<UVec2>("size",{1000,480},configurationServer);
-		}
+		eventServer->trigger_OnChangeScop();
 	}
 
 	// Begin init scope.
@@ -83,7 +83,8 @@ int main()
 	{
 		windowServer->init();
 	}
-
+	auto cnf = configurationServer->get_config_read("WindowServer").lock();
+	auto ct = cnf->try_get_config_prop<core::UVec2>("asdsad");
 	windowServer->show();
 	while (!windowServer->should_close())
 	{
@@ -95,8 +96,12 @@ int main()
 
 	windowServer->destroy();
 	
+
+	pluginServer->destroy();
+	eventServer->destroy();
 	configurationServer->destroy();
 	creationServer->destroy();
+	
 	
 	return 0;
 }
