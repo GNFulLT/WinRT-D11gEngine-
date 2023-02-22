@@ -50,7 +50,7 @@ public:
 	}
 
 	template<typename T>
-	_INLINE_ ConfigProp<T>* const get_config_prop(const String& id) const
+	_INLINE_ ConfigProp<T>* get_config_prop(const String& id) const
 	{
 		assert(m_propMap.find(typeid(T)) != m_propMap.end());
 		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
@@ -59,7 +59,7 @@ public:
 	}
 
 	template<typename T>
-	_INLINE_ ConfigProp<T>* const try_get_config_prop(const String& id) const
+	_INLINE_ ConfigProp<T>* try_get_config_prop(const String& id) const
 	{
 		if (m_propMap.find(typeid(T)) == m_propMap.end())
 		{
@@ -82,7 +82,7 @@ public:
 	}
 
 	template<typename T>
-	_INLINE_ void set_config_prop(const String& id,const T& newValue,Object* whoChanges)
+	_INLINE_ void set_config_prop(const String& id,const T& newValue)
 	{
 		assert(m_propMap.find(typeid(T)) != m_propMap.end());
 		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());

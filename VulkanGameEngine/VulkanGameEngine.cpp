@@ -61,9 +61,11 @@ int main()
 	// We can inject configurations after this
 	auto configurationServer = creationServer->create_configuration();
 	
+	LoggerServer* loggerServer;
 	// Begin expose scope. 
 	if (auto scope = configurationServer->scope_expose())
 	{
+		loggerServer = creationServer->create_logger_server();
 		windowServer = creationServer->create_the_window_server();
 	}
 	
@@ -72,10 +74,7 @@ int main()
 	if (auto scope = configurationServer->scope_change())
 	{
 		auto config = configurationServer->get_config_read("WindowServer");
-		if (auto windowConfig = config.lock())
-		{
-			windowConfig->set_config_prop<UVec2>("size",{1000,480},configurationServer);
-		}
+		loggerServer->log_cout(windowServer, "Windwo Initted",Logger::INFO);
 	}
 
 	// Begin init scope.
@@ -85,6 +84,7 @@ int main()
 	}
 
 	windowServer->show();
+	// Server Initialization must be in order. WindowServer -> Device -> ETC..
 	while (!windowServer->should_close())
 	{
 		windowServer->handle_events();
@@ -94,7 +94,7 @@ int main()
 	auto strr = string32_to_string16(windowServer->get_object_name());
 
 	windowServer->destroy();
-	
+	loggerServer->destroy();
 	configurationServer->destroy();
 	creationServer->destroy();
 	

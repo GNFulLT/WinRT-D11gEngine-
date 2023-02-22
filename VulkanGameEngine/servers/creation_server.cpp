@@ -12,6 +12,11 @@ WindowServer* CreationServer::create_the_window_server()
 	return glfwServer;
 }
 
+LoggerServer* CreationServer::create_logger_server()
+{
+	return LoggerServer::create_singleton();
+}
+
 ConfigurationServer* CreationServer::create_configuration()
 {
 	return ConfigurationServer::create_singleton();

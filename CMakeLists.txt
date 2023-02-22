@@ -63,10 +63,12 @@ else()
 endif()
 
 add_subdirectory(./deps/src/glfw)
+add_subdirectory(./deps/src/spdlog)
 
 include_directories(
 	${BOOST_CORRECT_INCLUDEDIR}
 	./deps/src/glfw/include
+	./deps/src/spdlog/include
 )
 message("Lib Dır : ${BOOST_CORRECT_LIBDIR} ")
 

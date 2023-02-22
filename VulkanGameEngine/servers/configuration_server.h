@@ -5,12 +5,13 @@
 #include <unordered_map>
 #include <any>
 #include <cassert>
-
+#include <format>
+ 
 #include "../core/object/object.h"
 #include "../config/config.h"
 #include "../core/scope.h"
 #include "../core/string/string_utils.h"
-
+#include "logger_server.h"
 
 class CreationServer;
 
@@ -69,6 +70,33 @@ public:
 		return std::any_cast<std::shared_ptr<Config>>(m_container[hash_string(configName)]);
 	}
 
+	template<typename T>
+	_INLINE_ bool set_config_prop(Object* who, const String& configName, const String& propName, const T& newValue)
+	{
+		assert(m_container.find(hash_string(configName)) != m_container.end());
+
+		std::any_cast<std::shared_ptr<Config>>(m_container[hash_string(configName)]);
+	}
+
+	template<typename T>
+	_INLINE_ bool try_set_config_prop(Object* who, const String& configName, const String& propName, const T& newValue)
+	{
+		if (m_container.find(hash_string(configName)) == m_container.end())
+			return false;
+
+		auto config = std::any_cast<std::shared_ptr<Config>>(m_container[hash_string(configName)]);
+		ConfigProp<T>* configProp = config->try_get_config_prop(propName);
+		if (configProp == nullptr)
+		{
+			return false;
+		}
+		configProp->set_prop(newValue);
+		if ((unsigned int)LoggerServer::get_singleton()->get_log_level_cout() >= (unsigned int)m_logLevel)
+		{
+			LoggerServer::get_singleton()->log_cout(std::format("{} named Prop of {} named config changed by class {} named {}", propName,configName,who->get_class_name(),who->get_object_name()), m_logLevel);
+		}
+	}
+
 	static void destroy();
 
 private:
@@ -83,6 +111,11 @@ private:
 	ConfigurationServer()
 	{}
 
+#ifdef _DEBUG
+	Logger::LOG_LEVEL m_logLevel = Logger::LOG_LEVEL::DEBUG;
+#else
+	Logger::LOG_LEVEL m_logLevel = Logger::LOG_LEVEL::INFO;
+#endif
 	std::unordered_map<size_t, std::any> m_container;
 	bool m_init_scope_started = false;
 	bool m_init_scope_finished = false;

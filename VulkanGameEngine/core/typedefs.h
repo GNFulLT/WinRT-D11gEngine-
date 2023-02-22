@@ -45,6 +45,7 @@
 #undef DELETE 
 #undef MessageBox
 #undef Error
+#undef ERROR
 #undef OK
 #undef CONNECT_DEFERRED
 #endif // _WIN32

@@ -9,7 +9,11 @@
 #include <boost/signals2.hpp>
 
 #include "../core/object/object.h"
-template<typename T>
+
+template <typename T>
+concept CanbeConfigPropConcept = not std::convertible_to<T,Object>;
+
+template<CanbeConfigPropConcept T>
 class ConfigProp : public Object
 {
 	OBJECT_DEF(ConfigProp, Object)

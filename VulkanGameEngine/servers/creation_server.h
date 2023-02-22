@@ -5,6 +5,8 @@
 #include "window_server.h"
 #include "configuration_server.h"
 #include "../config/config.h"
+#include "logger_server.h"
+
 class CreationServer : public Object
 {
 	OBJECT_DEF(CreationServer,Object)
@@ -26,6 +28,7 @@ public:
 
 	ConfigurationServer* create_configuration();
 	WindowServer* create_the_window_server();
+	LoggerServer* create_logger_server();
 	static void destroy();	
 
 private:
