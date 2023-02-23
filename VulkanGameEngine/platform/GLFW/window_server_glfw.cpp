@@ -53,6 +53,16 @@ WindowServerGLFW::WINDOW_SUPPORTER WindowServerGLFW::get_window_supporter() cons
 	return WINDOW_SUPPORTER_GLFW;
 }
 
+GRAPHIC_API WindowServerGLFW::get_default_graphic_api() const noexcept
+{
+	return GRAPHIC_API_VULKAN;
+}
+
+bool WindowServerGLFW::is_graphic_api_supported(GRAPHIC_API api) const noexcept
+{
+	return api == GRAPHIC_API_VULKAN;
+}
+
 
 bool WindowServerGLFW::should_close()
 {

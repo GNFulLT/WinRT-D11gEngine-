@@ -3,6 +3,7 @@
 
 #include "../window/window.h"
 #include "../config/config_utils.h"
+#include "../core/graphic_api.h"
 
 class CreationServer;
 
@@ -52,6 +53,9 @@ public:
 
 	virtual void init() = 0;
 	virtual void handle_events() = 0;
+
+	virtual GRAPHIC_API get_default_graphic_api() const noexcept = 0;
+	virtual bool is_graphic_api_supported(GRAPHIC_API api) const noexcept= 0;
 
 	virtual WINDOW_SUPPORTER get_window_supporter() const noexcept = 0;
 
