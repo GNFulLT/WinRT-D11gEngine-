@@ -5,6 +5,7 @@
 #include "servers/configuration_server.h"
 #include "servers/window_server.h"
 #include "servers/creation_server.h"
+#include "core/folders.h"
 
 #include "window/viewport.h"
 #include "core/templates/safe_num.h"

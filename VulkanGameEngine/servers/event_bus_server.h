@@ -12,6 +12,11 @@
 #include <memory>
 #include <functional>
 #include <boost/format.hpp>
+#include <concepts>
+
+template<typename T>
+concept CanSubsribe_Concept = std::convertible_to<T, Object>;
+
 
 class CreationServer;
 
@@ -30,8 +35,8 @@ public:
 		return singleton;
 	}
 
-	template <typename EventType, typename SubscriberType>
-	void add_subscriber(Object* subscriber, void (SubscriberType::* handler)(const EventType&)) {
+	template <CanSubsribe_Concept EventType, typename SubscriberType>
+	void add_subscriber(SubscriberType* subscriber, void (SubscriberType::* handler)(const EventType&)) {
 		// Check if the event type has been registered before
 		auto& signal = get_signal<EventType>();
 		signal.connect(boost::bind(handler, subscriber,boost::placeholders:: _1));
@@ -53,7 +58,7 @@ public:
 		signal(event);
 	}
 
-	template <typename EventType, typename SubscriberType>
+	template <CanSubsribe_Concept SubscriberType,typename EventType>
 	void remove_subscriber(SubscriberType* subscriber, void (SubscriberType::* handler)(const EventType&)) {
 		auto& signal = get_signal<EventType>();
 		signal.disconnect(boost::bind(handler, subscriber, boost::placeholders::_1));
