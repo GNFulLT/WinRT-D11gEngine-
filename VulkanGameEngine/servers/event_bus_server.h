@@ -11,6 +11,7 @@
 #include <typeindex>
 #include <memory>
 #include <functional>
+#include <boost/format.hpp>
 
 class CreationServer;
 
@@ -36,8 +37,8 @@ public:
 		signal.connect(boost::bind(handler, subscriber,boost::placeholders:: _1));
 		if ((unsigned int)LoggerServer::get_singleton()->get_log_level_cout() <= (unsigned int)m_logLevel && (unsigned int)LoggerServer::get_singleton()->get_log_level_cout() != 0)
 		{
-			LoggerServer::get_singleton()->log_cout(std::format("{} class {} named object subscribed to {} named event",subscriber->get_class_name(),
-				string32_to_string(subscriber->get_object_name()),EventType::EventMetaData::name), m_logLevel);
+			LoggerServer::get_singleton()->log_cout(boost::str(boost::format("[%1%] class [%2%] named object subscribed to [%3%] named event") % subscriber->get_class_name() %
+				string32_to_string(subscriber->get_object_name()) % EventType::EventMetaData::name).c_str(), m_logLevel);
 		}
 	}
 
@@ -46,8 +47,8 @@ public:
 		auto& signal = get_signal<EventType>();
 		if ((unsigned int)LoggerServer::get_singleton()->get_log_level_cout() <= (unsigned int)m_logLevel && (unsigned int)LoggerServer::get_singleton()->get_log_level_cout() != 0)
 		{
-			LoggerServer::get_singleton()->log_cout(std::format("{} class {} named object posted {} named event", who->get_class_name(),
-				string32_to_string(who->get_object_name()), EventType::EventMetaData::name), m_logLevel);
+			LoggerServer::get_singleton()->log_cout(boost::str(boost::format("[%1%] class [%2%] named object posted [%3%] named event") % who->get_class_name() %
+				string32_to_string(who->get_object_name()) %  EventType::EventMetaData::name).c_str(), m_logLevel);
 		}
 		signal(event);
 	}

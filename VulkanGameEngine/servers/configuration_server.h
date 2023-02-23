@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <any>
 #include <cassert>
-#include <format>
+#include <boost/format.hpp>
  
 #include "../core/object/object.h"
 #include "../config/config.h"
@@ -85,7 +85,7 @@ public:
 			return false;
 
 		auto config = std::any_cast<std::shared_ptr<Config>>(m_container[hash_string(configName)]);
-		ConfigProp<T>* configProp = config->try_get_config_prop(propName);
+		ConfigProp<T>* configProp = config->try_get_config_prop<T>(propName);
 		if (configProp == nullptr)
 		{
 			return false;
@@ -93,8 +93,10 @@ public:
 		configProp->set_prop(newValue);
 		if ((unsigned int)LoggerServer::get_singleton()->get_log_level_cout() <= (unsigned int)m_logLevel && (unsigned int)LoggerServer::get_singleton()->get_log_level_cout() != 0)
 		{
-			LoggerServer::get_singleton()->log_cout(std::format("{} named Prop of {} named config changed by class {} named {}", propName,configName,who->get_class_name(),who->get_object_name()), m_logLevel);
+			LoggerServer::get_singleton()->log_cout(boost::str(boost::format("[%1%] named prop of [%2%] named config changed by class [%3%] named [%4%]") % propName % 
+				configName % who->get_class_name() % string32_to_string(who->get_object_name())).c_str(), m_logLevel);
 		}
+		return true;
 	}
 
 	static void destroy();

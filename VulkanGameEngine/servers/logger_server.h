@@ -6,7 +6,7 @@
 #include "../core/io/logger.h"
 #include "../core/string/string_utils.h"
 #include <memory>
-#include <format>
+#include <boost/format.hpp>
 
 class CreationServer;
 class ConfigurationServer;
@@ -22,7 +22,7 @@ public:
 
 	_INLINE_ static LoggerServer* get_singleton(Object* who)
 	{
-		singleton->m_coutLogger->log(std::format("{} object accessed to logger class type was {}",string32_to_string(who->get_object_name()),who->get_class_name()).c_str(), Logger::DEBUG);
+		singleton->m_coutLogger->log(boost::str(boost::format("{} object accessed to logger class type was {}") % string32_to_string(who->get_object_name()) % who->get_class_name()).c_str(), Logger::DEBUG);
 		return singleton;
 	}
 
@@ -32,6 +32,11 @@ public:
 	{
 		return m_coutLogger->get_log_level();
 	}
+
+	_INLINE_ void set_log_level_cout(Logger::LOG_LEVEL level)
+	{
+		m_coutLogger->select_log_level(level);
+	}
 	void destroy();
 private:
 	friend class CreationServer;
@@ -39,6 +44,8 @@ private:
 	friend class EventBusServer;
 	static LoggerServer* create_singleton();
 	
+	
+
 	_INLINE_ void log_cout(const String& msg, Logger::LOG_LEVEL level)
 	{
 		m_coutLogger->log(msg.c_str(), level);

@@ -74,20 +74,24 @@ int main()
 		windowServer = creationServer->create_the_window_server();
 		 
 	}
-	
+#ifdef _DEBUG
+	loggerServer->set_log_level_cout(Logger::DEBUG);
+#endif
 	// Begin change scope
 	// Change Default Config of Window Size
 	if (auto scope = configurationServer->scope_change())
 	{
 		auto config = configurationServer->get_config_read("WindowServer");
 		loggerServer->log_cout(windowServer, "Windwo Initted",Logger::INFO);
+		UVec2 vec = { 1920,1080 };
+		configurationServer->try_set_config_prop(windowServer, "WindowServer", "size", vec);
 	}
 
 	// Begin init scope.
 	if (auto scope = configurationServer->scope_init())
 	{
 		windowServer->init();
-		
+	
 	}
 
 	windowServer->show();
