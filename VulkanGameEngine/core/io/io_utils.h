@@ -55,4 +55,11 @@ _INLINE_ String get_file_extension(const String& path)
 		return "";
 	return fpath.extension().string();
 }
+
+_INLINE_ bool is_file(const String& path)
+{
+	boost::filesystem::path fpath(path);
+
+	return fpath.has_filename();
+}
 #endif

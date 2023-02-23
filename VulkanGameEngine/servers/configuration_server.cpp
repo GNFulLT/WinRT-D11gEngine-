@@ -1,5 +1,8 @@
 #include "configuration_server.h"
 #include "../core/io/io_utils.h"
+#include "../core/folders.h"
+
+#include <boost/property_tree/json_parser.hpp>
 
 void ConfigurationServer::scope_init_begins()
 {
@@ -34,14 +37,57 @@ void ConfigurationServer::scope_change_ends()
 	m_change_scope_finished = true;
 }
 
-bool ConfigurationServer::read_configuration_file(const String& path)
+bool ConfigurationServer::read_init_configuration_file(const String& fileName)
 {
-	if (!is_path_exist(path))
+	auto configPath = String(CONFIG_FOLDER_FULL_PATH);
+	if (!is_path_exist(configPath))
 	{
-		create_path(path);
-		return true;
+		return false;
 	}
-	return false;
+	if (!is_path_exist(configPath+fileName))
+	{
+		return false;
+	}
+	if (!is_file(fileName))
+	{
+		return false;
+	}
+	const auto exts = get_file_extension(fileName);
+	namespace pt = boost::property_tree;
+	if (exts == ".json")
+	{
+		pt::ptree* tree = new pt::ptree;
+		try
+		{
+			pt::read_json(configPath + fileName,*tree);
+			m_filePTreeContainer.emplace(fileName, tree);
+			return true;
+		}
+		catch (_UNUSED_ std::exception& ex)
+		{
+			delete tree;
+			//X TODO: NEED LOGGER
+			return false;
+		}
+	}
+	else if (exts == ".xml")
+	{
+		//X TODO: Need Support 
+		return false;
+
+	}
+	else if (exts == ".yaml")
+	{
+		//X TODO: Need Support 
+		return false;
+
+	}
+	else
+	{
+		//X TODO: Need Support 
+		return false;
+	}
+	return true;
 }
 
 void ConfigurationServer::destroy()

@@ -37,10 +37,15 @@
 #ifndef _IMP_RETURN_
 #define _IMP_RETURN_ [[nodiscard]]
 #endif
+
+#ifndef _UNUSED_
+#define _UNUSED_ [[maybe_unused]] 
+#endif
+
 // Undef Win32 awkward defines
 #ifdef _WIN32
-#undef min // override standard definition and cause bugs some libraries like taskflow
-#undef max // override standard definition and cause bugs some libraries like taskflow
+#undef min // override standard definition. It causes bugs some libraries like taskflow
+#undef max // override standard definition. It causes bugs some libraries like taskflow
 #undef ERROR 
 #undef DELETE 
 #undef MessageBox

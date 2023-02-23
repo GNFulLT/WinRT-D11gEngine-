@@ -1,0 +1,12 @@
+#ifndef GRAPHIC_API_H
+#define GRAPHIC_API_H
+
+
+enum GRAPHIC_API_H
+{
+	GRAPHIC_API_VULKAN = 0, 
+	GRAPHIC_API_DIRECTX_11
+};
+
+
+#endif // GRAPHIC_API_H

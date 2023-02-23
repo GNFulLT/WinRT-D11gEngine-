@@ -6,11 +6,14 @@
 #include <any>
 #include <cassert>
 #include <boost/format.hpp>
- 
+#include <boost/property_tree/ptree.hpp>
+
 #include "../core/object/object.h"
-#include "../config/config.h"
 #include "../core/scope.h"
 #include "../core/string/string_utils.h"
+#include "../core/serialize/serializable_struct.h"
+#include "../config/config.h"
+
 #include "logger_server.h"
 
 class CreationServer;
@@ -99,8 +102,58 @@ public:
 		return true;
 	}
 
+	bool read_init_configuration_file(const String& fileName);
 
-	bool read_configuration_file(const String& path);
+	template<typename T, typename std::enable_if<!std::is_class<T>::value || std::is_convertible<T,std::string>::value, int>::type = 0>
+	_INLINE_ bool get_init_configuration(const String& fileName,const String& path, T& out)
+	{
+		if (const auto& pTree = m_filePTreeContainer.find(fileName); pTree != m_filePTreeContainer.end())
+		{
+			try
+			{
+				out = pTree->second->get<T>(path);
+				return true;
+			}
+			catch (_UNUSED_ const std::exception& ex)
+			{
+				LoggerServer::get_singleton()->log_cout(ex.what(), m_logLevel);
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	template<typename T, typename std::enable_if<std::is_class<T>::value && !std::is_convertible<T,std::string>::value, int>::type = 0>
+	_INLINE_ bool get_init_configuration(const String& fileName, const String& path, T& out)
+	{
+		if (const auto& pTree = m_filePTreeContainer.find(fileName); pTree != m_filePTreeContainer.end())
+		{
+			constexpr auto props = std::tuple_size<decltype(T::properties)>::value;
+			for_sequence(std::make_index_sequence<props>{}, [&](auto i) {
+				constexpr auto prop = std::get<i>(T::properties);
+				using VType = typename decltype(prop)::value_type;
+				try
+				{
+					auto fullP = path + std::string(".") + std::string(prop.name);
+					out.*(prop.member) = pTree->second->get<VType>(fullP);
+				}
+				catch (_UNUSED_ const std::exception& ex)
+				{
+					LoggerServer::get_singleton()->log_cout(ex.what(), m_logLevel);
+
+				}
+
+			});
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	static void destroy();
 
@@ -122,6 +175,7 @@ private:
 	Logger::LOG_LEVEL m_logLevel = Logger::LOG_LEVEL::INFO;
 #endif
 	std::unordered_map<size_t, std::any> m_container;
+	std::unordered_map<std::string, std::unique_ptr<boost::property_tree::ptree>> m_filePTreeContainer;
 	bool m_init_scope_started = false;
 	bool m_init_scope_finished = false;
 

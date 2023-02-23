@@ -6,6 +6,7 @@
 #include "servers/window_server.h"
 #include "servers/creation_server.h"
 #include "core/folders.h"
+#include "core/serialize/serializable_struct.h"
 
 #include "window/viewport.h"
 #include "core/templates/safe_num.h"
@@ -23,9 +24,11 @@
 
 static WindowServer* windowServer = nullptr;
 
-struct a
+struct SerializedStruct 
 {
-
+	int Ser1;
+	int Ser2;
+	SERIALIZABLE_STRUCT(PROPERTY(SerializedStruct,Ser1), PROPERTY(SerializedStruct, Ser2))
 };
 
 int main()
@@ -65,19 +68,23 @@ int main()
 	// We can inject configurations after this
 	auto configurationServer = creationServer->create_configuration();
 	
+	configurationServer->read_init_configuration_file("config.json");
+
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
 
 	LoggerServer* loggerServer;
-	// Begin expose scope. 
-	if (auto scope = configurationServer->scope_expose())
-	{
-		loggerServer = creationServer->create_logger_server();
-		windowServer = creationServer->create_the_window_server();
-		 
-	}
+	loggerServer = creationServer->create_logger_server();
+
 #ifdef _DEBUG
 	loggerServer->set_log_level_cout(Logger::DEBUG);
 #endif
+	// Begin expose scope. 
+	if (auto scope = configurationServer->scope_expose())
+	{
+		windowServer = creationServer->create_the_window_server();
+		 
+	}
+
 	// Begin change scope
 	// Change Default Config of Window Size
 	if (auto scope = configurationServer->scope_change())
@@ -101,10 +108,13 @@ int main()
 	{
 		windowServer->handle_events();
 	}
+	SerializedStruct out;
+	bool ff = configurationServer->get_init_configuration("config.json", "sa",out );
 
 	auto cnfW = get_config_read("WindowServer");
 	auto cnf = cnfW.lock();
 	cnf->serialize("WindowServer","./zartzurt.json");
+
 	windowServer->destroy();
 	loggerServer->destroy();
 	eventBus->destroy();
