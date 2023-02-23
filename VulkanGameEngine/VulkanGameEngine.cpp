@@ -102,9 +102,9 @@ int main()
 		windowServer->handle_events();
 	}
 
-
-	auto strr = string32_to_string16(windowServer->get_object_name());
-
+	auto cnfW = get_config_read("WindowServer");
+	auto cnf = cnfW.lock();
+	cnf->serialize("WindowServer","./zartzurt.json");
 	windowServer->destroy();
 	loggerServer->destroy();
 	eventBus->destroy();

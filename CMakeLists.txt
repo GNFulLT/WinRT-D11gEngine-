@@ -70,7 +70,11 @@ include_directories(
 	./deps/src/glfw/include
 	./deps/src/spdlog/include
 )
-message("Lib Dır : ${BOOST_CORRECT_LIBDIR} ")
+
+link_directories(
+	${BOOST_CORRECT_LIBDIR}
+)
+
 
 add_subdirectory ("VulkanGameEngine")
 

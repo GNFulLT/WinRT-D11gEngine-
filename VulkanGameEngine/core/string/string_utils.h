@@ -5,21 +5,21 @@
 #include "../typedefs.h"
 #include <stdexcept>
 #include <string_view>
-
+#include <boost/locale.hpp>
 
 //X TODO : Create set of method that hashes the strings to size_t
 
 
 size_t hash_string(const String& str);
 
-_INLINE_ bool string_to_wstr(const String& str)
+_INLINE_ std::wstring string_to_wstr(const String& str)
 {
-    return false;// boost::locale::conv::utf_to_utf<wchar_t>(str);
+    return boost::locale::conv::utf_to_utf<wchar_t>(str);
 }
 
-_INLINE_ bool string16_to_wstr(const String16& str)
+_INLINE_ std::wstring string16_to_wstr(const String16& str)
 {
-    return false;// boost::locale::conv::utf_to_utf<wchar_t>(str);
+    return boost::locale::conv::utf_to_utf<wchar_t>(str);
 
 }
 
@@ -70,13 +70,6 @@ _INLINE_ String string32_to_string(const String32& str)
     return out;
 }
 
-template <typename T>
-using is_cstring = std::is_same<char*, std::decay_t<T>>;
-
-
-
-
-
 namespace impl
 {
     /// Base declaration of our constexpr string_view concatenation helper
@@ -92,22 +85,6 @@ namespace impl
     struct concat<S1, std::index_sequence<I1...>, S2, std::index_sequence<I2...>>
     {
         static constexpr const char value[]{ S1[I1]..., S2[I2]..., 0 };
-    };
-
-
-    template <const char* str,typename,const char* str2,typename>
-    struct concat
-    {
-
-    };
-
-    template <const char* Name, typename T>
-    struct TaggedValue {
-        static constexpr char const* name{ Name };
-        T value;
-        friend ostream& operator<<(ostream& o, const TaggedValue& a) {
-            return o << a.name << " = " << a.value;
-        }
     };
 } // namespace impl
 

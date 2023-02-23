@@ -99,6 +99,9 @@ public:
 		return true;
 	}
 
+
+	bool read_configuration_file(const String& path);
+
 	static void destroy();
 
 private:

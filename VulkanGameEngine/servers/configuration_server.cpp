@@ -1,5 +1,5 @@
 #include "configuration_server.h"
-
+#include "../core/io/io_utils.h"
 
 void ConfigurationServer::scope_init_begins()
 {
@@ -32,6 +32,16 @@ void ConfigurationServer::scope_change_ends()
 {
 	m_change_scope_started = false;
 	m_change_scope_finished = true;
+}
+
+bool ConfigurationServer::read_configuration_file(const String& path)
+{
+	if (!is_path_exist(path))
+	{
+		create_path(path);
+		return true;
+	}
+	return false;
 }
 
 void ConfigurationServer::destroy()

@@ -8,7 +8,6 @@
 
 #include "../core/object/object.h"
 #include "config_prop.h"
-#include "../core/string/string_utils.h"
 
 
 template<typename T>
@@ -53,9 +52,9 @@ public:
 	_INLINE_ ConfigProp<T>* get_config_prop(const String& id) const
 	{
 		assert(m_propMap.find(typeid(T)) != m_propMap.end());
-		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
+		assert(m_propMap.find(typeid(T))->second.find(id) != m_propMap.find(typeid(T))->second.end());
 		
-		return std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second).get();
+		return std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(id)->second).get();
 	}
 
 	template<typename T>
@@ -65,55 +64,60 @@ public:
 		{
 			return nullptr;
 		}
-		if(m_propMap.find(typeid(T))->second.find(hash_string(id)) == m_propMap.find(typeid(T))->second.end())
+		if(m_propMap.find(typeid(T))->second.find(id) == m_propMap.find(typeid(T))->second.end())
 		{
 			return nullptr;
 		}
-		return std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second).get();
+		return std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(id)->second).get();
 	}
 
 	template<typename T>
 	_INLINE_ boost::signals2::connection listen_config_prop(const String& id,std::function<void(const T&)> onPropChanged)
 	{
 		assert(m_propMap.find(typeid(T)) != m_propMap.end());
-		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
+		assert(m_propMap.find(typeid(T))->second.find(id) != m_propMap.find(typeid(T))->second.end());
 
-		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second)->subscribe_changed_event(onPropChanged);
+		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(id)->second)->subscribe_changed_event(onPropChanged);
 	}
 
 	template<typename T>
 	_INLINE_ void set_config_prop(const String& id,const T& newValue)
 	{
 		assert(m_propMap.find(typeid(T)) != m_propMap.end());
-		assert(m_propMap.find(typeid(T))->second.find(hash_string(id)) != m_propMap.find(typeid(T))->second.end());
-		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(hash_string(id))->second)->set_prop(newValue);
+		assert(m_propMap.find(typeid(T))->second.find(id) != m_propMap.find(typeid(T))->second.end());
+		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(id)->second)->set_prop(newValue);
 	}
-private:
+
+	virtual bool can_be_serialize();
+	virtual bool serialize(const String& key, const String& path);
+	virtual bool serialize(const String& path);
+	
+protected:
 
 	template<typename T>
 	_INLINE_ void add_config_prop(String& id, std::shared_ptr<ConfigProp<T>> prop)
 	{
 		
 		// Already a unordered map created for this type
-		if (std::unordered_map<std::type_index, std::unordered_map<size_t, std::any>>::iterator idMap = m_propMap.find(typeid(T));idMap != m_propMap.end())
+		if (std::unordered_map<std::type_index, std::unordered_map<std::string, std::any>>::iterator idMap = m_propMap.find(typeid(T));idMap != m_propMap.end())
 		{
-			idMap->second.emplace(hash_string(id),prop);
+			idMap->second.emplace(id,prop);
 		}
 		else
 		{
 			// No created map First create map
-			m_propMap.emplace(typeid(T), std::unordered_map<size_t, std::any>());
-			m_propMap[typeid(T)].emplace(hash_string(id),prop);
+			m_propMap.emplace(typeid(T), std::unordered_map<std::string, std::any>());
+			m_propMap[typeid(T)].emplace(id,prop);
 		}
 		
 	}
 
-private:
+protected:
 
-	std::unordered_map<std::type_index, std::unordered_map<size_t,std::any>> m_propMap;
+	std::unordered_map<std::type_index, std::unordered_map<std::string,std::any>> m_propMap;
 
 	Object* m_owner;
-
+private:
 };
 
 
