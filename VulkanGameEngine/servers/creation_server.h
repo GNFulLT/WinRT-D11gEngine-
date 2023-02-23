@@ -6,6 +6,7 @@
 #include "configuration_server.h"
 #include "../config/config.h"
 #include "logger_server.h"
+#include "event_bus_server.h"
 
 class CreationServer : public Object
 {
@@ -15,6 +16,8 @@ public:
 	CreationServer(const CreationServer&) = delete;
 
 	CreationServer& operator=(const CreationServer&) = delete;
+
+
 
 	static _INLINE_ CreationServer* create_creation()
 	{
@@ -29,7 +32,8 @@ public:
 	ConfigurationServer* create_configuration();
 	WindowServer* create_the_window_server();
 	LoggerServer* create_logger_server();
-	static void destroy();	
+	EventBusServer* create_event_bus_server();
+	void destroy();	
 
 private:
 	CreationServer()

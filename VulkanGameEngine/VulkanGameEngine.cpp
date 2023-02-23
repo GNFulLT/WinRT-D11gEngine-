@@ -3,12 +3,10 @@
 #include "core/string/unicode_char_utils.h"
 #include "VulkanGameEngine.h"
 #include "servers/configuration_server.h"
-#include <boost/bind.hpp>
 #include "servers/window_server.h"
 #include "servers/creation_server.h"
 
 #include "window/viewport.h"
-#include <GLFW/glfw3.h>
 #include "core/templates/safe_num.h"
 #if defined(_DEBUG) && defined(_WINDOWS)
 #include <windows.h>
@@ -23,6 +21,11 @@
 #include "core/typedefs.h"
 
 static WindowServer* windowServer = nullptr;
+
+struct a
+{
+
+};
 
 int main()
 {
@@ -61,12 +64,15 @@ int main()
 	// We can inject configurations after this
 	auto configurationServer = creationServer->create_configuration();
 	
+	EventBusServer* eventBus = creationServer->create_event_bus_server();
+
 	LoggerServer* loggerServer;
 	// Begin expose scope. 
 	if (auto scope = configurationServer->scope_expose())
 	{
 		loggerServer = creationServer->create_logger_server();
 		windowServer = creationServer->create_the_window_server();
+		 
 	}
 	
 	// Begin change scope
@@ -81,6 +87,7 @@ int main()
 	if (auto scope = configurationServer->scope_init())
 	{
 		windowServer->init();
+		
 	}
 
 	windowServer->show();
@@ -95,6 +102,7 @@ int main()
 
 	windowServer->destroy();
 	loggerServer->destroy();
+	eventBus->destroy();
 	configurationServer->destroy();
 	creationServer->destroy();
 	

@@ -10,6 +10,7 @@
 
 class CreationServer;
 class ConfigurationServer;
+class EventBusServer;
 
 class LoggerServer : public Object
 {
@@ -35,7 +36,7 @@ public:
 private:
 	friend class CreationServer;
 	friend class ConfigurationServer;
-
+	friend class EventBusServer;
 	static LoggerServer* create_singleton();
 	
 	_INLINE_ void log_cout(const String& msg, Logger::LOG_LEVEL level)

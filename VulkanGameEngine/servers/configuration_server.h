@@ -91,7 +91,7 @@ public:
 			return false;
 		}
 		configProp->set_prop(newValue);
-		if ((unsigned int)LoggerServer::get_singleton()->get_log_level_cout() >= (unsigned int)m_logLevel)
+		if ((unsigned int)LoggerServer::get_singleton()->get_log_level_cout() <= (unsigned int)m_logLevel && (unsigned int)LoggerServer::get_singleton()->get_log_level_cout() != 0)
 		{
 			LoggerServer::get_singleton()->log_cout(std::format("{} named Prop of {} named config changed by class {} named {}", propName,configName,who->get_class_name(),who->get_object_name()), m_logLevel);
 		}

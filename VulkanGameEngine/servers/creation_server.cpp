@@ -2,6 +2,12 @@
 
 #include "../platform/GLFW/window_server_glfw.h"
 
+
+EventBusServer* CreationServer::create_event_bus_server()
+{
+	return EventBusServer::create_singleton();
+}
+
 WindowServer* CreationServer::create_the_window_server()
 {
 	

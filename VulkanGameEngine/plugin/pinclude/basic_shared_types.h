@@ -1,26 +1,12 @@
-#pragma once
-#ifndef SIZE_H
-#define SIZE_H
+#ifndef BASIC_SHARED_TYPES_H
+#define BASIC_SHARED_TYPES_H
 
-
-struct UVec2
+struct GNF_UVec2
 {
-	union
-	{
-		struct {
-			unsigned int x;
-			unsigned int y;
-		};
-		unsigned int v[2];
-	};
-	UVec2() : UVec2(0, 0)
-	{
-
-	}
-	UVec2(unsigned int x, unsigned int y) : x(x), y(y)
-	{
-
-	}
+	unsigned int x;
+	unsigned int y;
+		
 };
+
 
 #endif
