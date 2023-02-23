@@ -88,7 +88,7 @@ public:
 		std::any_cast<std::shared_ptr<ConfigProp<T>>>(m_propMap.find(typeid(T))->second.find(id)->second)->set_prop(newValue);
 	}
 
-	virtual bool can_be_serialize();
+	virtual bool is_serializable();
 	virtual bool serialize(const String& key, const String& path);
 	virtual bool serialize(const String& path);
 	

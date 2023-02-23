@@ -1,6 +1,6 @@
 #include "config.h"
 
-bool Config::can_be_serialize()
+bool Config::is_serializable()
 {
 	return false;
 }
