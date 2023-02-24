@@ -1,4 +1,5 @@
 #include "window_server_glfw.h"
+#include "../../servers/rendering/render_device.h"
 #include <stdexcept>
 
 WindowServerGLFW::~WindowServerGLFW()
@@ -12,15 +13,21 @@ void WindowServerGLFW::handle_events()
 	glfwPollEvents();
 }
 
-void WindowServerGLFW::init()
+bool WindowServerGLFW::init()
 {
 
 	//X TODO : Custom Exception
 	if (!glfwInit())
-		throw std::runtime_error("Couldn't initalized");
+		return false;
 
 	GLFWmonitor* monitor = nullptr;
 
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+	if (GRAPHIC_API_VULKAN == RenderDevice::get_singleton()->get_graphic_api())
+	{
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	}
+	
 	//X TODO : Logger Needed
 	// This will be when window mode is full screen
 	/*
@@ -46,6 +53,7 @@ void WindowServerGLFW::init()
 	}
 	//m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
 
+	return true;
 }
 
 WindowServerGLFW::WINDOW_SUPPORTER WindowServerGLFW::get_window_supporter() const noexcept 

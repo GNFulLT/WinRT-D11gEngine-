@@ -21,7 +21,7 @@ public:
 
 	~WindowServerGLFW();
 	virtual void handle_events() override;
-	virtual void init() override;
+	virtual bool init() override;
 
 	virtual bool should_close() override;
 
