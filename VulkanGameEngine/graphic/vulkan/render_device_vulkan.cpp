@@ -16,8 +16,9 @@ _INLINE_ bool supports_validation_layer(std::vector<VkLayerProperties>* layers, 
 _INLINE_ std::vector<VkLayerProperties> get_supported_instance_layers();
 _INLINE_ std::vector<VkExtensionProperties> get_supported_instance_exs(const char* forLayer);
 _INLINE_ std::unordered_map<std::string,std::vector<VkExtensionProperties>> get_all_supported_instance_exs(std::vector<const char*>* enabledLyers);
-
-
+_INLINE_ bool get_all_physicalDevicesPropsFutures(const VkInstance* inst,std::vector<VkPhysicalDevice>& physicalDevs,
+	std::vector<VkPhysicalDeviceProperties>& physicalDevProps, std::vector<VkPhysicalDeviceFeatures>& physicalDevFeatures);
+_INLINE_ PhysicalDevice::PHYSICAL_DEVICE_TYPE vk_to_physical_device_type(VkPhysicalDeviceType type);
 RenderDeviceVulkan::RenderDeviceVulkan()
 {
 }
@@ -97,20 +98,46 @@ bool RenderDeviceVulkan::init()
 		log_initialized_debug_mode();
 	}
 
-
-	/*
-	VkResult result = volkInitialize();
-	if (result != VK_SUCCESS)
-	{
-		LoggerServer::get_singleton()->log_cout(this, "Vulkan initialized failed",Logger::ERROR);
-		LoggerServer::get_singleton()->log_cout(this,boost::str(boost::format("VK_CODE : %1%")%(int)result), Logger::DEBUG);
-		return false;
-	}
-	*/
 	volkLoadInstance(m_instance);
 	isInstanceInitedSuccessfully = true;
 
+	std::string deviceTypeStr;
+	isFound = ConfigurationServer::get_singleton()->get_init_configuration("config.json", "DEVICE_TYPE", deviceTypeStr);
+	PhysicalDevice::PHYSICAL_DEVICE_TYPE physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
 
+	if (isFound)
+	{
+		if (deviceTypeStr == "INTEGRATED")
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_INTEGRATED;
+		}
+		else if (deviceTypeStr == "CPU")
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_CPU;
+		}
+		else if (deviceTypeStr == "VIRTUAL")
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_VIRTUAL;
+		}
+		else
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
+		}
+	}
+
+	VkPhysicalDevice selectedDevice;
+	VkPhysicalDeviceProperties selectedDeviceProperties;
+	VkPhysicalDeviceFeatures selectedDeviceFeatures;
+	PhysicalDevice::PHYSICAL_DEVICE_TYPE selectedType;
+	if (!try_to_select_physical_device(physicalType,selectedDevice, selectedDeviceProperties, selectedDeviceFeatures, selectedType))
+	{
+		return false;
+	}
+
+	auto physicalDevice = new PhysicalDeviceVulkan(selectedDevice,selectedDeviceProperties,selectedDeviceFeatures,selectedType,selectedDeviceProperties.deviceName,selectedDeviceProperties.apiVersion,
+		selectedDeviceProperties.driverVersion,selectedDeviceProperties.vendorID);
+
+	m_physicalDevice.reset(physicalDevice);
 
 	return true;
 }
@@ -123,8 +150,6 @@ PhysicalDevice* RenderDeviceVulkan::get_selected_physical_device() const noexcep
 {
 	return nullptr;
 }
-
-// HELPERS
 
 bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkInstance* inst, std::vector<VkLayerProperties>* instance_layer_props, bool isDebugEnabled)
 {
@@ -217,7 +242,7 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	inf.pNext = nullptr;
 	inf.flags = 0;
 	inf.pApplicationInfo = appInfo;
-	inf.enabledLayerCount = enabledInstanceLayerProps.size();
+	inf.enabledLayerCount = (uint32_t)enabledInstanceLayerProps.size();
 	inf.ppEnabledLayerNames = enabledInstanceLayerProps.data();
 	inf.enabledExtensionCount = (uint32_t)enabledInstanceExtensionProps.size();
 	inf.ppEnabledExtensionNames = enabledInstanceExtensionProps.data();
@@ -226,6 +251,148 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	if (res != VK_SUCCESS)
 	{
 		return false;
+	}
+
+	return true;
+}
+
+bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_DEVICE_TYPE deviceType, VkPhysicalDevice& dev, VkPhysicalDeviceProperties& prop, VkPhysicalDeviceFeatures& feature, PhysicalDevice::PHYSICAL_DEVICE_TYPE& selectedType)
+{
+	std::vector<VkPhysicalDevice> physicalDevs;
+	std::vector<VkPhysicalDeviceProperties> physicalDevProperties;
+	std::vector<VkPhysicalDeviceFeatures> physicalDevFeatures;
+	
+
+	if (!get_all_physicalDevicesPropsFutures(&m_instance, physicalDevs, physicalDevProperties, physicalDevFeatures))
+		return false;
+
+	if (physicalDevs.size() == 0)
+		return false;
+
+	//X There is already just one device. No need to for loop
+	if (physicalDevs.size() == 1)
+	{
+		dev = physicalDevs[0];
+		prop = physicalDevProperties[0];
+		feature = physicalDevFeatures[0];
+		selectedType = vk_to_physical_device_type(prop.deviceType);
+		return true;
+	}
+
+	//X TODO : Plugin Physical Devices Found Event
+
+	VkPhysicalDeviceType type = VK_PHYSICAL_DEVICE_TYPE_OTHER;
+	
+	switch (deviceType)
+	{
+	case PhysicalDevice::PHYSICAL_DEVICE_TYPE_UNDEFINED:
+		type = VK_PHYSICAL_DEVICE_TYPE_OTHER;
+		break;
+	case PhysicalDevice::PHYSICAL_DEVICE_TYPE_CPU:
+		type = VK_PHYSICAL_DEVICE_TYPE_CPU;
+		break;
+	case PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE:
+		type = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+		break;
+	case PhysicalDevice::PHYSICAL_DEVICE_TYPE_INTEGRATED:
+		type = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+		break;
+	case PhysicalDevice::PHYSICAL_DEVICE_TYPE_VIRTUAL:
+		type = VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU;
+		break;
+	default:
+		type = VK_PHYSICAL_DEVICE_TYPE_OTHER;
+		break;
+	}
+
+	if (type == VK_PHYSICAL_DEVICE_TYPE_OTHER)
+	{
+		dev = physicalDevs[0];
+		prop = physicalDevProperties[0];
+		feature = physicalDevFeatures[0];
+		selectedType = vk_to_physical_device_type(prop.deviceType);
+		return true;
+	}
+	bool isFound = false;
+	int index = 0;
+
+
+	for (int i = 0; i < physicalDevProperties.size(); i++)
+	{
+		if (physicalDevProperties[i].deviceType == type)
+		{
+			dev = physicalDevs[i];
+			prop = physicalDevProperties[i];
+			feature = physicalDevFeatures[i];
+			selectedType = vk_to_physical_device_type(prop.deviceType);
+			return true;
+		}
+	}
+	
+	//X Couldn't find requested type. First check if there is any dedicated gpu
+	//X TODO : Logger Maybe ?
+
+	for (int i = 0; i < physicalDevProperties.size(); i++)
+	{
+		if (physicalDevProperties[i].deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		{
+			dev = physicalDevs[i];
+			prop = physicalDevProperties[i];
+			feature = physicalDevFeatures[i];
+			selectedType = vk_to_physical_device_type(prop.deviceType);
+			return true;
+		}
+	}
+
+
+	//X Couldn't find any dedicated gpu. Now check if there is any integrated gpu
+	//X TODO : Logger Maybe ?
+	for (int i = 0; i < physicalDevProperties.size(); i++)
+	{
+		if (physicalDevProperties[i].deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
+		{
+			dev = physicalDevs[i];
+			prop = physicalDevProperties[i];
+			feature = physicalDevFeatures[i];
+			selectedType = vk_to_physical_device_type(prop.deviceType);
+			return true;
+		}
+	}
+
+	//X Couldn't find any integrated gpu. Just return first physical device
+	//X TODO : Logger Maybe ?
+
+	dev = physicalDevs[0];
+	prop = physicalDevProperties[0];
+	feature = physicalDevFeatures[0];
+	selectedType = vk_to_physical_device_type(prop.deviceType);
+	return true;
+}
+
+// HELPERS
+
+_INLINE_ bool get_all_physicalDevicesPropsFutures(const VkInstance* inst, std::vector<VkPhysicalDevice>& physicalDevs,
+	std::vector<VkPhysicalDeviceProperties>& physicalDevProps, std::vector<VkPhysicalDeviceFeatures>& physicalDevFeatures)
+{
+	uint32_t physicalDevCount = 0;
+	if (vkEnumeratePhysicalDevices(*inst, &physicalDevCount, nullptr) != VK_SUCCESS)
+	{
+		return false;
+	}
+	
+	physicalDevs = std::vector<VkPhysicalDevice>(physicalDevCount);
+
+	if (vkEnumeratePhysicalDevices(*inst, &physicalDevCount, physicalDevs.data()) != VK_SUCCESS)
+	{
+		return false;
+	}
+	physicalDevProps = std::vector<VkPhysicalDeviceProperties>(physicalDevCount);
+	physicalDevFeatures = std::vector<VkPhysicalDeviceFeatures>(physicalDevCount);
+	
+	for(unsigned int i = 0;i < physicalDevCount;i++)
+	{
+		vkGetPhysicalDeviceProperties(physicalDevs[i], &physicalDevProps[i]);
+		vkGetPhysicalDeviceFeatures(physicalDevs[i],&physicalDevFeatures[i]);
 	}
 
 	return true;
@@ -282,4 +449,24 @@ _INLINE_ std::unordered_map<std::string, std::vector<VkExtensionProperties>> get
 		map.emplace(std::string((*enabledLayers)[i]),get_supported_instance_exs((*enabledLayers)[i]));
 	}
 	return map;
+}
+
+_INLINE_ PhysicalDevice::PHYSICAL_DEVICE_TYPE vk_to_physical_device_type(VkPhysicalDeviceType type)
+{
+	switch (type)
+	{
+	case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
+	case VK_PHYSICAL_DEVICE_TYPE_CPU:
+		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_CPU;
+	case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_INTEGRATED;
+	case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_VIRTUAL;
+	case VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM:
+	case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_UNDEFINED;
+	default:
+		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_UNDEFINED;
+	}
 }

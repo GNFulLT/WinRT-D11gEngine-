@@ -1,6 +1,8 @@
 #ifndef RENDER_DEVICE_VULKAN_H
 #define RENDER_DEVICE_VULKAN_H
 
+#include <memory>
+
 #define VK_NO_PROTOTYPES
 
 #define GLFW_INCLUDE_VULKAN
@@ -8,7 +10,7 @@
 #include "volk.h"
 
 #include "../../servers/rendering/render_device.h"
-
+#include "physical_device_vulkan.h"
 
 class RenderDeviceVulkan : public RenderDevice
 {
@@ -26,9 +28,10 @@ private:
 	// PRIVATE METHODS
 private:
 	bool try_to_create_instance(VkApplicationInfo* appInfo, VkInstance* inst, std::vector<VkLayerProperties>* instance_layer_props, bool debugIsEnabled = false);
-	
+	bool try_to_select_physical_device(PhysicalDevice::PHYSICAL_DEVICE_TYPE deviceType, VkPhysicalDevice& dev, VkPhysicalDeviceProperties& prop, VkPhysicalDeviceFeatures& feature, PhysicalDevice::PHYSICAL_DEVICE_TYPE& selectedType);
 	// Info about device
 private:
+	std::unique_ptr<PhysicalDeviceVulkan> m_physicalDevice;
 	bool isInstanceInitedSuccessfully = false;
 	// VK INFOS
 private:
