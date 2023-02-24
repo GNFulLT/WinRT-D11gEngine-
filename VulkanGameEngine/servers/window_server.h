@@ -3,7 +3,7 @@
 
 #include "../window/window.h"
 #include "../config/config_utils.h"
-#include "../core/graphic_api.h"
+#include "../graphic/graphic_api.h"
 
 class CreationServer;
 
@@ -51,7 +51,7 @@ public:
 		WINDOW_INITIAL_POSITION_CENTER = 0
 	};
 
-	virtual void init() = 0;
+	virtual bool init() = 0;
 	virtual void handle_events() = 0;
 
 	virtual GRAPHIC_API get_default_graphic_api() const noexcept = 0;
@@ -65,8 +65,12 @@ public:
 
 	virtual void hide() = 0;
 
-	static void destroy();
-
+	// Could be overrided
+	virtual void destroy();
+	_INLINE_ static WindowServer* get_singleton()
+	{
+		return singleton;
+	}
 	//X TODO : Initial position should be in InitialConfigProp class
 protected:
 	std::shared_ptr<ConfigProp<MONITOR_SELECTION>> m_monitorSelection;
@@ -75,7 +79,7 @@ protected:
 
 protected:
 	virtual Config* config_creation() override;
-private:
+protected:
 	friend class CreationServer;
 
 
