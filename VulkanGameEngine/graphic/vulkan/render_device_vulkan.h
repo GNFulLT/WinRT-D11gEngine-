@@ -29,7 +29,7 @@ private:
 	
 	// Info about device
 private:
-	bool isInitedSuccessfully = false;
+	bool isInstanceInitedSuccessfully = false;
 	// VK INFOS
 private:
 	VkInstance m_instance;

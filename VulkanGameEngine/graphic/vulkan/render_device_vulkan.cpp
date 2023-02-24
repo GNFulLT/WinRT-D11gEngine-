@@ -24,7 +24,7 @@ RenderDeviceVulkan::RenderDeviceVulkan()
 
 RenderDeviceVulkan::~RenderDeviceVulkan()
 {
-	if (m_instance != nullptr && isInitedSuccessfully)
+	if (m_instance != nullptr && isInstanceInitedSuccessfully)
 	{
 		vkDestroyInstance(m_instance, nullptr);
 
@@ -108,7 +108,10 @@ bool RenderDeviceVulkan::init()
 	}
 	*/
 	volkLoadInstance(m_instance);
-	isInitedSuccessfully = true;
+	isInstanceInitedSuccessfully = true;
+
+
+
 	return true;
 }
 
