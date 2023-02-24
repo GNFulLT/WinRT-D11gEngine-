@@ -20,14 +20,13 @@ public:
 	LoggerServer(const LoggerServer&) = delete;
 	LoggerServer& operator=(const LoggerServer&) = delete;
 
-	_INLINE_ static LoggerServer* get_singleton(Object* who)
+	_INLINE_ static LoggerServer* get_singleton()
 	{
-		singleton->m_coutLogger->log(boost::str(boost::format("{} object accessed to logger class type was {}") % string32_to_string(who->get_object_name()) % who->get_class_name()).c_str(), Logger::DEBUG);
 		return singleton;
 	}
 
-	void log_cout(Object* who, const String& msg, Logger::LOG_LEVEL level);
-	void log_cout(Object* who, const char* msg, Logger::LOG_LEVEL level);
+	void log_cout(const Object* who, const String& msg, Logger::LOG_LEVEL level) const;
+	void log_cout(const Object* who, const char* msg, Logger::LOG_LEVEL level) const;
 	_INLINE_ Logger::LOG_LEVEL get_log_level_cout()
 	{
 		return m_coutLogger->get_log_level();
@@ -55,11 +54,6 @@ private:
 	{
 		m_coutLogger->log(msg, level);
 
-	}
-
-	_INLINE_ static LoggerServer* get_singleton()
-	{
-		return singleton;
 	}
 
 	_INLINE_ static LoggerServer* singleton;
