@@ -1,7 +1,6 @@
 #ifndef FOLDERS_H
 #define FOLDERS_H
 
-#include <boost/format.hpp>
 #include "string/string_utils.h"
 
 constexpr inline static std::string_view RESOURCES_FOLDER_FULL_PATH = "resources/";
