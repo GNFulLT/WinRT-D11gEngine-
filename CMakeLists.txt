@@ -64,11 +64,14 @@ endif()
 
 add_subdirectory(./deps/src/glfw)
 add_subdirectory(./deps/src/spdlog)
+add_subdirectory(./deps/src/vulkan)
 
 include_directories(
 	${BOOST_CORRECT_INCLUDEDIR}
 	./deps/src/glfw/include
 	./deps/src/spdlog/include
+	./deps/src/vulkan/include
+
 )
 
 link_directories(

@@ -7,6 +7,7 @@
 #include "../config/config.h"
 #include "logger_server.h"
 #include "event_bus_server.h"
+#include "rendering/render_device.h"
 
 class CreationServer : public Object
 {
@@ -33,12 +34,18 @@ public:
 	WindowServer* create_the_window_server();
 	LoggerServer* create_logger_server();
 	EventBusServer* create_event_bus_server();
+	RenderDevice* create_render_device();
+
 	void destroy();	
 
 private:
 	CreationServer()
 	{}
+
+	bool create_vulkan_render_device();
+
 private:
+
 	_INLINE_ static CreationServer* singleton;
 };
 

@@ -71,7 +71,7 @@ int main()
 	configurationServer->read_init_configuration_file("config.json");
 
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
-
+	RenderDevice* dev;
 	LoggerServer* loggerServer;
 	loggerServer = creationServer->create_logger_server();
 
@@ -82,7 +82,7 @@ int main()
 	if (auto scope = configurationServer->scope_expose())
 	{
 		windowServer = creationServer->create_the_window_server();
-		 
+		dev = creationServer->create_render_device();
 	}
 
 	// Begin change scope
@@ -94,28 +94,40 @@ int main()
 		UVec2 vec = { 1920,1080 };
 		configurationServer->try_set_config_prop(windowServer, "WindowServer", "size", vec);
 	}
-
+	bool allSuccessed = true;
 	// Begin init scope.
 	if (auto scope = configurationServer->scope_init())
 	{
-		windowServer->init();
-	
+		if (!windowServer->init())
+		{
+			allSuccessed = false;
+		}
+		if (!dev->init())
+		{
+			allSuccessed = false;
+		}
 	}
 
-	windowServer->show();
-	// Server Initialization must be in order. WindowServer -> Device -> ETC..
-	while (!windowServer->should_close())
+	if (allSuccessed)
 	{
-		windowServer->handle_events();
-	}
-	SerializedStruct out;
-	bool ff = configurationServer->get_init_configuration("config.json", "sa",out );
+		windowServer->show();
+		// Server Initialization must be in order. WindowServer -> Device -> ETC..
+		while (!windowServer->should_close())
+		{
+			windowServer->handle_events();
+		}
+		SerializedStruct out;
+		bool ff = configurationServer->get_init_configuration("config.json", "sa", out);
 
-	auto cnfW = get_config_read("WindowServer");
-	auto cnf = cnfW.lock();
-	cnf->serialize("WindowServer","./zartzurt.json");
+		auto cnfW = get_config_read("WindowServer");
+		auto cnf = cnfW.lock();
+		cnf->serialize("WindowServer", "./zartzurt.json");
+	}
+	
+	
 
 	windowServer->destroy();
+	dev->destroy();
 	loggerServer->destroy();
 	eventBus->destroy();
 	configurationServer->destroy();
