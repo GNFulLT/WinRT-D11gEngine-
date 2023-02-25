@@ -69,7 +69,7 @@ private:
 	template <typename EventType>
 	_INLINE_ boost::signals2::signal<void(const EventType&)>& get_signal() {
 		// Use type index as key to unordered map
-		auto typeIndex = typeid(EventType);
+		auto& typeIndex = typeid(EventType);
 		auto it = m_signals.find(typeIndex);
 		if (it != m_signals.end()) {
 			return *static_cast<boost::signals2::signal<void(const EventType&)>*>(it->second.get());

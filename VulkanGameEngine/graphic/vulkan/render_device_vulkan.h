@@ -2,7 +2,7 @@
 #define RENDER_DEVICE_VULKAN_H
 
 #include <memory>
-
+#include <vector>
 #define VK_NO_PROTOTYPES
 
 #define GLFW_INCLUDE_VULKAN
@@ -23,7 +23,6 @@ public:
 	PhysicalDevice* get_selected_physical_device() const noexcept override final;
 	GRAPHIC_API get_graphic_api() const noexcept override final;
 private:
-	
 
 	// PRIVATE METHODS
 private:
@@ -33,9 +32,17 @@ private:
 private:
 	std::unique_ptr<PhysicalDeviceVulkan> m_physicalDevice;
 	bool isInstanceInitedSuccessfully = false;
+	bool isDeviceInitedSuccessfully = false;
+	bool isDebugMessengerCreated = false;
 	// VK INFOS
 private:
 	VkInstance m_instance;
+	VkDevice m_device;
+
+	VkDebugUtilsMessengerEXT g_debugMessenger;
+	VkDebugReportCallbackEXT g_debugReporter;
+	std::vector<VkLayerProperties> m_enabledDeviceLayerProps;
+	std::unordered_map<std::string, std::vector<VkExtensionProperties>> m_enabledDeviceExtensions;
 	std::vector<VkLayerProperties> m_enabledInstanceLayerProps;
 	std::vector<VkExtensionProperties> m_enabledInstanceExtensionProps;
 };
