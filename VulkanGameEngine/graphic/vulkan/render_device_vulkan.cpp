@@ -12,6 +12,7 @@
 
 // Prototypes
 
+
 _INLINE_ bool supports_validation_layer(std::vector<VkLayerProperties>* layers, int& index);
 _INLINE_ std::vector<VkLayerProperties> get_supported_instance_layers();
 _INLINE_ std::vector<VkExtensionProperties> get_supported_instance_exs(const char* forLayer);
@@ -19,8 +20,13 @@ _INLINE_ std::unordered_map<std::string,std::vector<VkExtensionProperties>> get_
 _INLINE_ bool get_all_physicalDevicesPropsFutures(const VkInstance* inst,std::vector<VkPhysicalDevice>& physicalDevs,
 	std::vector<VkPhysicalDeviceProperties>& physicalDevProps, std::vector<VkPhysicalDeviceFeatures>& physicalDevFeatures);
 _INLINE_ PhysicalDevice::PHYSICAL_DEVICE_TYPE vk_to_physical_device_type(VkPhysicalDeviceType type);
+_INLINE_ std::vector<VkQueueFamilyProperties> get_queue_family_properties_from_device(VkPhysicalDevice dev);
+_INLINE_ bool create_logical_device(VkDevice& device,uint32_t queueIndex,uint32_t queueCount);
+_INLINE_ uint32_t find_queue_families(std::vector<VkQueueFamilyProperties>* queueFamilies,VkQueueFlags desiredFlags);
+
 RenderDeviceVulkan::RenderDeviceVulkan()
 {
+	
 }
 
 RenderDeviceVulkan::~RenderDeviceVulkan()
@@ -139,6 +145,29 @@ bool RenderDeviceVulkan::init()
 
 	m_physicalDevice.reset(physicalDevice);
 
+	auto queueFamilyProps = get_queue_family_properties_from_device(physicalDevice->m_physical_device);
+	
+	//X TODO : Plugim to select queueFamilyProps
+	
+	auto graphicfamilyIndex = find_queue_families(&queueFamilyProps,VK_QUEUE_GRAPHICS_BIT); 
+	
+	auto transferFamilyIndex = find_queue_families(&queueFamilyProps, VK_QUEUE_TRANSFER_BIT);
+
+	auto computeFamilyIndex = find_queue_families(&queueFamilyProps, VK_QUEUE_COMPUTE_BIT);
+
+	auto sparseFamilyIndex = find_queue_families(&queueFamilyProps, VK_QUEUE_SPARSE_BINDING_BIT);
+
+	auto mainFamily = find_queue_families(&queueFamilyProps, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_COMPUTE_BIT);
+
+
+	if (graphicfamilyIndex == 0)
+	{
+		//X TODO : LOGGER MAYBE ? 
+		return false;
+	}
+
+
+
 	return true;
 }
 
@@ -148,7 +177,7 @@ GRAPHIC_API RenderDeviceVulkan::get_graphic_api() const noexcept
 }
 PhysicalDevice* RenderDeviceVulkan::get_selected_physical_device() const noexcept
 {
-	return nullptr;
+	return m_physicalDevice.get();
 }
 
 bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkInstance* inst, std::vector<VkLayerProperties>* instance_layer_props, bool isDebugEnabled)
@@ -469,4 +498,35 @@ _INLINE_ PhysicalDevice::PHYSICAL_DEVICE_TYPE vk_to_physical_device_type(VkPhysi
 	default:
 		return PhysicalDevice::PHYSICAL_DEVICE_TYPE_UNDEFINED;
 	}
+}
+
+_INLINE_ std::vector<VkQueueFamilyProperties> get_queue_family_properties_from_device(VkPhysicalDevice dev)
+{
+	uint32_t queueCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueCount, nullptr);
+	std::vector<VkQueueFamilyProperties> queueProps(queueCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueCount, queueProps.data());
+	return queueProps;
+}
+
+_INLINE_ bool create_logical_device(VkDevice& device, uint32_t queueIndex,uint32_t queueCount)
+{
+	VkDeviceQueueCreateInfo queueCreateInfo{};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = queueIndex;
+	queueCreateInfo.queueCount = queueCount;
+
+
+
+	return true;
+}
+
+_INLINE_ uint32_t find_queue_families(std::vector<VkQueueFamilyProperties>* queueFamily, VkQueueFlags desiredFlags)
+{
+	std::vector<uint32_t> supportedQueueFamilies;
+	for (uint32_t i = 0; i != (*queueFamily).size(); i++)
+		if ((*queueFamily)[i].queueCount > 0 && (*queueFamily)[i].queueFlags & desiredFlags)
+			return i;
+
+	return -1;
 }

@@ -33,6 +33,8 @@ protected:
 	void log_couldnt_initialized_normal_mode() const noexcept;
 	void log_initialized_normal_mode() const noexcept;
 
+
+
 protected:
 	friend class CreationServer;
 	_INLINE_ static RenderDevice* singleton;

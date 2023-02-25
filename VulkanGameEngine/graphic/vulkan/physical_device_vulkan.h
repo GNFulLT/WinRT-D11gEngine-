@@ -11,8 +11,9 @@ class RenderDeviceVulkan;
 class PhysicalDeviceVulkan : public PhysicalDevice
 {
 public:
-	PhysicalDeviceVulkan(VkPhysicalDevice dev,VkPhysicalDeviceProperties prop,VkPhysicalDeviceFeatures features,PHYSICAL_DEVICE_TYPE type, const String& deviceName,uint_fast32_t apiVersion, uint_fast32_t driverVersion, uint_fast32_t vendorId) :
-		PhysicalDevice(type,deviceName,apiVersion, driverVersion, vendorId)
+	PhysicalDeviceVulkan(VkPhysicalDevice dev,VkPhysicalDeviceProperties prop,VkPhysicalDeviceFeatures features,PHYSICAL_DEVICE_TYPE type,
+		const String& deviceName,uint_fast32_t apiVersion, uint_fast32_t driverVersion, uint_fast32_t vendorId) :
+		PhysicalDevice(type,deviceName,apiVersion, driverVersion, vendorId),m_physical_device(dev), m_physical_device_props(prop), m_physical_device_features(features)
 	{
 
 	}
@@ -21,9 +22,9 @@ public:
 private:
 	friend class RenderDeviceVulkan;
 
-	VkPhysicalDevice m_physicalDevice;
-	VkPhysicalDeviceProperties m_physicalDeviceProps;
-	VkPhysicalDeviceFeatures m_physicalDeviceFeatures;
+	VkPhysicalDevice m_physical_device;
+	VkPhysicalDeviceProperties m_physical_device_props;
+	VkPhysicalDeviceFeatures m_physical_device_features;
 };
 	
 #endif // PHYSICAL_DEVICE_VULKAN_H
