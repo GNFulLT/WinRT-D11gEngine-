@@ -2,6 +2,15 @@
 #include "../../servers/rendering/render_device.h"
 #include <stdexcept>
 
+#ifdef _WIN32
+	#define GLFW_EXPOSE_NATIVE_WIN32
+	#include <GLFW/glfw3native.h>
+#elif __linux__
+	NOT SUPPORTED
+#elif __APPLE__
+	NOT SUPPORTED
+#endif
+
 WindowServerGLFW::~WindowServerGLFW()
 {
 	glfwDestroyWindow(m_window);
@@ -11,6 +20,11 @@ WindowServerGLFW::~WindowServerGLFW()
 void WindowServerGLFW::handle_events()
 {
 	glfwPollEvents();
+}
+
+void* WindowServerGLFW::get_native_handle()
+{
+	return glfwGetWin32Window(m_window);
 }
 
 bool WindowServerGLFW::init()

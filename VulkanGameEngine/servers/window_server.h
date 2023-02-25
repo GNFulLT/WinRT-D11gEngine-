@@ -65,6 +65,8 @@ public:
 
 	virtual void hide() = 0;
 
+	virtual void* get_native_handle() = 0;
+
 	// Could be overrided
 	virtual void destroy();
 	_INLINE_ static WindowServer* get_singleton()

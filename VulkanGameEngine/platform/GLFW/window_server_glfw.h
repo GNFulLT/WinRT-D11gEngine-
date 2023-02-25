@@ -29,7 +29,7 @@ public:
 	virtual void hide() override;
 
 	virtual WINDOW_SUPPORTER get_window_supporter() const noexcept override;
-
+	virtual void* get_native_handle() override;
 	virtual GRAPHIC_API get_default_graphic_api() const noexcept override;
 	virtual bool is_graphic_api_supported(GRAPHIC_API api) const noexcept override;
 protected:
