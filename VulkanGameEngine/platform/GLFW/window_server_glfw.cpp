@@ -24,7 +24,13 @@ void WindowServerGLFW::handle_events()
 
 void* WindowServerGLFW::get_native_handle()
 {
+#ifdef _WIN32
 	return glfwGetWin32Window(m_window);
+#elif __linux__
+	NOT SUPPORTED
+#elif __APPLE__
+	NOT SUPPORTED
+#endif
 }
 
 bool WindowServerGLFW::init()
