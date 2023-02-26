@@ -64,7 +64,6 @@ endif()
 
 add_subdirectory(./deps/src/glfw)
 add_subdirectory(./deps/src/spdlog)
-add_subdirectory(./deps/src/vulkan)
 
 include_directories(
 	${BOOST_CORRECT_INCLUDEDIR}

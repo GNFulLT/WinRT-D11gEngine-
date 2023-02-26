@@ -1,6 +1,15 @@
+#ifdef _WIN32
+	#define VK_USE_PLATFORM_WIN32_KHR
+#elif __linux__
+	#define VK_USE_PLATFORM_XLIB_KHR
+#elif __APPLE__
+	#define VK_USE_PLATFORM_MACOS_MVK
+#endif
+
 #include "render_device_vulkan.h"
 #include "../../servers/logger_server.h"
 #include "../../servers/configuration_server.h"
+#include "../../servers/window_server.h"
 #include "../../core/version.h"
 
 
@@ -157,6 +166,28 @@ bool RenderDeviceVulkan::init()
 	volkLoadInstance(m_instance);
 	isInstanceInitedSuccessfully = true;
 
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR 
+	auto pvkGetMemoryWin32HandleKHR2 = PFN_vkCreateWin32SurfaceKHR(vkGetInstanceProcAddr(m_instance, "vkCreateWin32SurfaceKHR"));
+	VkWin32SurfaceCreateInfoKHR createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	createInfo.hwnd = (HWND)WindowServer::get_singleton()->get_native_handle();
+	createInfo.hinstance = GetModuleHandle(nullptr);
+	if (pvkGetMemoryWin32HandleKHR2(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+		return false;
+	}
+#elif defined VK_USE_PLATFORM_XLIB_KHR 
+	NEED SUPPORT
+#elif defined VK_USE_PLATFORM_MACOS_MVK 
+	NEED SUPPORT
+#endif 
+
+
+
+
+//------------------------ PHYSICAL DEVICE
+
 	if (isDebugEnabled)
 	{
 		if (create_debug_messenger(m_instance, &g_debugMessenger,&g_debugReporter))
@@ -185,6 +216,9 @@ bool RenderDeviceVulkan::init()
 			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
 		}
 	}
+
+
+	// Get all Physical Devices
 
 	VkPhysicalDevice selectedDevice;
 	VkPhysicalDeviceProperties selectedDeviceProperties;
@@ -223,8 +257,11 @@ bool RenderDeviceVulkan::init()
 		return false;
 	}
 
+	// Give needed information to m_physicalDevice
+	
 	m_physicalDevice->select_queue_family_properties(selectedQueueFamilies);
 
+	
 
 	PhysicalDeviceVulkan::QueueCreateInf queueInf;
 	m_physicalDevice->create_queue_create_infos_from_selected_queue_family_propperties(queueInf);
@@ -294,8 +331,11 @@ bool RenderDeviceVulkan::init()
 	{
 		return false;
 	}
-	
+
+	volkLoadDevice(m_device);
 	isDeviceInitedSuccessfully = true;
+
+
 
 	return true;
 }
@@ -394,6 +434,19 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	{
 		enabledInstanceExtensionProps[i] = m_enabledInstanceExtensionProps[i].extensionName;
 	}
+
+	enabledInstanceExtensionProps.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+#ifdef VK_USE_PLATFORM_WIN32_KHR 
+	enabledInstanceExtensionProps.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+
+#elif defined VK_USE_PLATFORM_XLIB_KHR 
+	enabledDeviceExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+
+#elif defined VK_USE_PLATFORM_MACOS_MVK 
+	enabledDeviceExtensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+#else
+	DONT COMPILE
+#endif 
 
 	VkInstanceCreateInfo inf;
 	inf.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;

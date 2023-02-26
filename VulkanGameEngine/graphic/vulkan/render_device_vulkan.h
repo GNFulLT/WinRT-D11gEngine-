@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+
 #define VK_NO_PROTOTYPES
 
 #define GLFW_INCLUDE_VULKAN
@@ -38,7 +39,7 @@ private:
 private:
 	VkInstance m_instance;
 	VkDevice m_device;
-
+	VkSurfaceKHR m_surface;
 	VkDebugUtilsMessengerEXT g_debugMessenger;
 	VkDebugReportCallbackEXT g_debugReporter;
 	std::vector<VkLayerProperties> m_enabledDeviceLayerProps;
