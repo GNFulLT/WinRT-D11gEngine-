@@ -3,7 +3,7 @@
 #elif __linux__
 	#define VK_USE_PLATFORM_XLIB_KHR
 #elif __APPLE__
-	#define VK_USE_PLATFORM_MACOS_MVK
+	#define VK_USE_PLATFORM_METAL_EXT
 #endif
 
 #include "render_device_vulkan.h"
@@ -179,15 +179,16 @@ bool RenderDeviceVulkan::init()
 	}
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
 	NEED SUPPORT
-#elif defined VK_USE_PLATFORM_MACOS_MVK 
-	auto pvkCreateMacOSSurfaceKHR = PFN_vkCreateMacOSSurfaceMVK(vkGetInstanceProcAddr(m_instance, "vkCreateMacOSSurfaceMVK"));
+#elif defined VK_USE_PLATFORM_METAL_EXT 
+	 auto pvkCreateMetalSurfaceEXT = PFN_vkCreateMetalSurfaceEXT(vkGetInstanceProcAddr(m_instance,"vkCreateMetalSurfaceEXT"));
 
-	VkMacOSSurfaceCreateInfoMVK createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
-	createInfo.pView = WindowServer::get_singleton()->get_native_handle();
-	if (pvkCreateMacOSSurfaceKHR == nullptr || pvkCreateMacOSSurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
-		return false;
-	}
+    VkMetalSurfaceCreateInfoEXT createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
+    createInfo.pLayer =WindowServer::get_singleton()->get_native_handle();
+    
+    if (pvkCreateMetalSurfaceEXT == nullptr || pvkCreateMetalSurfaceEXT(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+        return false;
+    }
 #endif
 
 
@@ -509,7 +510,7 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
 	enabledDeviceExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 
-#elif defined VK_USE_PLATFORM_MACOS_MVK 
+#elif defined VK_USE_PLATFORM_METAL_EXT 
 	enabledInstanceExtensionProps.push_back("VK_EXT_metal_surface");
 	enabledInstanceExtensionProps.push_back("VK_KHR_portability_enumeration"); 
 #else
@@ -519,7 +520,7 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	VkInstanceCreateInfo inf;
 	inf.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	inf.pNext = nullptr;
-#if defined VK_USE_PLATFORM_MACOS_MVK 
+#if defined VK_USE_PLATFORM_METAL_EXT 
 	inf.flags = 1;
 #else
 	inf.flags = 0;
