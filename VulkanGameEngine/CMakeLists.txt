@@ -11,8 +11,7 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 target_link_libraries(VulkanGameEngine glfw)
-target_link_libraries(VulkanGameEngine ${Boost_LIBRARIES})
-
+target_link_libraries(VulkanGameEngine boost)
 
 
 # TODO: Add tests and install targets if needed.
