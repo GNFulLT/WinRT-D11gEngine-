@@ -4,12 +4,12 @@
 
 #ifdef _WIN32
 	#define GLFW_EXPOSE_NATIVE_WIN32
-	#include <GLFW/glfw3native.h>
 #elif __linux__
 	NOT SUPPORTED
 #elif __APPLE__
-	NOT SUPPORTED
+	#define GLFW_EXPOSE_NATIVE_COCOA
 #endif
+#include <GLFW/glfw3native.h>
 
 WindowServerGLFW::~WindowServerGLFW()
 {
@@ -29,9 +29,10 @@ void* WindowServerGLFW::get_native_handle()
 #elif __linux__
 	NOT SUPPORTED
 #elif __APPLE__
-	NOT SUPPORTED
+	return glfwGetCocoaWindow(m_window);
 #endif
 }
+
 
 bool WindowServerGLFW::init()
 {

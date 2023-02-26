@@ -9,7 +9,7 @@ class WindowServerGLFW : public WindowServer
 {
 public:
 	OBJECT_DEF(WindowServerGLFW, WindowServer)
-
+public:
 	WindowServerGLFW() : WindowServer()
 	{
 		assert(false);
@@ -17,6 +17,11 @@ public:
 
 	WindowServerGLFW(const String& windowId) : WindowServer(windowId)
 	{
+	}
+	
+	_INLINE_ GLFWwindow* get_glfw_handle() const noexcept
+	{
+		return m_window;
 	}
 
 	~WindowServerGLFW();
@@ -32,6 +37,9 @@ public:
 	virtual void* get_native_handle() override;
 	virtual GRAPHIC_API get_default_graphic_api() const noexcept override;
 	virtual bool is_graphic_api_supported(GRAPHIC_API api) const noexcept override;
+
+	
+
 protected:
 
 private:

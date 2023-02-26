@@ -11,6 +11,7 @@
 #include "../../servers/configuration_server.h"
 #include "../../servers/window_server.h"
 #include "../../core/version.h"
+#include "../../platform/GLFW/window_server_glfw.h"
 
 
 
@@ -177,18 +178,19 @@ bool RenderDeviceVulkan::init()
 	if (pvkCreateWin32SurfaceKHR == nullptr || pvkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
+	
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
-	NEED SUPPORT
-#elif defined VK_USE_PLATFORM_METAL_EXT 
-	 auto pvkCreateMetalSurfaceEXT = PFN_vkCreateMetalSurfaceEXT(vkGetInstanceProcAddr(m_instance,"vkCreateMetalSurfaceEXT"));
-
-    VkMetalSurfaceCreateInfoEXT createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
-    createInfo.pLayer =WindowServer::get_singleton()->get_native_handle();
-    
-    if (pvkCreateMetalSurfaceEXT == nullptr || pvkCreateMetalSurfaceEXT(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
-        return false;
-    }
+	if (WindowServer::get_singleton()->get_window_supporter() != WindowServer::WINDOW_SUPPORTER_GLFW)
+	{
+		// MAC SUPPORT ONLY GLFW FOR VULKAN
+		return false;
+	}
+	if (glfwCreateWindowSurface(m_instance, ((WindowServerGLFW*)((WindowServer::get_singleton())))->get_glfw_handle(), nullptr, &m_surface) != VK_SUCCESS)
+	{
+		return false;
+	}
+#elif defined VK_USE_PLATFORM_METAL_EXT
+	
 #endif
 
 
