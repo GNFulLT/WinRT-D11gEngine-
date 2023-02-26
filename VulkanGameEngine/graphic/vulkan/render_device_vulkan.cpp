@@ -193,9 +193,6 @@ bool RenderDeviceVulkan::init()
 	}
 #endif
 
-
-
-
 //------------------------ PHYSICAL DEVICE
 
 	if (isDebugEnabled)
@@ -252,7 +249,7 @@ bool RenderDeviceVulkan::init()
 		std::vector<VkQueueFamilyProperties> families;
 		vkGetPhysicalDeviceQueueFamilyProperties(*it.operator->(), &count, families.data());
 		bool isThereAnySupported = false;
-		for (int i = 0; i < count; i++)
+		for (unsigned int i = 0; i < count; i++)
 		{
 			VkBool32 isSupported;
 			vkGetPhysicalDeviceSurfaceSupportKHR(*it.operator->(), i, m_surface, &isSupported);
@@ -871,9 +868,9 @@ _INLINE_ bool create_logical_device(VkPhysicalDevice physicalDev, const VkPhysic
 	createInfo.flags = 0;
 	createInfo.queueCreateInfoCount = createInf->get_queue_create_inf_count();
 	createInfo.pQueueCreateInfos = createInf->data();
-	createInfo.enabledLayerCount = props->size();
+	createInfo.enabledLayerCount = (uint32_t)props->size();
 	createInfo.ppEnabledLayerNames = props->data();
-	createInfo.enabledExtensionCount = exs->size();
+	createInfo.enabledExtensionCount = (uint32_t)exs->size();
 	createInfo.ppEnabledExtensionNames = exs->data();
 	createInfo.pEnabledFeatures = features;
 
