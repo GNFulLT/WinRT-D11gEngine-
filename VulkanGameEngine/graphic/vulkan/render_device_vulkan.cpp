@@ -180,6 +180,8 @@ bool RenderDeviceVulkan::init()
 	}
 	
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
+	NEED SUPPORT
+#elif defined VK_USE_PLATFORM_METAL_EXT
 	if (WindowServer::get_singleton()->get_window_supporter() != WindowServer::WINDOW_SUPPORTER_GLFW)
 	{
 		// MAC SUPPORT ONLY GLFW FOR VULKAN
@@ -189,8 +191,6 @@ bool RenderDeviceVulkan::init()
 	{
 		return false;
 	}
-#elif defined VK_USE_PLATFORM_METAL_EXT
-	
 #endif
 
 
