@@ -22,9 +22,9 @@
 static VkBool32 VKAPI_CALL vk_debug_messenger_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
 	(void)pUserData; // Unused argument
 
-	std::string error = std::string("[vulkan] Debug report from ObjectType: ") + std::to_string(uint32_t(pCallbackData->pObjects->objectType)) + "\n\nMessage: " + pCallbackData->pMessage + "\n\n";
+	std::string error = std::string("[VULKAN] [MESSENGER] Debug report from ObjectType: ") + std::to_string(uint32_t(pCallbackData->pObjects->objectType)) + "\n\nMessage: " + pCallbackData->pMessage + "\n\n";
 
-	LoggerServer::get_singleton()->log_cout(RenderDevice::get_singleton(), error.c_str(), Logger::ERROR);
+	LoggerServer::get_singleton()->log_cout(RenderDevice::get_singleton(), error.c_str(), Logger::DEBUG);
 
 	return VK_FALSE;
 }
@@ -46,7 +46,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportCallback
 	if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
 		return VK_FALSE;
 
-	LoggerServer::get_singleton()->log_cout(RenderDevice::get_singleton(), boost::str(boost::format("[%1%] %2%") % pLayerPrefix % pMessage).c_str(),
+	LoggerServer::get_singleton()->log_cout(RenderDevice::get_singleton(), boost::str(boost::format("[VULKAN] [REPORTER] [%1%] %2%") % pLayerPrefix % pMessage).c_str(),
 		Logger::DEBUG);
 
 	return VK_FALSE;
@@ -147,8 +147,8 @@ bool RenderDeviceVulkan::init()
 		if(triedToInitDebug)
 			log_couldnt_initialized_debug_mode();
 		//X TODO : Add No Debug Instance
-		debugInstanceCreated = try_to_create_instance(&applicationInfo, &m_instance, &instance_layer_props);
-		if (debugInstanceCreated)
+		bool isReleaseCreated = try_to_create_instance(&applicationInfo, &m_instance, &instance_layer_props);
+		if (isReleaseCreated)
 		{
 			log_initialized_normal_mode();
 		}
@@ -220,16 +220,76 @@ bool RenderDeviceVulkan::init()
 
 	// Get all Physical Devices
 
+	std::vector<VkPhysicalDevice> physicalDevs;
+	std::vector<VkPhysicalDeviceProperties> physicalDevProperties;
+	std::vector<VkPhysicalDeviceFeatures> physicalDevFeatures;
+	std::vector<uint32_t> supportedQueueIndexes;
+	if (!get_all_physicalDevicesPropsFutures(&m_instance, physicalDevs, physicalDevProperties, physicalDevFeatures))
+	{
+		return false;
+	}
+	
+	physicalDevProperties.clear();
+	physicalDevFeatures.clear();
+
+	// Selection between all current physical devices
+
+	auto it = physicalDevs.begin();
+	while (it != physicalDevs.end())
+	{
+		uint32_t count;
+		vkGetPhysicalDeviceQueueFamilyProperties(*it._Ptr, &count, nullptr);
+		std::vector<VkQueueFamilyProperties> families;
+		vkGetPhysicalDeviceQueueFamilyProperties(*it._Ptr, &count, families.data());
+		bool isThereAnySupported = false;
+		for (int i = 0; i < count; i++)
+		{
+			VkBool32 isSupported;
+			vkGetPhysicalDeviceSurfaceSupportKHR(*it._Ptr, i, m_surface, &isSupported);
+			if (isSupported == VK_TRUE)
+			{
+				supportedQueueIndexes.push_back(i);
+				isThereAnySupported = true;
+				break;
+			}
+		}
+		if (!isThereAnySupported)
+		{
+			it = physicalDevs.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
+
+	if (physicalDevs.size() == 0)
+		return false;
+
+	for (const auto& dev : physicalDevs)
+	{
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(dev, &props);
+		physicalDevProperties.push_back(props);
+		VkPhysicalDeviceFeatures features;
+		vkGetPhysicalDeviceFeatures(dev, &features);
+		physicalDevFeatures.push_back(features);
+	}
+
+
 	VkPhysicalDevice selectedDevice;
 	VkPhysicalDeviceProperties selectedDeviceProperties;
 	VkPhysicalDeviceFeatures selectedDeviceFeatures;
 	PhysicalDevice::PHYSICAL_DEVICE_TYPE selectedType;
-	if (!try_to_select_physical_device(physicalType,selectedDevice, selectedDeviceProperties, selectedDeviceFeatures, selectedType))
+	uint32_t mustQueueIndex = 0;
+	if (!try_to_select_physical_device(physicalDevs,physicalDevProperties,physicalDevFeatures, supportedQueueIndexes
+		,physicalType,selectedDevice, selectedDeviceProperties, selectedDeviceFeatures, mustQueueIndex, selectedType))
 	{
 		return false;
 	}
 
-	auto physicalDevice = new PhysicalDeviceVulkan(selectedDevice,selectedDeviceProperties,selectedDeviceFeatures,selectedType,selectedDeviceProperties.deviceName,selectedDeviceProperties.apiVersion,
+	auto physicalDevice = new PhysicalDeviceVulkan(selectedDevice,selectedDeviceProperties,selectedDeviceFeatures,selectedType,mustQueueIndex
+		,selectedDeviceProperties.deviceName,selectedDeviceProperties.apiVersion,
 		selectedDeviceProperties.driverVersion,selectedDeviceProperties.vendorID);
 
 	m_physicalDevice.reset(physicalDevice);
@@ -443,7 +503,8 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	enabledDeviceExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 
 #elif defined VK_USE_PLATFORM_MACOS_MVK 
-	enabledDeviceExtensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+	enabledInstanceExtensionProps.push_back("VK_EXT_metal_surface");
+	enabledInstanceExtensionProps.push_back("VK_KHR_portability_enumeration"); 
 #else
 	DONT COMPILE
 #endif 
@@ -451,7 +512,11 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	VkInstanceCreateInfo inf;
 	inf.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	inf.pNext = nullptr;
+#if defined VK_USE_PLATFORM_MACOS_MVK 
+	inf.flags = 1;
+#else
 	inf.flags = 0;
+#endif
 	inf.pApplicationInfo = appInfo;
 	inf.enabledLayerCount = (uint32_t)enabledInstanceLayerProps.size();
 	inf.ppEnabledLayerNames = enabledInstanceLayerProps.data();
@@ -467,15 +532,19 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	return true;
 }
 
-bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_DEVICE_TYPE deviceType, VkPhysicalDevice& dev, VkPhysicalDeviceProperties& prop, VkPhysicalDeviceFeatures& feature, PhysicalDevice::PHYSICAL_DEVICE_TYPE& selectedType)
+bool RenderDeviceVulkan::try_to_select_physical_device(
+	const std::vector<VkPhysicalDevice>& physicalDevs,
+	const std::vector<VkPhysicalDeviceProperties>& physicalDevProperties,
+	const std::vector<VkPhysicalDeviceFeatures>& physicalDevFeatures,
+	const std::vector<uint32_t>& surfaceSupportedQueueIndexes,
+	PhysicalDevice::PHYSICAL_DEVICE_TYPE deviceType, VkPhysicalDevice& dev,
+	VkPhysicalDeviceProperties& prop, VkPhysicalDeviceFeatures& feature,uint32_t& queueIndex,PhysicalDevice::PHYSICAL_DEVICE_TYPE& selectedType)
 {
+	/*
 	std::vector<VkPhysicalDevice> physicalDevs;
 	std::vector<VkPhysicalDeviceProperties> physicalDevProperties;
 	std::vector<VkPhysicalDeviceFeatures> physicalDevFeatures;
-	
-
-	if (!get_all_physicalDevicesPropsFutures(&m_instance, physicalDevs, physicalDevProperties, physicalDevFeatures))
-		return false;
+	*/
 
 	//X TODO : In here There have to be selection by supporting queue families
 
@@ -488,6 +557,7 @@ bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_
 		dev = physicalDevs[0];
 		prop = physicalDevProperties[0];
 		feature = physicalDevFeatures[0];
+		queueIndex = surfaceSupportedQueueIndexes[0];
 		selectedType = vk_to_physical_device_type(prop.deviceType);
 		return true;
 	}
@@ -523,11 +593,11 @@ bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_
 		dev = physicalDevs[0];
 		prop = physicalDevProperties[0];
 		feature = physicalDevFeatures[0];
+		queueIndex = surfaceSupportedQueueIndexes[0];
 		selectedType = vk_to_physical_device_type(prop.deviceType);
 		return true;
 	}
 	bool isFound = false;
-	int index = 0;
 
 
 	for (int i = 0; i < physicalDevProperties.size(); i++)
@@ -537,6 +607,7 @@ bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_
 			dev = physicalDevs[i];
 			prop = physicalDevProperties[i];
 			feature = physicalDevFeatures[i];
+			queueIndex = surfaceSupportedQueueIndexes[i];
 			selectedType = vk_to_physical_device_type(prop.deviceType);
 			return true;
 		}
@@ -552,6 +623,7 @@ bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_
 			dev = physicalDevs[i];
 			prop = physicalDevProperties[i];
 			feature = physicalDevFeatures[i];
+			queueIndex = surfaceSupportedQueueIndexes[i];
 			selectedType = vk_to_physical_device_type(prop.deviceType);
 			return true;
 		}
@@ -567,6 +639,7 @@ bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_
 			dev = physicalDevs[i];
 			prop = physicalDevProperties[i];
 			feature = physicalDevFeatures[i];
+			queueIndex = surfaceSupportedQueueIndexes[i];
 			selectedType = vk_to_physical_device_type(prop.deviceType);
 			return true;
 		}
@@ -578,6 +651,7 @@ bool RenderDeviceVulkan::try_to_select_physical_device(PhysicalDevice::PHYSICAL_
 	dev = physicalDevs[0];
 	prop = physicalDevProperties[0];
 	feature = physicalDevFeatures[0];
+	queueIndex = surfaceSupportedQueueIndexes[0];
 	selectedType = vk_to_physical_device_type(prop.deviceType);
 	return true;
 }

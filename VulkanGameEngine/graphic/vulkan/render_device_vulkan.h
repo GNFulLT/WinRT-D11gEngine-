@@ -28,8 +28,13 @@ private:
 	// PRIVATE METHODS
 private:
 	bool try_to_create_instance(VkApplicationInfo* appInfo, VkInstance* inst, std::vector<VkLayerProperties>* instance_layer_props, bool debugIsEnabled = false);
-	bool try_to_select_physical_device(PhysicalDevice::PHYSICAL_DEVICE_TYPE deviceType, VkPhysicalDevice& dev, VkPhysicalDeviceProperties& prop, VkPhysicalDeviceFeatures& feature, PhysicalDevice::PHYSICAL_DEVICE_TYPE& selectedType);
-	// Info about device
+	bool try_to_select_physical_device(
+		const std::vector<VkPhysicalDevice>& physicalDevs,
+		const std::vector<VkPhysicalDeviceProperties>& physicalDevProperties,
+		const std::vector<VkPhysicalDeviceFeatures>& physicalDevFeatures,
+		const std::vector<uint32_t>& surfaceSupportedQueueIndexes,
+		PhysicalDevice::PHYSICAL_DEVICE_TYPE deviceType, VkPhysicalDevice& dev,
+		VkPhysicalDeviceProperties& prop, VkPhysicalDeviceFeatures& feature, uint32_t& index, PhysicalDevice::PHYSICAL_DEVICE_TYPE& selectedType);	// Info about device
 private:
 	std::unique_ptr<PhysicalDeviceVulkan> m_physicalDevice;
 	bool isInstanceInitedSuccessfully = false;
@@ -37,6 +42,7 @@ private:
 	bool isDebugMessengerCreated = false;
 	// VK INFOS
 private:
+	uint32_t m_khrSurface;
 	VkInstance m_instance;
 	VkDevice m_device;
 	VkSurfaceKHR m_surface;

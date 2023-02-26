@@ -63,9 +63,10 @@ public:
 
 	};
 
-	PhysicalDeviceVulkan(VkPhysicalDevice dev,VkPhysicalDeviceProperties prop,VkPhysicalDeviceFeatures features,PHYSICAL_DEVICE_TYPE type,
+	PhysicalDeviceVulkan(VkPhysicalDevice dev,VkPhysicalDeviceProperties prop,VkPhysicalDeviceFeatures features,PHYSICAL_DEVICE_TYPE type,uint32_t surfaceQueueIndex,
 		const String& deviceName,uint_fast32_t apiVersion, uint_fast32_t driverVersion, uint_fast32_t vendorId) :
 		PhysicalDevice(type,deviceName,apiVersion, driverVersion, vendorId),m_physical_device(dev), m_physical_device_props(prop), m_physical_device_features(features)
+		, m_surfaceQueueIndex(surfaceQueueIndex)
 	{
 
 	}
@@ -164,6 +165,7 @@ private:
 
 private:
 	friend class RenderDeviceVulkan;
+	uint32_t m_surfaceQueueIndex;
 	std::unordered_map<uint32_t,VkQueueFamilyProperties> m_selectedQueueFamilyProps;
 	std::unordered_map<uint32_t, std::vector<uint32_t>> m_selectedQueueFamilyIndexPropsByCapability;
 	VkPhysicalDevice m_physical_device;
