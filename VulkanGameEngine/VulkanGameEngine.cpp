@@ -111,7 +111,8 @@ int main()
 	if (allSuccessed)
 	{
 		windowServer->show();
-		// Server Initialization must be in order. WindowServer -> Device -> ETC..
+		// Server Initialization must be in order. WindowServer -> Device -> ETC.. This is because of macos surface creation depents on glfw window
+		// It is possible to add ifdef for just mac.
 		while (!windowServer->should_close())
 		{
 			windowServer->handle_events();

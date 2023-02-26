@@ -19,7 +19,6 @@
 #include <boost/format.hpp>
 #include <vector>
 #include <unordered_map>
-
 static VkBool32 VKAPI_CALL vk_debug_messenger_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
 	(void)pUserData; // Unused argument
 
@@ -72,6 +71,7 @@ _INLINE_ bool get_supported_device_exs(const VkPhysicalDevice* dev, const char* 
 _INLINE_ bool get_all_supported_device_exs(const VkPhysicalDevice* dev, std::vector<const char*>* enabledLyers, std::unordered_map<std::string, std::vector<VkExtensionProperties>>& map);
 _INLINE_ bool create_logical_device(VkPhysicalDevice physicalDev, const VkPhysicalDeviceFeatures* features,
 	const PhysicalDeviceVulkan::QueueCreateInf* createInf, const std::vector<const char*>* props, const std::vector<const char*>* exs, VkDevice* device);
+_INLINE_ bool check_device_extension_support(VkPhysicalDevice device, const std::vector<std::string>* deviceExtensions);
 
 
 RenderDeviceVulkan::RenderDeviceVulkan()
@@ -242,6 +242,11 @@ bool RenderDeviceVulkan::init()
 	// Selection between all current physical devices
 
 	auto it = physicalDevs.begin();
+
+	std::vector<std::string> requiredExtensionsForPhysicalDevice = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
 	while (it != physicalDevs.end())
 	{
 		uint32_t count;
@@ -253,7 +258,8 @@ bool RenderDeviceVulkan::init()
 		{
 			VkBool32 isSupported;
 			vkGetPhysicalDeviceSurfaceSupportKHR(*it.operator->(), i, m_surface, &isSupported);
-			if (isSupported == VK_TRUE)
+			bool extensionsSupported = check_device_extension_support(*it.operator->(),&requiredExtensionsForPhysicalDevice);
+			if (isSupported == VK_TRUE && extensionsSupported)
 			{
 				supportedQueueIndexes.push_back(i);
 				isThereAnySupported = true;
@@ -878,4 +884,21 @@ _INLINE_ bool create_logical_device(VkPhysicalDevice physicalDev, const VkPhysic
 		return false;
 
 	return true;
+}
+
+_INLINE_ bool check_device_extension_support(VkPhysicalDevice device,const std::vector<std::string>* deviceExtensions) 
+{
+	uint32_t extensionCount;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	std::set<std::string> requiredExtensions(deviceExtensions->begin(), deviceExtensions->end());
+
+	for (const auto& extension : availableExtensions) {
+		requiredExtensions.erase(extension.extensionName);
+	}
+
+	return requiredExtensions.empty();
 }
