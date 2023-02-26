@@ -174,14 +174,21 @@ bool RenderDeviceVulkan::init()
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = (HWND)WindowServer::get_singleton()->get_native_handle();
 	createInfo.hinstance = GetModuleHandle(nullptr);
-	if (vkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+	if (pvkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
 	NEED SUPPORT
 #elif defined VK_USE_PLATFORM_MACOS_MVK 
-	NEED SUPPORT
-#endif 
+	auto pvkCreateMacOSSurfaceKHR = PFN_vkCreateMacOSSurfaceMVK(vkGetInstanceProcAddr(m_instance, "vkCreateMacOSSurfaceMVK"));
+
+	VkMacOSSurfaceCreateInfoMVK createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
+	createInfo.pView = WindowServer::get_singleton()->get_native_handle();
+	if (pvkCreateMacOSSurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+		return false;
+	}
+#endif
 
 
 
@@ -238,14 +245,14 @@ bool RenderDeviceVulkan::init()
 	while (it != physicalDevs.end())
 	{
 		uint32_t count;
-		vkGetPhysicalDeviceQueueFamilyProperties(*it._Ptr, &count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(*it.operator->(), &count, nullptr);
 		std::vector<VkQueueFamilyProperties> families;
-		vkGetPhysicalDeviceQueueFamilyProperties(*it._Ptr, &count, families.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(*it.operator->(), &count, families.data());
 		bool isThereAnySupported = false;
 		for (int i = 0; i < count; i++)
 		{
 			VkBool32 isSupported;
-			vkGetPhysicalDeviceSurfaceSupportKHR(*it._Ptr, i, m_surface, &isSupported);
+			vkGetPhysicalDeviceSurfaceSupportKHR(*it.operator->(), i, m_surface, &isSupported);
 			if (isSupported == VK_TRUE)
 			{
 				supportedQueueIndexes.push_back(i);
