@@ -174,7 +174,7 @@ bool RenderDeviceVulkan::init()
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = (HWND)WindowServer::get_singleton()->get_native_handle();
 	createInfo.hinstance = GetModuleHandle(nullptr);
-	if (pvkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+	if (pvkCreateWin32SurfaceKHR == nullptr || pvkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
@@ -185,7 +185,7 @@ bool RenderDeviceVulkan::init()
 	VkMacOSSurfaceCreateInfoMVK createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
 	createInfo.pView = WindowServer::get_singleton()->get_native_handle();
-	if (pvkCreateMacOSSurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+	if (pvkCreateMacOSSurfaceKHR == nullptr || pvkCreateMacOSSurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
 #endif
