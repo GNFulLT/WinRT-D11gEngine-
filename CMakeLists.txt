@@ -65,13 +65,22 @@ endif()
 add_subdirectory(./deps/src/glfw)
 add_subdirectory(./deps/src/spdlog)
 
+if(APPLE)
 include_directories(
 	${BOOST_CORRECT_INCLUDEDIR}
 	./deps/src/glfw/include
 	./deps/src/spdlog/include
 	./deps/src/vulkan/include
-
 )
+else()
+include_directories(
+	${BOOST_CORRECT_INCLUDEDIR}
+	./deps/src/glfw/include
+	./deps/src/spdlog/include
+	./deps/src/vulkan/include
+	./deps/src/metal-cpp
+)
+endif()
 
 link_directories(
 	${BOOST_CORRECT_LIBDIR}
