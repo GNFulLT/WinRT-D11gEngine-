@@ -169,12 +169,12 @@ bool RenderDeviceVulkan::init()
 
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR 
-	auto pvkGetMemoryWin32HandleKHR2 = PFN_vkCreateWin32SurfaceKHR(vkGetInstanceProcAddr(m_instance, "vkCreateWin32SurfaceKHR"));
+	auto pvkCreateWin32SurfaceKHR = PFN_vkCreateWin32SurfaceKHR(vkGetInstanceProcAddr(m_instance, "vkCreateWin32SurfaceKHR"));
 	VkWin32SurfaceCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = (HWND)WindowServer::get_singleton()->get_native_handle();
 	createInfo.hinstance = GetModuleHandle(nullptr);
-	if (pvkGetMemoryWin32HandleKHR2(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+	if (vkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
 #elif defined VK_USE_PLATFORM_XLIB_KHR 

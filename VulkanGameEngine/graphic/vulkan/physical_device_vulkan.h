@@ -73,6 +73,10 @@ public:
 	PhysicalDeviceVulkan(const PhysicalDeviceVulkan&) = delete;
 
 private:
+	_INLINE_ uint32_t get_surface_queue() const noexcept
+	{
+		return m_surfaceQueueIndex;
+	}
 
 	_INLINE_ bool any_queue_selected_by_capability(VkQueueFlagBits capability)
 	{
