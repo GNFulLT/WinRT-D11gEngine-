@@ -71,6 +71,7 @@ include_directories(
 	./deps/src/glfw/include
 	./deps/src/spdlog/include
 	./deps/src/vulkan/include
+	./deps/src/metal-cpp
 )
 else()
 include_directories(
@@ -78,7 +79,6 @@ include_directories(
 	./deps/src/glfw/include
 	./deps/src/spdlog/include
 	./deps/src/vulkan/include
-	./deps/src/metal-cpp
 )
 endif()
 
