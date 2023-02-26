@@ -27,6 +27,13 @@
       "url": "https://github.com/KhronosGroup/Vulkan-Headers.git",
       "revision": "v1.2.178"
     }
+  },
+  {
+    "name": "metal-cpp",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/bkaradzic/metal-cpp"
+    }
   }
 
 ]
