@@ -67,6 +67,8 @@ public:
 
 	virtual void* get_native_handle() = 0;
 
+	// It returns by pixel
+	virtual UVec2 get_framebuffer_size() const noexcept = 0;
 	// Could be overrided
 	virtual void destroy();
 	_INLINE_ static WindowServer* get_singleton()

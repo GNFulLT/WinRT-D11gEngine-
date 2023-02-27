@@ -13,7 +13,11 @@
 #include "../../core/version.h"
 #include "../../platform/GLFW/window_server_glfw.h"
 
-
+struct SwapChainSupportDetails {
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
 
 
 #include <boost/format.hpp>
@@ -71,7 +75,9 @@ _INLINE_ bool get_supported_device_exs(const VkPhysicalDevice* dev, const char* 
 _INLINE_ bool get_all_supported_device_exs(const VkPhysicalDevice* dev, std::vector<const char*>* enabledLyers, std::unordered_map<std::string, std::vector<VkExtensionProperties>>& map);
 _INLINE_ bool create_logical_device(VkPhysicalDevice physicalDev, const VkPhysicalDeviceFeatures* features,
 	const PhysicalDeviceVulkan::QueueCreateInf* createInf, const std::vector<const char*>* props, const std::vector<const char*>* exs, VkDevice* device);
-_INLINE_ bool check_device_extension_support(VkPhysicalDevice device, const std::vector<std::string>* deviceExtensions);
+_INLINE_ bool check_device_extension_support(VkPhysicalDevice device, const std::vector<std::string>* deviceExtensions, std::vector<VkExtensionProperties>& deviceExtensionProps);
+_INLINE_ bool sort_vk_ext_props(const VkExtensionProperties& p1, const VkExtensionProperties& p2);
+_INLINE_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR surface, SwapChainSupportDetails& detail);
 
 
 RenderDeviceVulkan::RenderDeviceVulkan()
@@ -82,6 +88,10 @@ RenderDeviceVulkan::~RenderDeviceVulkan()
 {
 	if (m_instance != nullptr && isInstanceInitedSuccessfully)
 	{
+		if (m_swapChain != nullptr && isSwapchainInitialized)
+		{
+			vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+		}
 		if (m_device != nullptr && isDeviceInitedSuccessfully)
 		{
 			vkDestroyDevice(m_device, nullptr);
@@ -127,25 +137,25 @@ bool RenderDeviceVulkan::init()
 	}
 
 	//X TODO : This is where pluging comes to. Give it all instance layers
-	
+
 	// First check VkInstance should be created with validation layer
 	std::string outStr;
 	bool isFound = ConfigurationServer::get_singleton()->get_init_configuration("config.json", "DEBUG_LAYER", outStr);
-	
+
 	bool debugInstanceCreated = false;
 	bool triedToInitDebug = false;
 	bool isDebugEnabled = false;
 	if (isFound && outStr == "TRUE")
 	{
 		isDebugEnabled = true;
-		debugInstanceCreated = try_to_create_instance(&applicationInfo, &m_instance,&instance_layer_props,true);
+		debugInstanceCreated = try_to_create_instance(&applicationInfo, &m_instance, &instance_layer_props, true);
 		triedToInitDebug = true;
 	}
 
 	// Debug Instance couldn't created first log and create normal instance
 	if (!debugInstanceCreated)
 	{
-		if(triedToInitDebug)
+		if (triedToInitDebug)
 			log_couldnt_initialized_debug_mode();
 		//X TODO : Add No Debug Instance
 		bool isReleaseCreated = try_to_create_instance(&applicationInfo, &m_instance, &instance_layer_props);
@@ -178,7 +188,7 @@ bool RenderDeviceVulkan::init()
 	if (pvkCreateWin32SurfaceKHR == nullptr || pvkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
-	
+
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
 	NEED SUPPORT
 #elif defined VK_USE_PLATFORM_METAL_EXT
@@ -193,11 +203,11 @@ bool RenderDeviceVulkan::init()
 	}
 #endif
 
-//------------------------ PHYSICAL DEVICE
+	//------------------------ PHYSICAL DEVICE
 
 	if (isDebugEnabled)
 	{
-		if (create_debug_messenger(m_instance, &g_debugMessenger,&g_debugReporter))
+		if (create_debug_messenger(m_instance, &g_debugMessenger, &g_debugReporter))
 			isDebugMessengerCreated = true;
 	}
 	std::string deviceTypeStr;
@@ -235,7 +245,7 @@ bool RenderDeviceVulkan::init()
 	{
 		return false;
 	}
-	
+
 	physicalDevProperties.clear();
 	physicalDevFeatures.clear();
 
@@ -246,7 +256,7 @@ bool RenderDeviceVulkan::init()
 	std::vector<std::string> requiredExtensionsForPhysicalDevice = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
-
+	std::vector<VkExtensionProperties> requiredExtensionPropsForPhysicalDevice;
 	while (it != physicalDevs.end())
 	{
 		uint32_t count;
@@ -258,7 +268,7 @@ bool RenderDeviceVulkan::init()
 		{
 			VkBool32 isSupported;
 			vkGetPhysicalDeviceSurfaceSupportKHR(*it.operator->(), i, m_surface, &isSupported);
-			bool extensionsSupported = check_device_extension_support(*it.operator->(),&requiredExtensionsForPhysicalDevice);
+			bool extensionsSupported = check_device_extension_support(*it.operator->(), &requiredExtensionsForPhysicalDevice, requiredExtensionPropsForPhysicalDevice);
 			if (isSupported == VK_TRUE && extensionsSupported)
 			{
 				supportedQueueIndexes.push_back(i);
@@ -289,25 +299,95 @@ bool RenderDeviceVulkan::init()
 		physicalDevFeatures.push_back(features);
 	}
 
-
+{
 	VkPhysicalDevice selectedDevice;
 	VkPhysicalDeviceProperties selectedDeviceProperties;
 	VkPhysicalDeviceFeatures selectedDeviceFeatures;
 	PhysicalDevice::PHYSICAL_DEVICE_TYPE selectedType;
 	uint32_t mustQueueIndex = 0;
-	if (!try_to_select_physical_device(physicalDevs,physicalDevProperties,physicalDevFeatures, supportedQueueIndexes
-		,physicalType,selectedDevice, selectedDeviceProperties, selectedDeviceFeatures, mustQueueIndex, selectedType))
+	if (!try_to_select_physical_device(physicalDevs, physicalDevProperties, physicalDevFeatures, supportedQueueIndexes
+		, physicalType, selectedDevice, selectedDeviceProperties, selectedDeviceFeatures, mustQueueIndex, selectedType))
 	{
 		return false;
 	}
 
-	auto physicalDevice = new PhysicalDeviceVulkan(selectedDevice,selectedDeviceProperties,selectedDeviceFeatures,selectedType,mustQueueIndex
-		,selectedDeviceProperties.deviceName,selectedDeviceProperties.apiVersion,
-		selectedDeviceProperties.driverVersion,selectedDeviceProperties.vendorID);
+	auto physicalDevice = new PhysicalDeviceVulkan(selectedDevice, selectedDeviceProperties, selectedDeviceFeatures, selectedType, mustQueueIndex
+		, selectedDeviceProperties.deviceName, selectedDeviceProperties.apiVersion,
+		selectedDeviceProperties.driverVersion, selectedDeviceProperties.vendorID);
 
 	m_physicalDevice.reset(physicalDevice);
+}
+	malloc(16);
 
-	auto queueFamilyProps = get_queue_family_properties_from_device(physicalDevice->m_physical_device);
+	// Swap Chain Creation
+	SwapChainSupportDetails swpDetail;
+
+	if (!get_swap_chain_support_details(m_physicalDevice->m_physical_device, m_surface, swpDetail))
+	{
+		return false;
+	}
+
+	malloc(16);
+
+
+	VkPresentModeKHR selectedPresentMode;
+	VkPresentModeKHR desiredMode = VK_PRESENT_MODE_MAILBOX_KHR;
+	bool isPresentModeSelected = false;	for (const auto& presentMode : swpDetail.presentModes)
+	{
+		if (presentMode == desiredMode)
+		{
+			selectedPresentMode = desiredMode;
+			isPresentModeSelected = true;
+
+		}
+	}
+
+	if (!isPresentModeSelected)
+	{
+		isPresentModeSelected = true;
+		selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+	}
+
+
+	auto min_number_of_images = swpDetail.capabilities.minImageCount + 1;
+	if ((swpDetail.capabilities.maxImageCount > 0) &&
+		(min_number_of_images > swpDetail.capabilities.maxImageCount)) {
+		min_number_of_images = swpDetail.capabilities.maxImageCount;
+	}
+
+
+	bool formatFound = false;
+	VkSurfaceFormatKHR selectedSurfaceFormat;
+	for (const auto& availableFormat : swpDetail.formats) {
+		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			selectedSurfaceFormat = availableFormat;
+			formatFound = true;
+		}
+	}
+
+	if (!formatFound)
+		return false;
+	malloc(16);
+	VkExtent2D selectedExtend;
+
+	if (swpDetail.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+		selectedExtend =  swpDetail.capabilities.currentExtent;
+	}
+	else {
+		auto wndSize =  WindowServer::get_singleton()->get_framebuffer_size();
+		VkExtent2D actualExtent = {
+			static_cast<uint32_t>(wndSize.x),
+			static_cast<uint32_t>(wndSize.y)
+		};
+
+		actualExtent.width = std::clamp(actualExtent.width, swpDetail.capabilities.minImageExtent.width, swpDetail.capabilities.maxImageExtent.width);
+		actualExtent.height = std::clamp(actualExtent.height, swpDetail.capabilities.minImageExtent.height, swpDetail.capabilities.maxImageExtent.height);
+
+		selectedExtend =  actualExtent;
+	}
+	malloc(16);
+	// Device Creation
+	auto queueFamilyProps = get_queue_family_properties_from_device(m_physicalDevice->m_physical_device);
 	
 	//X TODO : Plugim to select queueFamilyProps
 	
@@ -381,7 +461,8 @@ bool RenderDeviceVulkan::init()
 
 	//X PLUGIN
 
-	std::vector<const char*> enabledDeviceExtensions;
+
+	// THIS IS WHERE ENGINE ADDS ITS OWN PHYSICAL EXTENSIONS 
 
 	for (const auto& ex : allExs)
 	{
@@ -390,13 +471,35 @@ bool RenderDeviceVulkan::init()
 			std::vector< VkExtensionProperties> props;
 			for (const auto& exProp : ex.second)
 			{
-				enabledDeviceExtensions.push_back(exProp.extensionName);
 				props.push_back(exProp);
 			}
 			m_enabledDeviceExtensions.emplace(ex.first, props);
 		}
 	}
+	m_enabledDeviceExtensions.emplace("engine", std::vector<VkExtensionProperties>());
+	// WE CHECKED THAT THIS EXTENSIONS SUPPORTED BY SELECTED DEVICE
+	for (const auto& ex : requiredExtensionPropsForPhysicalDevice)
+	{
+		m_enabledDeviceExtensions["engine"].push_back( ex);
+	}
 
+	// NOW ELECT THE REPEATED VALUES
+
+	for (auto& it : m_enabledDeviceExtensions)
+	{
+		it.second.erase(std::unique(it.second.begin(),it.second.end(),sort_vk_ext_props),it.second.end());
+	
+	}
+
+	std::vector<const char*> enabledDeviceExtensions;
+	
+	for (const auto& it : m_enabledDeviceExtensions)
+	{
+		for (const auto& ex : it.second)
+		{
+			enabledDeviceExtensions.push_back(ex.extensionName);
+		}
+	}
 
 	
 	if (!create_logical_device(m_physicalDevice->m_physical_device, &m_physicalDevice->m_physical_device_features, &queueInf,
@@ -407,7 +510,34 @@ bool RenderDeviceVulkan::init()
 
 	volkLoadDevice(m_device);
 	isDeviceInitedSuccessfully = true;
+	
+	auto currentTransform = swpDetail.capabilities.currentTransform;
+	
+	VkSwapchainCreateInfoKHR swapchain_create_info = {
+	VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+	nullptr,
+	0,
+	m_surface,
+	min_number_of_images,
+	selectedSurfaceFormat.format,
+	selectedSurfaceFormat.colorSpace,
+	selectedExtend,
+	1,
+	VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT , // Image Usage
+	VK_SHARING_MODE_EXCLUSIVE,
+	0,
+	nullptr,
+	currentTransform,
+	VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+	selectedPresentMode,
+	VK_TRUE,
+	VK_NULL_HANDLE
+	};
 
+	if (auto sres = vkCreateSwapchainKHR(m_device, &swapchain_create_info, nullptr, &m_swapChain); sres != VK_SUCCESS) {
+		return false;
+	}
+	isSwapchainInitialized = true;
 
 
 	return true;
@@ -811,9 +941,9 @@ _INLINE_ std::vector<VkQueueFamilyProperties> get_queue_family_properties_from_d
 {
 	uint32_t queueCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueCount, nullptr);
-	std::vector<VkQueueFamilyProperties> queueProps(queueCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueCount, queueProps.data());
-	return queueProps;
+	std::vector<VkQueueFamilyProperties> queuesssProps = std::vector<VkQueueFamilyProperties>(queueCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueCount, queuesssProps.data());
+	return queuesssProps;
 }
 _INLINE_ std::unordered_map<uint32_t, VkQueueFamilyProperties> find_queue_families(std::vector<VkQueueFamilyProperties>* queueFamily, VkQueueFlags desiredFlags)
 {
@@ -886,7 +1016,7 @@ _INLINE_ bool create_logical_device(VkPhysicalDevice physicalDev, const VkPhysic
 	return true;
 }
 
-_INLINE_ bool check_device_extension_support(VkPhysicalDevice device,const std::vector<std::string>* deviceExtensions) 
+_INLINE_ bool check_device_extension_support(VkPhysicalDevice device,const std::vector<std::string>* deviceExtensions,std::vector<VkExtensionProperties>& deviceExtensionProps) 
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -897,8 +1027,41 @@ _INLINE_ bool check_device_extension_support(VkPhysicalDevice device,const std::
 	std::set<std::string> requiredExtensions(deviceExtensions->begin(), deviceExtensions->end());
 
 	for (const auto& extension : availableExtensions) {
-		requiredExtensions.erase(extension.extensionName);
+		if (requiredExtensions.find(extension.extensionName) != requiredExtensions.end())
+		{
+			requiredExtensions.erase(extension.extensionName);
+			deviceExtensionProps.push_back(extension);
+		}
 	}
 
 	return requiredExtensions.empty();
+}
+_INLINE_ bool sort_vk_ext_props(const VkExtensionProperties& p1, const VkExtensionProperties& p2)
+{
+	return strcmp(p1.extensionName, p2.extensionName) == 0;
+}
+
+_INLINE_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR surface, SwapChainSupportDetails& detail)
+{
+	uint32_t surfaceCount = 0;
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, nullptr))
+		return false;
+	detail.presentModes = std::vector<VkPresentModeKHR>(surfaceCount);
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, detail.presentModes.data()))
+		return false;
+
+
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, surface, &detail.capabilities))
+		return false;
+
+	uint32_t formatCount;
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount,nullptr))
+		return false;
+
+	detail.formats = std::vector<VkSurfaceFormatKHR>(surfaceCount);
+
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount, detail.formats.data()))
+		return false;
+
+	return true;
 }

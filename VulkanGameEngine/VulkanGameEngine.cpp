@@ -45,6 +45,7 @@ int main()
 		| _CRTDBG_CHECK_ALWAYS_DF // Check heap every alloc/dealloc
 		| _CRTDBG_CHECK_EVERY_16_DF // Check heap every 16 heap ops
 	);
+	
 	//_CrtSetBreakAlloc(47947);
 #endif // _WINDOWS
 #endif // _DEBUG

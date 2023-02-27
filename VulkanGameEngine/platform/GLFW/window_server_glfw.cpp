@@ -114,3 +114,10 @@ void WindowServerGLFW::hide()
 	glfwHideWindow(m_window);
 	m_windowMode->set_prop(WINDOW_MODE_MINIMIZED);
 }
+UVec2 WindowServerGLFW::get_framebuffer_size() const noexcept
+{
+	int width;
+	int height;
+	glfwGetFramebufferSize(m_window, &width, &height);
+	return UVec2(width, height);
+}

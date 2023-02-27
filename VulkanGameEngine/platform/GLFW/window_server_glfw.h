@@ -38,7 +38,8 @@ public:
 	virtual GRAPHIC_API get_default_graphic_api() const noexcept override;
 	virtual bool is_graphic_api_supported(GRAPHIC_API api) const noexcept override;
 
-	
+	virtual UVec2 get_framebuffer_size() const noexcept override;
+
 
 protected:
 

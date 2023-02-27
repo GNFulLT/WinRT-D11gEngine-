@@ -40,10 +40,11 @@ private:
 	bool isInstanceInitedSuccessfully = false;
 	bool isDeviceInitedSuccessfully = false;
 	bool isDebugMessengerCreated = false;
+	bool isSwapchainInitialized = false;
 	// VK INFOS
 private:
-	uint32_t m_khrSurface;
 	VkInstance m_instance;
+	VkSwapchainKHR m_swapChain;
 	VkDevice m_device;
 	VkSurfaceKHR m_surface;
 	VkDebugUtilsMessengerEXT g_debugMessenger;
