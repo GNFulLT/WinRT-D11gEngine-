@@ -91,6 +91,7 @@ RenderDeviceVulkan::~RenderDeviceVulkan()
 		if (m_swapChain != nullptr && isSwapchainInitialized)
 		{
 			vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+			vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 		}
 		if (m_device != nullptr && isDeviceInitedSuccessfully)
 		{
@@ -299,7 +300,7 @@ bool RenderDeviceVulkan::init()
 		physicalDevFeatures.push_back(features);
 	}
 
-{
+
 	VkPhysicalDevice selectedDevice;
 	VkPhysicalDeviceProperties selectedDeviceProperties;
 	VkPhysicalDeviceFeatures selectedDeviceFeatures;
@@ -316,8 +317,7 @@ bool RenderDeviceVulkan::init()
 		selectedDeviceProperties.driverVersion, selectedDeviceProperties.vendorID);
 
 	m_physicalDevice.reset(physicalDevice);
-}
-	malloc(16);
+
 
 	// Swap Chain Creation
 	SwapChainSupportDetails swpDetail;
@@ -328,7 +328,6 @@ bool RenderDeviceVulkan::init()
 		return false;
 	}
 
-	malloc(16);
 
 
 	VkPresentModeKHR selectedPresentMode;
@@ -349,6 +348,7 @@ bool RenderDeviceVulkan::init()
 		selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 	}
 
+	m_selected_present_mode = selectedPresentMode;
 
 	auto min_number_of_images = swpDetail.capabilities.minImageCount + 1;
 	if ((swpDetail.capabilities.maxImageCount > 0) &&
@@ -368,7 +368,9 @@ bool RenderDeviceVulkan::init()
 
 	if (!formatFound)
 		return false;
-	malloc(16);
+
+	m_selected_surface_format = selectedSurfaceFormat;
+
 	VkExtent2D selectedExtend;
 
 	if (swpDetail.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
@@ -386,7 +388,9 @@ bool RenderDeviceVulkan::init()
 
 		selectedExtend =  actualExtent;
 	}
-	malloc(16);
+
+	m_selected_extend = selectedExtend;
+
 	// Device Creation
 	auto queueFamilyProps = get_queue_family_properties_from_device(m_physicalDevice->m_physical_device);
 	
@@ -532,7 +536,7 @@ bool RenderDeviceVulkan::init()
 	VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 	selectedPresentMode,
 	VK_TRUE,
-	VK_NULL_HANDLE
+	VK_NULL_HANDLE	
 	};
 
 	if (auto sres = vkCreateSwapchainKHR(m_device, &swapchain_create_info, nullptr, &m_swapChain); sres != VK_SUCCESS) {
@@ -540,7 +544,280 @@ bool RenderDeviceVulkan::init()
 	}
 	isSwapchainInitialized = true;
 
+	uint32_t swapChainImagesCount = 0;
 
+	vkGetSwapchainImagesKHR(m_device, m_swapChain, &swapChainImagesCount, nullptr);
+
+	swapChainImages = std::vector<VkImage>(swapChainImagesCount);
+	vkGetSwapchainImagesKHR(m_device, m_swapChain, &swapChainImagesCount, swapChainImages.data());
+
+	swapChainImageViews = std::vector<VkImageView>(swapChainImagesCount);
+	
+	for (uint32_t i = 0; i < swapChainImagesCount; i++)
+	{
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = swapChainImages[i];
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = m_selected_surface_format.format;
+
+		// Default Usage 
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		vkCreateImageView(m_device, &createInfo, nullptr, &swapChainImageViews[i]);
+		
+	}
+	
+
+
+	// Acquire the images
+
+	//vkAcquireNextImageKHR(m_device, m_swapChain, 2000000000, semaphore, fence, &image_index);
+
+	VkSemaphoreCreateInfo semaphore_create_info = {
+		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		nullptr,
+		0
+	};
+	VkResult result = vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_semaphore);
+	result = vkCreateSemaphore(m_device, &semaphore_create_info, nullptr, &m_surfaceSemaphore);
+	
+	if (VK_SUCCESS != result) {
+		return false;
+	}
+
+	VkFenceCreateInfo fence_create_info = {
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		nullptr,
+		0
+	};
+
+	VkFence fence;
+
+	result = vkCreateFence(m_device, &fence_create_info, nullptr, &fence);
+	if (VK_SUCCESS != result) {
+		return false;
+	}
+
+	// Create Render Pass
+
+	// the renderpass will use this color attachment.
+	VkAttachmentDescription color_attachment = {};
+	//the attachment will have the format needed by the swapchain
+	color_attachment.format = m_selected_surface_format.format;
+	//1 sample, we won't be doing MSAA
+	color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	// we Clear when this attachment is loaded
+	color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	// we keep the attachment stored when the renderpass ends
+	color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	//we don't care about stencil
+	color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+	//we don't know or care about the starting layout of the attachment
+	color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+	//after the renderpass ends, the image has to be on a layout ready for display
+	color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+
+	VkAttachmentReference color_attachment_ref = {};
+	//attachment number will index into the pAttachments array in the parent renderpass itself
+	color_attachment_ref.attachment = 0;
+	color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	//we are going to create 1 subpass, which is the minimum you can do
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &color_attachment_ref;
+
+
+
+	VkRenderPassCreateInfo render_pass_info = {};
+	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+
+	//connect the color attachment to the info
+	render_pass_info.attachmentCount = 1;
+	render_pass_info.pAttachments = &color_attachment;
+	//connect the subpass to the info
+	render_pass_info.subpassCount = 1;
+	render_pass_info.pSubpasses = &subpass;
+
+
+	if(VK_SUCCESS != vkCreateRenderPass(m_device, &render_pass_info, nullptr, &m_render_pass))
+	{
+		return false;
+	}
+
+
+	//create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
+	VkFramebufferCreateInfo fb_info = {};
+	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	fb_info.pNext = nullptr;
+
+	fb_info.renderPass = m_render_pass;
+	fb_info.attachmentCount = 1;
+	fb_info.width = m_selected_extend.width;
+	fb_info.height = m_selected_extend.height;
+	fb_info.layers = 1;
+
+	//grab how many images we have in the swapchain
+	const uint32_t swapchain_imagecount = swapChainImages.size();
+	m_frameBuffers = std::vector<VkFramebuffer>(swapchain_imagecount);
+
+	//create framebuffers for each of the swapchain image views
+	for (int i = 0; i < swapchain_imagecount; i++) {
+
+		fb_info.pAttachments = &swapChainImageViews[i];
+		if (vkCreateFramebuffer(m_device, &fb_info, nullptr, &m_frameBuffers[i]) != VK_SUCCESS)
+		{
+			return false;
+		}
+	}
+
+
+
+
+	// CMD POOL
+
+
+
+
+	VkCommandPoolCreateInfo commandPoolInfo {};
+	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolInfo.pNext = nullptr;
+	commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	commandPoolInfo.queueFamilyIndex = m_physicalDevice->get_surface_queue();
+
+
+	if (VK_SUCCESS != vkCreateCommandPool(m_device, &commandPoolInfo, nullptr, &m_commandPool))
+	{
+		return false;
+	}
+
+
+	VkCommandBuffer buff;
+
+	VkCommandBufferAllocateInfo buffInfo = {};
+	buffInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	buffInfo.pNext = nullptr;
+	buffInfo.commandPool = m_commandPool;
+	buffInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	buffInfo.commandBufferCount = 1;
+
+	if (VK_SUCCESS != vkAllocateCommandBuffers(m_device, &buffInfo, &buff))
+	{
+		return false;
+	}
+
+	//CMD BEGIN
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.pNext = nullptr;
+	beginInfo.flags = 0;
+	beginInfo.pInheritanceInfo = nullptr;
+
+
+	vkGetDeviceQueue(m_device, m_physicalDevice->get_surface_queue(), 0,&m_surfaceQueue);
+
+	uint32_t imageIndex = 0;
+
+	auto res2 = vkAcquireNextImageKHR(m_device, m_swapChain, 0, m_semaphore, VK_NULL_HANDLE, &imageIndex);
+	if (res2 != VK_SUCCESS)
+	{
+		return false;
+	}
+
+	if (VK_SUCCESS != vkBeginCommandBuffer(buff, &beginInfo))
+	{
+		return false;
+	}
+
+	VkClearValue clearValue;
+	clearValue.color = { { 0.0f, 0.0f, 1.0f, 1.0f } };
+
+
+	VkRenderPassBeginInfo rpInfo = {};
+	rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rpInfo.pNext = nullptr;
+
+	rpInfo.renderPass = m_render_pass;
+	rpInfo.renderArea.offset.x = 0;
+	rpInfo.renderArea.offset.y = 0;
+	rpInfo.renderArea.extent = selectedExtend;
+	rpInfo.framebuffer = m_frameBuffers[imageIndex];
+
+	//connect clear values
+	rpInfo.clearValueCount = 1;
+	rpInfo.pClearValues = &clearValue;
+	
+	vkCmdBeginRenderPass(buff, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+	
+
+	vkCmdEndRenderPass(buff);
+
+	vkEndCommandBuffer(buff);
+
+	
+	VkSubmitInfo submit = {};
+	submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit.pNext = nullptr;
+
+	VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	submit.pWaitDstStageMask = &waitStage;
+
+	submit.waitSemaphoreCount = 1;
+	submit.pWaitSemaphores = &m_semaphore;
+
+	submit.signalSemaphoreCount = 1;
+	submit.pSignalSemaphores = &m_surfaceSemaphore;
+
+	submit.commandBufferCount = 1;
+	submit.pCommandBuffers = &buff;
+
+	//submit command buffer to the queue and execute it.
+	// _renderFence will now block until the graphic commands finish execution
+	res2 = vkQueueSubmit(m_surfaceQueue, 1, &submit,fence);
+	if (res2 != VK_SUCCESS)
+	{
+		return false;
+	}
+
+	vkResetFences(m_device, 0, &fence);
+	//vkFreeCommandBuffers(m_device, m_commandPool, 1, &buff);
+
+
+	// Swapchain
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.pNext = nullptr;
+
+	presentInfo.pSwapchains = &m_swapChain;
+	presentInfo.swapchainCount = 1;
+
+	presentInfo.pWaitSemaphores = &m_surfaceSemaphore;
+	presentInfo.waitSemaphoreCount = 1;
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	res2 = vkQueuePresentKHR(m_surfaceQueue, &presentInfo);
+	if (res2 != VK_SUCCESS)
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -1066,11 +1343,9 @@ _INLINE_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR 
 
 	detail.formats = std::vector<VkSurfaceFormatKHR>(formatCount);
 
-	malloc(16);
 	// Here causes heap corruption
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount, detail.formats.data()))
 		return false;
-	malloc(16);
 
 	return true;
 }

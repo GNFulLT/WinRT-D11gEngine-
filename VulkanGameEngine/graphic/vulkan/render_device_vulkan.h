@@ -43,10 +43,29 @@ private:
 	bool isSwapchainInitialized = false;
 	// VK INFOS
 private:
-	VkInstance m_instance;
+
+
 	VkSwapchainKHR m_swapChain;
-	VkDevice m_device;
 	VkSurfaceKHR m_surface;
+	std::vector<VkImage> swapChainImages;
+	std::vector<VkImageView> swapChainImageViews;
+
+	VkPresentModeKHR m_selected_present_mode;
+	VkSurfaceFormatKHR m_selected_surface_format;
+	VkExtent2D m_selected_extend;
+	VkRenderPass m_render_pass;
+	std::vector<VkFramebuffer> m_frameBuffers;
+
+	VkCommandPool m_commandPool;
+	VkQueue m_surfaceQueue;
+	// Waits to swap chain image awailable
+	VkSemaphore m_semaphore;
+	// Swapchain waits to process of rendering is finished
+	VkSemaphore m_surfaceSemaphore;
+	// Dev
+
+	VkInstance m_instance;
+	VkDevice m_device;
 	VkDebugUtilsMessengerEXT g_debugMessenger;
 	VkDebugReportCallbackEXT g_debugReporter;
 	std::vector<VkLayerProperties> m_enabledDeviceLayerProps;
