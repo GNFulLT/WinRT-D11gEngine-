@@ -321,7 +321,8 @@ bool RenderDeviceVulkan::init()
 
 	// Swap Chain Creation
 	SwapChainSupportDetails swpDetail;
-
+	
+	// Here causes heap corruption
 	if (!get_swap_chain_support_details(m_physicalDevice->m_physical_device, m_surface, swpDetail))
 	{
 		return false;
@@ -1046,22 +1047,30 @@ _INLINE_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR 
 	uint32_t surfaceCount = 0;
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, nullptr))
 		return false;
+
 	detail.presentModes = std::vector<VkPresentModeKHR>(surfaceCount);
+
+
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, detail.presentModes.data()))
 		return false;
-
+	
 
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, surface, &detail.capabilities))
 		return false;
 
+
 	uint32_t formatCount;
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount,nullptr))
 		return false;
+	
 
 	detail.formats = std::vector<VkSurfaceFormatKHR>(surfaceCount);
 
+	malloc(16);
+	// Here causes heap corruption
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount, detail.formats.data()))
 		return false;
+	malloc(16);
 
 	return true;
 }
