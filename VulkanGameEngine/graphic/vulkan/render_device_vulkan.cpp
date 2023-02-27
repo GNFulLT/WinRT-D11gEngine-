@@ -1064,7 +1064,7 @@ _INLINE_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR 
 		return false;
 	
 
-	detail.formats = std::vector<VkSurfaceFormatKHR>(surfaceCount);
+	detail.formats = std::vector<VkSurfaceFormatKHR>(formatCount);
 
 	malloc(16);
 	// Here causes heap corruption
