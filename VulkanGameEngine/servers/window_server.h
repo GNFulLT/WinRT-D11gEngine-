@@ -4,6 +4,7 @@
 #include "../window/window.h"
 #include "../config/config_utils.h"
 #include "../graphic/graphic_api.h"
+#include <GLFW/glfw3.h>
 
 class CreationServer;
 
@@ -13,7 +14,11 @@ class WindowServer : public Window
 	OBJECT_DEF(WindowServer,Window)
 
 public:
-	virtual ~WindowServer() = default;
+	~WindowServer()
+	{
+		glfwDestroyWindow(m_window);
+		glfwTerminate();
+	}
 
 	WindowServer() : Window()
 	{
@@ -26,17 +31,13 @@ public:
 		m_windowInitialPosition(new ConfigProp<WINDOW_INITIAL_POSITION>(WINDOW_INITIAL_POSITION_CENTER))
 	{
 		// Default Window Size is 640 480
+		//X TODO : IT SHOULD BE WORKING SIZE OF MONITOR
 		m_size.reset(new ConfigProp<UVec2>({640,480}));
 	}
 	
 	enum MONITOR_SELECTION
 	{
 		MONITOR_SELECTION_PRIMARY
-	};
-
-	enum WINDOW_SUPPORTER
-	{
-		WINDOW_SUPPORTER_GLFW = 0
 	};
 
 	enum WINDOW_MODE
@@ -51,26 +52,43 @@ public:
 		WINDOW_INITIAL_POSITION_CENTER = 0
 	};
 
-	virtual bool init() = 0;
-	virtual void handle_events() = 0;
+	bool init();
+	_INLINE_ void handle_events()
+	{
+		glfwPollEvents();
+	}
 
-	virtual GRAPHIC_API get_default_graphic_api() const noexcept = 0;
-	virtual bool is_graphic_api_supported(GRAPHIC_API api) const noexcept= 0;
+	_INLINE_ bool should_close() const
+	{
+		assert(m_window != nullptr);
 
-	virtual WINDOW_SUPPORTER get_window_supporter() const noexcept = 0;
+		return glfwWindowShouldClose(m_window);
+	}
 
-	virtual bool should_close() = 0;
+	_INLINE_ void show()
+	{
+		assert(m_window != nullptr);
 
-	virtual void show() = 0;
 
-	virtual void hide() = 0;
+		glfwShowWindow(m_window);
+	}
 
-	virtual void* get_native_handle() = 0;
+	_INLINE_ void hide()
+	{
+		assert(m_window != nullptr);
 
+		glfwHideWindow(m_window);
+		m_windowMode->set_prop(WINDOW_MODE_MINIMIZED);
+	}
 	// It returns by pixel
-	virtual UVec2 get_framebuffer_size() const noexcept = 0;
+	
+	_INLINE_ UVec2 get_framebuffer_size(int* width,int* height) const noexcept
+	{
+		glfwGetFramebufferSize(m_window, width, height);
+	}
+
 	// Could be overrided
-	virtual void destroy();
+	void destroy();
 	_INLINE_ static WindowServer* get_singleton()
 	{
 		return singleton;
@@ -81,11 +99,15 @@ protected:
 	std::shared_ptr<ConfigProp<WINDOW_MODE>> m_windowMode;
 	std::shared_ptr<ConfigProp<WINDOW_INITIAL_POSITION>> m_windowInitialPosition;
 
+private:
+	GLFWwindow* m_window = nullptr;
+
 protected:
 	virtual Config* config_creation() override;
 protected:
 	friend class CreationServer;
 
+	static WindowServer* create_singleton();
 
 	_INLINE_ static WindowServer* singleton;
 };

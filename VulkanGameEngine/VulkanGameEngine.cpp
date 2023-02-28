@@ -72,7 +72,6 @@ int main()
 	configurationServer->read_init_configuration_file("config.json");
 
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
-	RenderDevice* dev;
 	LoggerServer* loggerServer;
 	loggerServer = creationServer->create_logger_server();
 
@@ -83,7 +82,6 @@ int main()
 	if (auto scope = configurationServer->scope_expose())
 	{
 		windowServer = creationServer->create_the_window_server();
-		dev = creationServer->create_render_device();
 	}
 
 	// Begin change scope
@@ -91,9 +89,6 @@ int main()
 	if (auto scope = configurationServer->scope_change())
 	{
 		auto config = configurationServer->get_config_read("WindowServer");
-		loggerServer->log_cout(windowServer, "Windwo Initted",Logger::INFO);
-		UVec2 vec = { 1920,1080 };
-		configurationServer->try_set_config_prop(windowServer, "WindowServer", "size", vec);
 	}
 	bool allSuccessed = true;
 	// Begin init scope.
@@ -103,10 +98,10 @@ int main()
 		{
 			allSuccessed = false;
 		}
-		if (!dev->init())
+		/*if (!dev->init())
 		{
 			allSuccessed = false;
-		}
+		}*/
 	}
 
 	if (allSuccessed)
@@ -129,7 +124,7 @@ int main()
 	
 
 	windowServer->destroy();
-	dev->destroy();
+	//dev->destroy();
 	loggerServer->destroy();
 	eventBus->destroy();
 	configurationServer->destroy();

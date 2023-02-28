@@ -11,6 +11,38 @@ Config* WindowServer::config_creation()
 	return conf;
 }
 
+WindowServer* WindowServer::create_singleton()
+{
+	singleton = new WindowServer("WindowServer");
+	return singleton;
+}
+
+bool WindowServer::init()
+{
+	if (!glfwInit())
+		return false;
+
+	GLFWmonitor* monitor = nullptr;
+
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+	// Vulkan
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	
+	switch (*m_windowMode->get_prop())
+	{
+	case WINDOW_MODE_WINDOWED:
+		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
+		break;
+		// Not Supported Yet
+	default:
+		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
+		break;
+	}
+	//m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
+
+	return true;
+}
+
 void WindowServer::destroy()
 {
 	delete singleton;

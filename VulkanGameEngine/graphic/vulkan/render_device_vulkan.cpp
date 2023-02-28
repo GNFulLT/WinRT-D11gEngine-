@@ -11,7 +11,6 @@
 #include "../../servers/configuration_server.h"
 #include "../../servers/window_server.h"
 #include "../../core/version.h"
-#include "../../platform/GLFW/window_server_glfw.h"
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -180,6 +179,7 @@ bool RenderDeviceVulkan::init()
 
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR 
+	/*
 	auto pvkCreateWin32SurfaceKHR = PFN_vkCreateWin32SurfaceKHR(vkGetInstanceProcAddr(m_instance, "vkCreateWin32SurfaceKHR"));
 	VkWin32SurfaceCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -188,7 +188,7 @@ bool RenderDeviceVulkan::init()
 	if (pvkCreateWin32SurfaceKHR == nullptr || pvkCreateWin32SurfaceKHR(m_instance, &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
 		return false;
 	}
-
+	*/
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
 	NEED SUPPORT
 #elif defined VK_USE_PLATFORM_METAL_EXT
@@ -375,6 +375,7 @@ bool RenderDeviceVulkan::init()
 		selectedExtend =  swpDetail.capabilities.currentExtent;
 	}
 	else {
+		/*
 		auto wndSize =  WindowServer::get_singleton()->get_framebuffer_size();
 		VkExtent2D actualExtent = {
 			static_cast<uint32_t>(wndSize.x),
@@ -385,6 +386,7 @@ bool RenderDeviceVulkan::init()
 		actualExtent.height = std::clamp(actualExtent.height, swpDetail.capabilities.minImageExtent.height, swpDetail.capabilities.maxImageExtent.height);
 
 		selectedExtend =  actualExtent;
+		*/
 	}
 	malloc(16);
 	// Device Creation
