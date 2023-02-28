@@ -15,6 +15,7 @@
 // Force compile to make inline the function, variable etc.
 
 #ifndef _F_INLINE_
+#ifndef _DEBUG
 #if defined(__GNUC__)
 #define _F_INLINE_ __attribute__((always_inline)) inline
 #elif defined(_MSC_VER)
@@ -22,6 +23,9 @@
 #else
 #define _F_INLINE_ inline
 #endif // __GNUC__
+#else
+#define _F_INLINE_ inline
+#endif // _DEBUG
 #endif // _F_INLINE_
 
 // Use this instead of inline

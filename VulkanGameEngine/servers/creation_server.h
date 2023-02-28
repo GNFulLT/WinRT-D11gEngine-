@@ -34,7 +34,7 @@ public:
 	WindowServer* create_the_window_server();
 	LoggerServer* create_logger_server();
 	EventBusServer* create_event_bus_server();
-	//RenderDevice* create_render_device();
+	RenderDevice* create_render_device();
 
 	void destroy();	
 

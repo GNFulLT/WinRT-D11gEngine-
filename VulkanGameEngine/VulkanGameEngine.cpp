@@ -70,7 +70,7 @@ int main()
 	auto configurationServer = creationServer->create_configuration();
 	
 	configurationServer->read_init_configuration_file("config.json");
-
+	RenderDevice* dev;
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
 	LoggerServer* loggerServer;
 	loggerServer = creationServer->create_logger_server();
@@ -82,6 +82,7 @@ int main()
 	if (auto scope = configurationServer->scope_expose())
 	{
 		windowServer = creationServer->create_the_window_server();
+		dev = creationServer->create_render_device();
 	}
 
 	// Begin change scope
@@ -98,10 +99,10 @@ int main()
 		{
 			allSuccessed = false;
 		}
-		/*if (!dev->init())
+		if (!dev->init())
 		{
 			allSuccessed = false;
-		}*/
+		}
 	}
 
 	if (allSuccessed)
@@ -124,7 +125,7 @@ int main()
 	
 
 	windowServer->destroy();
-	//dev->destroy();
+	dev->destroy();
 	loggerServer->destroy();
 	eventBus->destroy();
 	configurationServer->destroy();

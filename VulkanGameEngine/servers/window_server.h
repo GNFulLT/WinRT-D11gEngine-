@@ -32,6 +32,7 @@ public:
 	{
 		// Default Window Size is 640 480
 		//X TODO : IT SHOULD BE WORKING SIZE OF MONITOR
+
 		m_size.reset(new ConfigProp<UVec2>({640,480}));
 	}
 	
@@ -93,6 +94,12 @@ public:
 	{
 		return singleton;
 	}
+
+	_INLINE_ GLFWwindow* get_window()
+	{
+		return m_window;
+	}
+
 	//X TODO : Initial position should be in InitialConfigProp class
 protected:
 	std::shared_ptr<ConfigProp<MONITOR_SELECTION>> m_monitorSelection;
@@ -101,7 +108,7 @@ protected:
 
 private:
 	GLFWwindow* m_window = nullptr;
-
+	GLFWmonitor* m_monitor = nullptr;
 protected:
 	virtual Config* config_creation() override;
 protected:

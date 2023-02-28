@@ -3,6 +3,8 @@
 
 #include "../object/object.h"
 
+#undef ERROR
+
 class Logger
 {
 public:

@@ -22,7 +22,15 @@ bool WindowServer::init()
 	if (!glfwInit())
 		return false;
 
-	GLFWmonitor* monitor = nullptr;
+	switch (*m_monitorSelection->get_prop())
+	{
+	case MONITOR_SELECTION_PRIMARY:
+		m_monitor = nullptr;
+		break;
+	default:
+		m_monitor = nullptr;
+		break;
+	}
 
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	// Vulkan
@@ -31,11 +39,11 @@ bool WindowServer::init()
 	switch (*m_windowMode->get_prop())
 	{
 	case WINDOW_MODE_WINDOWED:
-		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
+		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", m_monitor, NULL);
 		break;
 		// Not Supported Yet
 	default:
-		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
+		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", m_monitor, NULL);
 		break;
 	}
 	//m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);

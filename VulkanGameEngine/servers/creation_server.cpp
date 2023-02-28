@@ -1,7 +1,5 @@
 #include "creation_server.h"
 
-#include "../graphic/vulkan/render_device_vulkan.h"
-
 #include "configuration_server.h"
 #include "logger_server.h"
 EventBusServer* CreationServer::create_event_bus_server()
@@ -26,9 +24,12 @@ ConfigurationServer* CreationServer::create_configuration()
 {
 	return ConfigurationServer::create_singleton();
 }
-/*
+
 RenderDevice* CreationServer::create_render_device()
 {
+	return RenderDevice::create_singleton();
+}
+/*
 	std::string mod = "UNKNOWN";
 	ConfigurationServer::get_singleton()->get_init_configuration("config.json", "GRAPHIC_API", mod);
 
@@ -93,11 +94,3 @@ void CreationServer::destroy()
 }
 
 
-// Helper Funcs
-
-bool CreationServer::create_vulkan_render_device()
-{
-	auto vulkanDev = new RenderDeviceVulkan();
-	RenderDevice::singleton = vulkanDev;
-	return true;
-}
