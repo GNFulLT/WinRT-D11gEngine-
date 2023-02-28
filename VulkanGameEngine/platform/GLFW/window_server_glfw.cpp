@@ -42,7 +42,7 @@ bool WindowServerGLFW::init()
 		return false;
 
 	GLFWmonitor* monitor = nullptr;
-
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	if (GRAPHIC_API_VULKAN == RenderDevice::get_singleton()->get_graphic_api())
 	{

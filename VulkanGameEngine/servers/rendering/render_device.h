@@ -20,7 +20,7 @@ public:
 
 	virtual void destroy();
 
-
+	virtual void render_ui() = 0;
 	_INLINE_ static RenderDevice* get_singleton()
 	{
 		return singleton;

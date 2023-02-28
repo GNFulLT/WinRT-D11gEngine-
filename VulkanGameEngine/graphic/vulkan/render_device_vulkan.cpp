@@ -6,13 +6,15 @@
 	#define VK_USE_PLATFORM_METAL_EXT
 #endif
 
+
+#include "../../imgui/imgui.h"
 #include "render_device_vulkan.h"
 #include "../../servers/logger_server.h"
 #include "../../servers/configuration_server.h"
 #include "../../servers/window_server.h"
 #include "../../core/version.h"
 #include "../../platform/GLFW/window_server_glfw.h"
-
+#include "imgui_draw.h"
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
@@ -29,7 +31,6 @@ static VkBool32 VKAPI_CALL vk_debug_messenger_callback(VkDebugUtilsMessageSeveri
 	std::string error = std::string("[VULKAN] [MESSENGER] Debug report from ObjectType: ") + std::to_string(uint32_t(pCallbackData->pObjects->objectType)) + "\n\nMessage: " + pCallbackData->pMessage + "\n\n";
 
 	LoggerServer::get_singleton()->log_cout(RenderDevice::get_singleton(), error.c_str(), Logger::DEBUG);
-
 	return VK_FALSE;
 }
 
@@ -84,8 +85,21 @@ RenderDeviceVulkan::RenderDeviceVulkan()
 {
 }
 
+VkCommandBuffer RenderDeviceVulkan::get_cmd_buffer()
+{
+	return buff;
+}
+
+void RenderDeviceVulkan::reset_cmd_pool()
+{
+	vkResetCommandPool(m_device, m_commandPool, 0);
+	
+}
+
 RenderDeviceVulkan::~RenderDeviceVulkan()
 {
+	delete drawGui;
+
 	if (m_instance != nullptr && isInstanceInitedSuccessfully)
 	{
 		if (m_swapChain != nullptr && isSwapchainInitialized)
@@ -105,7 +119,6 @@ RenderDeviceVulkan::~RenderDeviceVulkan()
 		vkDestroyInstance(m_instance, nullptr);
 
 	}
-
 }
 
 bool RenderDeviceVulkan::init()
@@ -269,6 +282,7 @@ bool RenderDeviceVulkan::init()
 		{
 			VkBool32 isSupported;
 			vkGetPhysicalDeviceSurfaceSupportKHR(*it.operator->(), i, m_surface, &isSupported);
+
 			bool extensionsSupported = check_device_extension_support(*it.operator->(), &requiredExtensionsForPhysicalDevice, requiredExtensionPropsForPhysicalDevice);
 			if (isSupported == VK_TRUE && extensionsSupported)
 			{
@@ -286,6 +300,7 @@ bool RenderDeviceVulkan::init()
 			it++;
 		}
 	}
+
 
 	if (physicalDevs.size() == 0)
 		return false;
@@ -577,8 +592,10 @@ bool RenderDeviceVulkan::init()
 		
 	}
 	
+	vkGetDeviceQueue(m_device, m_physicalDevice->get_surface_queue(), 0, &m_surfaceQueue);
 
 
+	
 	// Acquire the images
 
 	//vkAcquireNextImageKHR(m_device, m_swapChain, 2000000000, semaphore, fence, &image_index);
@@ -600,8 +617,6 @@ bool RenderDeviceVulkan::init()
 		nullptr,
 		0
 	};
-
-	VkFence fence;
 
 	result = vkCreateFence(m_device, &fence_create_info, nullptr, &fence);
 	if (VK_SUCCESS != result) {
@@ -706,9 +721,6 @@ bool RenderDeviceVulkan::init()
 		return false;
 	}
 
-
-	VkCommandBuffer buff;
-
 	VkCommandBufferAllocateInfo buffInfo = {};
 	buffInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	buffInfo.pNext = nullptr;
@@ -720,7 +732,8 @@ bool RenderDeviceVulkan::init()
 	{
 		return false;
 	}
-
+	drawGui = new ImGuiDraw();
+	drawGui->init(this);
 	//CMD BEGIN
 
 	VkCommandBufferBeginInfo beginInfo = {};
@@ -730,7 +743,6 @@ bool RenderDeviceVulkan::init()
 	beginInfo.pInheritanceInfo = nullptr;
 
 
-	vkGetDeviceQueue(m_device, m_physicalDevice->get_surface_queue(), 0,&m_surfaceQueue);
 
 	uint32_t imageIndex = 0;
 
@@ -818,12 +830,116 @@ bool RenderDeviceVulkan::init()
 	{
 		return false;
 	}
+
 	return true;
 }
 
 GRAPHIC_API RenderDeviceVulkan::get_graphic_api() const noexcept
 {
 	return GRAPHIC_API_VULKAN;
+}
+void RenderDeviceVulkan::render_ui()
+{	
+
+	drawGui->begin();
+	drawGui->show_demo();
+	drawGui->end();
+
+
+
+
+
+
+
+	uint32_t imageIndex = 0;
+
+	auto res2 = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX	, m_semaphore, VK_NULL_HANDLE, &imageIndex);
+	if (res2 == VK_ERROR_OUT_OF_DATE_KHR || res2 == VK_SUBOPTIMAL_KHR)
+	{
+		auto ff = true;
+		return;
+	}
+
+	auto ferr = vkWaitForFences(m_device, 1, &fence, VK_TRUE, UINT64_MAX);
+	ferr = vkResetFences(m_device, 0, &fence);
+
+	ferr = vkResetCommandPool(m_device, m_commandPool, 0);
+
+		
+	VkCommandBufferBeginInfo beginInf = {};
+	beginInf.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInf.pNext = nullptr;
+	beginInf.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	beginInf.pInheritanceInfo = nullptr;
+
+	auto sss = vkBeginCommandBuffer(buff, &beginInf);
+
+	VkClearValue clearValue;
+	clearValue.color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+
+
+	VkRenderPassBeginInfo rpInfo = {};
+	rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rpInfo.pNext = nullptr;
+
+	rpInfo.renderPass = m_render_pass;
+	rpInfo.renderArea.offset.x = 0;
+	rpInfo.renderArea.offset.y = 0;
+	rpInfo.renderArea.extent = m_selected_extend;
+	rpInfo.framebuffer = m_frameBuffers[imageIndex];
+
+	//connect clear values
+	rpInfo.clearValueCount = 1;
+	rpInfo.pClearValues = &clearValue;
+
+	vkCmdBeginRenderPass(buff, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+	/*
+	ImGui::Begin("Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+	ImGui::Text("Hello from another window!");
+	ImGui::Button("Close Me");
+	ImGui::End();
+	*/
+
+	drawGui->fillCmd(buff);
+
+	vkCmdEndRenderPass(buff);
+	vkEndCommandBuffer(buff);
+
+	VkSubmitInfo submit = {};
+	submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit.pNext = nullptr;
+
+	VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	submit.pWaitDstStageMask = &waitStage;
+
+	submit.waitSemaphoreCount = 1;
+	submit.pWaitSemaphores = &m_semaphore;
+
+	submit.signalSemaphoreCount = 1;
+	submit.pSignalSemaphores = &m_surfaceSemaphore;
+
+	submit.commandBufferCount = 1;
+	submit.pCommandBuffers = &buff;
+	
+	
+	vkQueueSubmit(m_surfaceQueue, 1, &submit , fence);
+
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.pNext = nullptr;
+
+	presentInfo.pSwapchains = &m_swapChain;
+	presentInfo.swapchainCount = 1;
+
+	presentInfo.pWaitSemaphores = &m_surfaceSemaphore;
+	presentInfo.waitSemaphoreCount = 1;
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	auto sadasdas = vkQueuePresentKHR(m_surfaceQueue, &presentInfo);
+	
 }
 PhysicalDevice* RenderDeviceVulkan::get_selected_physical_device() const noexcept
 {
@@ -928,7 +1044,7 @@ bool RenderDeviceVulkan::try_to_create_instance(VkApplicationInfo* appInfo,VkIns
 	enabledInstanceExtensionProps.push_back("VK_KHR_portability_enumeration"); 
 #else
 	DONT COMPILE
-#endif 
+#endif
 
 	VkInstanceCreateInfo inf;
 	inf.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;

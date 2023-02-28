@@ -13,6 +13,8 @@
 #include "../../servers/rendering/render_device.h"
 #include "physical_device_vulkan.h"
 
+class ImGuiDraw;
+
 class RenderDeviceVulkan : public RenderDevice
 {
 	OBJECT_DEF(RenderDeviceVulkan,RenderDevice)
@@ -23,6 +25,9 @@ public:
 	bool init() override final;
 	PhysicalDevice* get_selected_physical_device() const noexcept override final;
 	GRAPHIC_API get_graphic_api() const noexcept override final;
+	void render_ui() override final;
+	VkCommandBuffer get_cmd_buffer();
+	void reset_cmd_pool();
 private:
 
 	// PRIVATE METHODS
@@ -43,8 +48,10 @@ private:
 	bool isSwapchainInitialized = false;
 	// VK INFOS
 private:
+	VkFence fence;
+	VkCommandBuffer buff;
 
-
+	ImGuiDraw* drawGui;
 	VkSwapchainKHR m_swapChain;
 	VkSurfaceKHR m_surface;
 	std::vector<VkImage> swapChainImages;
@@ -72,6 +79,8 @@ private:
 	std::unordered_map<std::string, std::vector<VkExtensionProperties>> m_enabledDeviceExtensions;
 	std::vector<VkLayerProperties> m_enabledInstanceLayerProps;
 	std::vector<VkExtensionProperties> m_enabledInstanceExtensionProps;
+
+	friend class ImGuiDraw;
 };
 
 #endif // RENDER_DEVICE_VULKAN_H

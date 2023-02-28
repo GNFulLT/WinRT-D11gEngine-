@@ -11,7 +11,7 @@
 #include "../physical_device.h"
 #include "../../core/typedefs.h"
 class RenderDeviceVulkan;
-
+class ImGuiDraw;
 class PhysicalDeviceVulkan : public PhysicalDevice
 {
 public:
@@ -175,6 +175,7 @@ private:
 	VkPhysicalDevice m_physical_device;
 	VkPhysicalDeviceProperties m_physical_device_props;
 	VkPhysicalDeviceFeatures m_physical_device_features;
+	friend class ImGuiDraw;
 };
 	
 #endif // PHYSICAL_DEVICE_VULKAN_H

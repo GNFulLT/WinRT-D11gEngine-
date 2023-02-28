@@ -68,7 +68,7 @@ int main()
 	
 	// We can inject configurations after this
 	auto configurationServer = creationServer->create_configuration();
-	
+
 	configurationServer->read_init_configuration_file("config.json");
 
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
@@ -92,7 +92,7 @@ int main()
 	{
 		auto config = configurationServer->get_config_read("WindowServer");
 		loggerServer->log_cout(windowServer, "Windwo Initted",Logger::INFO);
-		UVec2 vec = { 1920,1080 };
+		UVec2 vec = { 640,480 };
 		configurationServer->try_set_config_prop(windowServer, "WindowServer", "size", vec);
 	}
 	bool allSuccessed = true;
@@ -108,6 +108,7 @@ int main()
 		{
 			allSuccessed = false;
 		}
+		
 	}
 
 	if (allSuccessed)
@@ -116,6 +117,7 @@ int main()
 		// It is possible to add ifdef for just mac.
 		while (!windowServer->should_close())
 		{
+			dev->render_ui();
 			windowServer->handle_events();
 		}
 		SerializedStruct out;
@@ -134,6 +136,6 @@ int main()
 	eventBus->destroy();
 	configurationServer->destroy();
 	creationServer->destroy();
-	
+
 	return 0;
 }
