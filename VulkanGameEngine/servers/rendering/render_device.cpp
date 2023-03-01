@@ -67,7 +67,8 @@ RenderDevice::~RenderDevice()
 
 bool RenderDevice::init()
 {
-
+	m_instance.format.format = VK_FORMAT_B8G8R8A8_SRGB;
+	m_instance.format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 	if (VK_SUCCESS != volkInitialize())
 	{
 		return false;
@@ -77,8 +78,12 @@ bool RenderDevice::init()
 	succeeded = init_vk_instance();
 	if (!succeeded)
 		return false;
-
-
+	succeeded = init_vk_device();
+	if (!succeeded)
+		return false;
+	succeeded = save_vk_physical_device();
+	if (!succeeded)
+		return false;
 
 	return true;
 }
@@ -288,6 +293,165 @@ bool RenderDevice::init_vk_instance()
 		return false;
 	}
 
+	return true;
+}
+
+bool RenderDevice::init_vk_device()
+{
+	std::vector<VkPhysicalDevice> devs;
+	if (!get_all_physical_devices(m_instance.instance,devs))
+		return false;
+
+	std::vector<std::string> requiredExtensionsForPhysicalDevice = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
+	std::vector<std::vector<VkExtensionProperties>> requiredExtensionPropsForPhysicalDevices;
+
+	auto dev = devs.begin();
+	while(dev != devs.end())
+	{
+		std::vector<VkExtensionProperties> requiredExtensionPropsForPhysicalDevice;
+
+		if (check_device_extension_support(*dev.operator->(), &requiredExtensionsForPhysicalDevice, requiredExtensionPropsForPhysicalDevice))
+		{
+			dev++;
+		}
+		else
+		{
+			dev = devs.erase(dev);
+		}
+	}
+
+	if (devs.size() == 0)
+		return false;
+
+
+	// Suface is supported now check its capabilities
+	dev = devs.begin();
+
+	while (dev != devs.end())
+	{	
+		SwapChainSupportDetails details;
+		get_swap_chain_support_details(*dev.operator->(), m_instance.surface, details);
+
+		bool doesSupportPresent= false;
+		for (const auto& presentMode : details.presentModes)
+		{
+			if (presentMode == m_instance.presentMode)
+			{
+				doesSupportPresent = true;
+			}
+		}
+
+		bool doesSupportTripleBuff = true;
+		auto min_number_of_images = details.capabilities.minImageCount + 1;
+		if ((details.capabilities.maxImageCount > 0) &&
+			(min_number_of_images > details.capabilities.maxImageCount)) {
+			doesSupportTripleBuff = false;
+		}
+
+		bool doesSupportFormat = false;
+		for (const auto& availableFormat : details.formats) {
+			if (availableFormat.format == m_instance.format.format && availableFormat.colorSpace == m_instance.format.colorSpace) {
+				doesSupportFormat = true;
+			}
+		}
+
+
+		bool doesSupportAllReq = doesSupportPresent && doesSupportTripleBuff && doesSupportFormat;
+
+		if (doesSupportAllReq)
+		{
+			dev++;
+		}
+		else
+		{
+			dev = devs.erase(dev);
+		}
+	}
+	
+	// Surface capabilities is supported. Now check Queue Futures
+
+	auto queueRequirements = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
+	dev = devs.begin();
+	std::vector<int> queueIndices;
+	while (dev != devs.end())
+	{
+		int index = -1;
+		if (check_queue_support(*dev.operator->(), queueRequirements,index))
+		{
+			VkBool32 supportSurface;
+			vkGetPhysicalDeviceSurfaceSupportKHR(*dev.operator->(), index, m_instance.surface, &supportSurface);
+			if (supportSurface == VK_TRUE)
+			{
+				queueIndices.push_back(index);
+				dev++;
+			}
+			else
+			{
+				dev = devs.erase(dev);
+			}
+		}
+		else
+		{
+			dev = devs.erase(dev);
+		}
+	}
+
+	// Check config file 
+
+	std::string deviceTypeStr;
+	auto isFound = ConfigurationServer::get_singleton()->get_init_configuration("config.json", "DEVICE_TYPE", deviceTypeStr);
+	PhysicalDevice::PHYSICAL_DEVICE_TYPE physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
+
+	if (isFound)
+	{
+		if (deviceTypeStr == "INTEGRATED")
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_INTEGRATED;
+		}
+		else if (deviceTypeStr == "CPU")
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_CPU;
+		}
+		else if (deviceTypeStr == "VIRTUAL")
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_VIRTUAL;
+		}
+		else
+		{
+			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
+		}
+	}
+	
+	if (devs.size() == 0)
+		return false;
+
+	bool physicalDeviceSelected = false;
+
+	for (int i = 0; i < devs.size(); i++)
+	{
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(devs[i], &props);
+		if (props.deviceType == physicalType)
+		{
+			physicalDeviceSelected = true;
+			m_renderDevice.physicalDev = devs[i];
+			m_renderDevice.mainQueueFamilyIndex = queueIndices[i];
+		}
+	}
+
+	return physicalDeviceSelected;
+}
+
+
+bool RenderDevice::save_vk_physical_device()
+{
+	bool getted = get_swap_chain_support_details(m_renderDevice.physicalDev, m_instance.surface,m_swapChainDetails);
+	if (!getted)
+		return false;
+	m_instance.surfaceImageCount = m_swapChainDetails.capabilities.minImageCount + 1;
 	return true;
 }
 

@@ -9,9 +9,15 @@
 
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 #include "../../core/typedefs.h"
 
+struct SwapChainSupportDetails {
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
 
 _F_INLINE_ _IMP_RETURN_ bool get_all_instance_layers(std::vector<VkLayerProperties>& layerProps)
 {
@@ -129,6 +135,100 @@ _F_INLINE_ _IMP_RETURN_ bool create_debug_messenger(VkInstance instance, VkDebug
 
 	result = vkCreateDebugReportCallbackEXT(instance, &ci, nullptr, pDebugReporter);
 	return result == VK_SUCCESS;
+}
+
+_F_INLINE_ _IMP_RETURN_ bool get_all_physical_devices(VkInstance inst, std::vector<VkPhysicalDevice>& physicalDevs)
+{
+	uint32_t physicalDevCount = 0;
+	if (vkEnumeratePhysicalDevices(inst, &physicalDevCount, nullptr) != VK_SUCCESS)
+	{
+		return false;
+	}
+
+	physicalDevs = std::vector<VkPhysicalDevice>(physicalDevCount);
+
+	if (vkEnumeratePhysicalDevices(inst, &physicalDevCount, physicalDevs.data()) != VK_SUCCESS)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+_F_INLINE_ _IMP_RETURN_ bool check_device_extension_support(VkPhysicalDevice device, const std::vector<std::string>* deviceExtensions, std::vector<VkExtensionProperties>& deviceExtensionProps)
+{
+	uint32_t extensionCount;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	std::set<std::string> requiredExtensions(deviceExtensions->begin(), deviceExtensions->end());
+
+	for (const auto& extension : availableExtensions) {
+		if (requiredExtensions.find(extension.extensionName) != requiredExtensions.end())
+		{
+			requiredExtensions.erase(extension.extensionName);
+			deviceExtensionProps.push_back(extension);
+		}
+	}
+
+	return requiredExtensions.empty();
+}
+
+_F_INLINE_ _IMP_RETURN_ std::vector<VkQueueFamilyProperties> get_all_queue_families_by_device(VkPhysicalDevice device)
+{
+	uint32_t count;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
+	std::vector<VkQueueFamilyProperties> families(count);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, families.data());
+	return families;
+}
+
+_F_INLINE_ _IMP_RETURN_ bool check_queue_support(VkPhysicalDevice device, VkQueueFlags flags,int& index)
+{
+	auto queues = get_all_queue_families_by_device(device);
+	for (int i = 0; i < queues.size(); i++)
+	{
+		if ((queues[i].queueFlags & flags) == flags)
+		{
+			index = i;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+_F_INLINE_ _IMP_RETURN_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR surface, SwapChainSupportDetails& detail)
+{
+	uint32_t surfaceCount = 0;
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, nullptr))
+		return false;
+
+	detail.presentModes = std::vector<VkPresentModeKHR>(surfaceCount);
+
+
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, detail.presentModes.data()))
+		return false;
+
+
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, surface, &detail.capabilities))
+		return false;
+
+
+	uint32_t formatCount;
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount, nullptr))
+		return false;
+
+
+	detail.formats = std::vector<VkSurfaceFormatKHR>(formatCount);
+
+	// Here causes heap corruption
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount, detail.formats.data()))
+		return false;
+
+	return true;
 }
 #endif
 
