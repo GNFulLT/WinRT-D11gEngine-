@@ -83,7 +83,7 @@ public:
 	}
 	// It returns by pixel
 	
-	_INLINE_ UVec2 get_framebuffer_size(int* width,int* height) const noexcept
+	_INLINE_ void get_framebuffer_size(int* width,int* height) const noexcept
 	{
 		glfwGetFramebufferSize(m_window, width, height);
 	}

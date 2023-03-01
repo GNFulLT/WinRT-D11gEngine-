@@ -41,14 +41,35 @@ public:
 		VkPresentModeKHR presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 		VkSurfaceFormatKHR format;
 		int surfaceImageCount;
+		VkExtent2D surfaceExtent;
 		EnabledProps enabledProps;
+	};
+
+	struct VulkanPhysicalDevice final
+	{
+		VkPhysicalDevice physicalDev;
+		VkPhysicalDeviceFeatures physicalDevFeatures;
+		VkPhysicalDeviceProperties physicalDevProperties;
 	};
 
 	struct VukanRenderDevice final
 	{
-		VkPhysicalDevice physicalDev;
+		VulkanPhysicalDevice physicalDev;
+		
+		
 		int mainQueueFamilyIndex;
-	};
+		int mainQueueIndex;
+		VkQueue mainQueue;
+
+		int presentQueueFamilyIndex;
+		int presentQueueIndex;
+		VkQueue presentQueue;
+
+
+		VkDevice logicalDevice;
+		EnabledProps enabledProps;
+
+		};
 
 	~RenderDevice();
 
@@ -69,11 +90,14 @@ private:
 	VukanRenderDevice m_renderDevice;
 	SwapChainSupportDetails m_swapChainDetails;
 	bool m_instanceLoaded = false;
+	bool m_isDebugEnabled = false;
 	// These are loading methods for upper structs
 private:
 	bool init_vk_instance();
 	bool init_vk_device();
 	bool save_vk_physical_device();
+	bool init_vk_logical_device();
+	void expose_queues();
 private:
 	friend class CreationServer;
 	

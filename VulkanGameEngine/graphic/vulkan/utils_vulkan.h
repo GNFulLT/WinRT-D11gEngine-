@@ -13,6 +13,55 @@
 
 #include "../../core/typedefs.h"
 
+
+struct QueueCreateInf
+{
+public:
+	QueueCreateInf()
+	{
+		m_priorities = new std::vector<float>();
+	}
+	~QueueCreateInf()
+	{
+		if (m_priorities)
+			delete m_priorities;
+	}
+
+	_INLINE_ uint32_t get_queue_create_inf_count() const
+	{
+		return (uint32_t)infos.size();
+	}
+
+	_INLINE_ const VkDeviceQueueCreateInfo* data() const
+	{
+		return infos.data();
+	}
+
+	_INLINE_ void add_create_info(uint32_t index, const std::vector<float>& priorities)
+	{
+		for (int i = 0; i < priorities.size(); i++)
+		{
+			m_priorities->push_back(priorities[i]);
+		}
+
+		VkDeviceQueueCreateInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		info.pNext = nullptr;
+		info.queueFamilyIndex = index;
+		info.queueCount = (uint32_t)priorities.size();
+		info.pQueuePriorities = &(*m_priorities)[m_priorities->size() - priorities.size()];
+		infos.push_back(info);
+
+
+	}
+
+private:
+	std::vector<VkDeviceQueueCreateInfo> infos;
+	std::vector<float>* m_priorities;
+
+};
+
+
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
@@ -228,6 +277,17 @@ _F_INLINE_ _IMP_RETURN_ bool get_swap_chain_support_details(VkPhysicalDevice dev
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(dev, surface, &formatCount, detail.formats.data()))
 		return false;
 
+	return true;
+}
+
+_F_INLINE_ _IMP_RETURN_ bool get_all_device_layers(VkPhysicalDevice dev, std::vector<VkLayerProperties>& props)
+{
+	uint32_t propCount = 0;
+	if (VK_SUCCESS != vkEnumerateDeviceLayerProperties(dev, &propCount, nullptr))
+		return false;
+	props = std::vector<VkLayerProperties>(propCount);
+	if (VK_SUCCESS != vkEnumerateDeviceLayerProperties(dev, &propCount, props.data()))
+		return false;
 	return true;
 }
 #endif

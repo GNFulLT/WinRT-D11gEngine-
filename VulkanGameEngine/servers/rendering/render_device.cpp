@@ -17,7 +17,10 @@
 #include "../window_server.h"
 #include "../../core/version.h"
 #include "../../graphic/vulkan/utils_vulkan.h"
+#include "../../core/typedefs.h"
+#include <cmath>
 
+#undef max
 
 static VkBool32 VKAPI_CALL vk_debug_messenger_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
 	(void)pUserData; // Unused argument
@@ -57,10 +60,17 @@ RenderDevice::~RenderDevice()
 {
 	if (m_instanceLoaded && m_instance.instance != nullptr)
 	{
+		if (m_renderDevice.logicalDevice != nullptr)
+		{
+			vkDestroyDevice(m_renderDevice.logicalDevice, nullptr);
+		}
+
 		if(m_instance.messenger != nullptr)
 			vkDestroyDebugUtilsMessengerEXT(m_instance.instance, m_instance.messenger, nullptr);
 		if(m_instance.reportCallback != nullptr)
 			vkDestroyDebugReportCallbackEXT(m_instance.instance, m_instance.reportCallback, nullptr);
+		if (m_instance.surface != nullptr)
+			vkDestroySurfaceKHR(m_instance.instance, m_instance.surface, nullptr);
 		vkDestroyInstance(m_instance.instance, nullptr);
 	}
 }
@@ -84,7 +94,10 @@ bool RenderDevice::init()
 	succeeded = save_vk_physical_device();
 	if (!succeeded)
 		return false;
-
+	succeeded = init_vk_logical_device();
+	if (!succeeded)
+		return false;
+	expose_queues();
 	return true;
 }
 
@@ -285,6 +298,8 @@ bool RenderDevice::init_vk_instance()
 			create_debug_messenger(m_instance.instance, &m_instance.messenger, &m_instance.reportCallback, 
 				vk_debug_messenger_callback, VulkanDebugReportCallback);
 		}
+
+		m_isDebugEnabled = isDebugEnabled;
 	}
 
 	//X Create Surface
@@ -381,17 +396,12 @@ bool RenderDevice::init_vk_device()
 		int index = -1;
 		if (check_queue_support(*dev.operator->(), queueRequirements,index))
 		{
-			VkBool32 supportSurface;
-			vkGetPhysicalDeviceSurfaceSupportKHR(*dev.operator->(), index, m_instance.surface, &supportSurface);
-			if (supportSurface == VK_TRUE)
-			{
-				queueIndices.push_back(index);
-				dev++;
-			}
-			else
-			{
-				dev = devs.erase(dev);
-			}
+		/*	VkBool32 supportSurface;
+			vkGetPhysicalDeviceSurfaceSupportKHR(*dev.operator->(), index, m_instance.surface, &supportSurface)*/;
+			
+			queueIndices.push_back(index);
+			dev++;
+		
 		}
 		else
 		{
@@ -437,7 +447,7 @@ bool RenderDevice::init_vk_device()
 		if (props.deviceType == physicalType)
 		{
 			physicalDeviceSelected = true;
-			m_renderDevice.physicalDev = devs[i];
+			m_renderDevice.physicalDev.physicalDev = devs[i];
 			m_renderDevice.mainQueueFamilyIndex = queueIndices[i];
 		}
 	}
@@ -448,11 +458,205 @@ bool RenderDevice::init_vk_device()
 
 bool RenderDevice::save_vk_physical_device()
 {
-	bool getted = get_swap_chain_support_details(m_renderDevice.physicalDev, m_instance.surface,m_swapChainDetails);
+	bool getted = get_swap_chain_support_details(m_renderDevice.physicalDev.physicalDev, m_instance.surface,m_swapChainDetails);
 	if (!getted)
 		return false;
 	m_instance.surfaceImageCount = m_swapChainDetails.capabilities.minImageCount + 1;
+
+	// Extent of scrren
+	if (m_swapChainDetails.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+		m_instance.surfaceExtent = m_swapChainDetails.capabilities.currentExtent;
+	}
+	else {
+		int wndSizeX = 0;
+		int wndSizeY = 0;
+		WindowServer::get_singleton()->get_framebuffer_size(&wndSizeX,&wndSizeY);
+		VkExtent2D actualExtent = {
+			static_cast<uint32_t>(wndSizeX),
+			static_cast<uint32_t>(wndSizeY)
+		};
+
+		actualExtent.width = std::clamp(actualExtent.width, m_swapChainDetails.capabilities.minImageExtent.width, m_swapChainDetails.capabilities.maxImageExtent.width);
+		actualExtent.height = std::clamp(actualExtent.height, m_swapChainDetails.capabilities.minImageExtent.height, m_swapChainDetails.capabilities.maxImageExtent.height);
+
+		m_instance.surfaceExtent = actualExtent;
+	}
+
+	vkGetPhysicalDeviceFeatures(m_renderDevice.physicalDev.physicalDev, &(m_renderDevice.physicalDev.physicalDevFeatures));
+
+	vkGetPhysicalDeviceProperties(m_renderDevice.physicalDev.physicalDev, &(m_renderDevice.physicalDev.physicalDevProperties));
+
+	auto queues = get_all_queue_families_by_device(m_renderDevice.physicalDev.physicalDev);
+	
+	for (unsigned int i = 0;i<queues.size();i++)
+	{
+		VkBool32 supportSurface;
+		vkGetPhysicalDeviceSurfaceSupportKHR(m_renderDevice.physicalDev.physicalDev, i, m_instance.surface, &supportSurface);
+		if (supportSurface == VK_TRUE)
+		{
+			m_renderDevice.presentQueueFamilyIndex = i;
+			break;
+		}
+	}
+
 	return true;
+}
+
+
+bool RenderDevice::init_vk_logical_device()
+{
+	//X TODO : MAYBE CAN SELECT MORE THAN ONE QUEUE FAMILY OR SAME FAMILY BUT MORE THAN ONE QUEUE
+	{
+		QueueCreateInf queueCreateInf;
+
+		if (m_renderDevice.mainQueueFamilyIndex != m_renderDevice.presentQueueFamilyIndex)
+		{
+			std::vector<float> mainPriority = { 1.f };
+			queueCreateInf.add_create_info(m_renderDevice.mainQueueFamilyIndex, mainPriority);
+
+			std::vector<float> presentPriority = { 1.f };
+			queueCreateInf.add_create_info(m_renderDevice.presentQueueFamilyIndex, presentPriority);
+
+
+			m_renderDevice.mainQueueIndex = 0;
+			m_renderDevice.presentQueueIndex = 0;
+		}
+		else
+		{
+			std::vector<float> mainPriority = { 1.f,1.f };
+
+			queueCreateInf.add_create_info(m_renderDevice.mainQueueFamilyIndex, mainPriority);
+
+			m_renderDevice.mainQueueIndex = 0;
+			m_renderDevice.presentQueueIndex = 1;
+
+		}
+		//queueCreateInf.add_create_info()
+		//// Queues
+		//float mainPriorities = 1.f;
+
+		//VkDeviceQueueCreateInfo mainQueueInfo = {};
+		//mainQueueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		//mainQueueInfo.pNext = nullptr;
+		//mainQueueInfo.queueFamilyIndex = m_renderDevice.mainQueueFamilyIndex;
+		//mainQueueInfo.queueCount = 1;
+		//mainQueueInfo.pQueuePriorities = &mainPriorities;
+
+
+		//float presentPriorities = 1.f;
+
+		//VkDeviceQueueCreateInfo presentQueueInfo = {};
+		//presentQueueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		//
+		//presentQueueInfo.pNext = nullptr;
+		//presentQueueInfo.queueFamilyIndex = m_renderDevice.presentQueueFamilyIndex;
+		//presentQueueInfo.queueCount = 1;
+		//presentQueueInfo.pQueuePriorities = &presentPriorities;
+		//
+		//float mainPriorities = 1.f;
+
+		//
+
+		//std::vector< VkDeviceQueueCreateInfo> queueInfos;
+		//queueInfos.push_back(mainQueueInfo);
+		//queueInfos.push_back(presentQueueInfo);
+
+		std::vector<VkLayerProperties> allLayerProps;
+		if (!get_all_device_layers(m_renderDevice.physicalDev.physicalDev, allLayerProps))
+			return false;
+
+		// ADD LAYER AND EXTENSION 
+		if (m_isDebugEnabled && m_instance.enabledProps.enabledExtensions.find(DEBUG_LAYER_NAME) != m_instance.enabledProps.enabledExtensions.end())
+		{
+			for (const auto& prop : m_instance.enabledProps.enabledLayers)
+			{
+				if (strcmp(prop.layerName, DEBUG_LAYER_NAME) == 0)
+				{
+					m_renderDevice.enabledProps.enabledLayers.push_back(prop);
+				}
+			}
+		}
+
+
+		//X TODO : PLUGIN GOES HERE
+
+		//X Check the array if plugins added same thing more than once
+		m_renderDevice.enabledProps.enabledLayers.erase(std::unique(m_renderDevice.enabledProps.enabledLayers.begin(), m_renderDevice.enabledProps.enabledLayers.end(),
+			[](const VkLayerProperties& lhs, const VkLayerProperties& rhs) {
+				return std::strcmp(lhs.layerName, rhs.layerName) == 0;
+			}),
+			m_renderDevice.enabledProps.enabledLayers.end());
+
+
+		//X Check the array if plugins added same thing more than once
+		for (auto& exs : m_renderDevice.enabledProps.enabledExtensions)
+		{
+			exs.second.erase(std::unique(exs.second.begin(), exs.second.end(),
+				[](const VkExtensionProperties& lhs, const VkExtensionProperties& rhs) {
+					return std::strcmp(lhs.extensionName, rhs.extensionName) == 0;
+				}),
+				exs.second.end());
+		}
+
+		std::vector<const char*> enabledLayers(m_renderDevice.enabledProps.enabledLayers.size());
+		
+		int vexSize = 0;
+		for (const auto& exs : m_renderDevice.enabledProps.enabledExtensions)
+		{
+			for (const auto& ex : exs.second)
+			{
+				vexSize++;
+			}
+		}
+
+		std::vector<const char*> enabledExtensions(vexSize);
+
+		// Make ready data for vulkan
+		for (int i = 0; i < m_renderDevice.enabledProps.enabledLayers.size();i++)
+		{
+			enabledLayers[i] = m_renderDevice.enabledProps.enabledLayers[i].layerName;
+		}
+
+		int vexIndex = 0;
+		for (const auto& exs : m_renderDevice.enabledProps.enabledExtensions)
+		{
+			for (const auto& ex : exs.second)
+			{
+				enabledExtensions[vexIndex] = ex.extensionName;
+				vexIndex++;
+			}
+		}
+		
+
+		// NOW CREATE LOGICAL DEVICE
+
+		VkDeviceCreateInfo createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext = nullptr;
+		createInfo.flags = 0;
+		createInfo.queueCreateInfoCount = (uint32_t)queueCreateInf.get_queue_create_inf_count();
+		createInfo.pQueueCreateInfos = queueCreateInf.data();
+		createInfo.enabledLayerCount = (uint32_t)enabledLayers.size();
+		createInfo.ppEnabledLayerNames = enabledLayers.data();
+		createInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
+		createInfo.ppEnabledExtensionNames = enabledExtensions.data();
+		createInfo.pEnabledFeatures = &(m_renderDevice.physicalDev.physicalDevFeatures);
+
+		if (auto res = vkCreateDevice(m_renderDevice.physicalDev.physicalDev, &createInfo, nullptr, &(m_renderDevice.logicalDevice));res != VK_SUCCESS)
+			return false;
+
+		volkLoadDevice(m_renderDevice.logicalDevice);
+	}
+	return true;
+}
+
+void RenderDevice::expose_queues()
+{
+	// For now we are creating just one queue for main queue family
+	vkGetDeviceQueue(m_renderDevice.logicalDevice,m_renderDevice.mainQueueFamilyIndex, m_renderDevice.mainQueueIndex,&(m_renderDevice.mainQueue));
+
+	vkGetDeviceQueue(m_renderDevice.logicalDevice, m_renderDevice.presentQueueFamilyIndex, m_renderDevice.presentQueueIndex, &(m_renderDevice.presentQueue));
+
 }
 
 RenderDevice* RenderDevice::create_singleton()
