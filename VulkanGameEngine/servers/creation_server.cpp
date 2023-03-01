@@ -29,65 +29,10 @@ RenderDevice* CreationServer::create_render_device()
 {
 	return RenderDevice::create_singleton();
 }
-/*
-	std::string mod = "UNKNOWN";
-	ConfigurationServer::get_singleton()->get_init_configuration("config.json", "GRAPHIC_API", mod);
-
-	GRAPHIC_API selectedApi = GRAPHIC_API_VULKAN;
-
-	if (mod == "VULKAN")
-	{
-		bool isSupported = WindowServer::singleton->is_graphic_api_supported(GRAPHIC_API_VULKAN);
-		if (isSupported)
-			selectedApi = GRAPHIC_API_VULKAN;
-		else
-			selectedApi = WindowServer::singleton->get_default_graphic_api();
-	}
-#ifdef _WIN32
-	else if (mod == "DIRECTX12")
-	{
-		bool isSupported = WindowServer::singleton->is_graphic_api_supported(GRAPHIC_API_DIRECTX_12);
-		if (isSupported)
-			selectedApi = GRAPHIC_API_DIRECTX_12;
-		else
-			selectedApi = WindowServer::singleton->get_default_graphic_api();
-
-	}
-	else if (mod == "DIRECTX11")
-	{
-		bool isSupported = WindowServer::singleton->is_graphic_api_supported(GRAPHIC_API_DIRECTX_11);
-		if (isSupported)
-			selectedApi = GRAPHIC_API_DIRECTX_11;
-		else
-			selectedApi = WindowServer::singleton->get_default_graphic_api();
-
-	}
-#endif
-	else
-	{
-		selectedApi = WindowServer::singleton->get_default_graphic_api();
-	}
-
-	bool created = true;
-	switch (selectedApi)
-	{
-	case GRAPHIC_API_VULKAN:
-		 created = create_vulkan_render_device();
-		if (!created)
-			throw std::runtime_error("Couldn't initialized vulkan for this window supporter");
-		break;
-	default:
-		if (!WindowServer::singleton->is_graphic_api_supported(GRAPHIC_API_VULKAN))
-			throw std::runtime_error("THERE IS NO SUPPORTED GRAPHIC API.PLEASE TRY TO CHANGE WINDOW SUPPORTER");
-		 created = create_vulkan_render_device();
-		if (!created)
-			throw std::runtime_error("THERE IS NO SUPPORTED GRAPHIC API.PLEASE TRY TO CHANGE WINDOW SUPPORTER");
-		break;
-	}
-
-	return RenderDevice::singleton;
+ThreadPoolServer* CreationServer::create_thread_pool()
+{
+	return ThreadPoolServer::create_singleton();
 }
-*/
 void CreationServer::destroy()
 {
 	delete singleton;

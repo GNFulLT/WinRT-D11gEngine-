@@ -69,7 +69,13 @@ public:
 		VkDevice logicalDevice;
 		EnabledProps enabledProps;
 
-		};
+		//! CMD
+
+		std::vector<VkCommandPool> mainQueueCommandPools;
+
+		VkCommandPool presentCommandPool;
+		VkCommandBuffer presentCommandBuffer;
+	};
 
 	~RenderDevice();
 
@@ -98,6 +104,7 @@ private:
 	bool save_vk_physical_device();
 	bool init_vk_logical_device();
 	void expose_queues();
+	bool create_command_pools();
 private:
 	friend class CreationServer;
 	

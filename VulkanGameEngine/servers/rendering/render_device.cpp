@@ -8,6 +8,7 @@
 
 
 #define DEBUG_LAYER_NAME "VK_LAYER_KHRONOS_validation"
+#include "../thread_pool_server.h"
 
 #include <boost/format.hpp>
 #include "render_device.h"
@@ -18,6 +19,7 @@
 #include "../../core/version.h"
 #include "../../graphic/vulkan/utils_vulkan.h"
 #include "../../core/typedefs.h"
+
 #include <cmath>
 
 #undef max
@@ -60,6 +62,15 @@ RenderDevice::~RenderDevice()
 {
 	if (m_instanceLoaded && m_instance.instance != nullptr)
 	{
+		if(m_renderDevice.presentCommandPool != nullptr)
+			vkDestroyCommandPool(m_renderDevice.logicalDevice, m_renderDevice.presentCommandPool, nullptr);
+
+		for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+		{
+			vkDestroyCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], nullptr);
+
+		}
+
 		if (m_renderDevice.logicalDevice != nullptr)
 		{
 			vkDestroyDevice(m_renderDevice.logicalDevice, nullptr);
@@ -98,6 +109,9 @@ bool RenderDevice::init()
 	if (!succeeded)
 		return false;
 	expose_queues();
+	succeeded = create_command_pools();
+	if (!succeeded)
+		return false;
 	return true;
 }
 
@@ -650,6 +664,8 @@ bool RenderDevice::init_vk_logical_device()
 	return true;
 }
 
+
+
 void RenderDevice::expose_queues()
 {
 	// For now we are creating just one queue for main queue family
@@ -657,6 +673,37 @@ void RenderDevice::expose_queues()
 
 	vkGetDeviceQueue(m_renderDevice.logicalDevice, m_renderDevice.presentQueueFamilyIndex, m_renderDevice.presentQueueIndex, &(m_renderDevice.presentQueue));
 
+}
+
+bool RenderDevice::create_command_pools()
+{
+	auto poolCount = ThreadPoolServer::get_singleton()->get_thread_count();
+	m_renderDevice.mainQueueCommandPools.resize(poolCount);
+	for (int i = 0; i < poolCount; i++)
+	{
+		VkCommandPoolCreateInfo commandPoolInfo{};
+		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolInfo.pNext = nullptr;
+		commandPoolInfo.flags = 0;
+		commandPoolInfo.queueFamilyIndex = m_renderDevice.mainQueueFamilyIndex;
+
+		auto res = vkCreateCommandPool(m_renderDevice.logicalDevice,&commandPoolInfo, nullptr, &(m_renderDevice.mainQueueCommandPools[i]));
+		if (res != VK_SUCCESS)
+			return false;
+	}
+
+	// Create Command Pool for present queue
+
+	VkCommandPoolCreateInfo commandPoolInfo{};
+	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolInfo.pNext = nullptr;
+	commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	commandPoolInfo.queueFamilyIndex = m_renderDevice.presentQueueFamilyIndex;
+	auto res =vkCreateCommandPool(m_renderDevice.logicalDevice, &commandPoolInfo, nullptr,&(m_renderDevice.presentCommandPool));
+	if (res != VK_SUCCESS)
+		return false;
+
+	return true;
 }
 
 RenderDevice* RenderDevice::create_singleton()

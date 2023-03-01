@@ -64,6 +64,7 @@ endif()
 
 add_subdirectory(./deps/src/glfw)
 add_subdirectory(./deps/src/spdlog)
+add_subdirectory(./deps/src/taskflow)
 
 
 include_directories(
@@ -71,6 +72,7 @@ include_directories(
 	./deps/src/glfw/include
 	./deps/src/spdlog/include
 	./deps/src/vulkan/include
+	./deps/src/taskflow
 )
 
 link_directories(

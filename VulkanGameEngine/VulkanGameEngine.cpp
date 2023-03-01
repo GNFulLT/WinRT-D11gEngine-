@@ -74,7 +74,7 @@ int main()
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
 	LoggerServer* loggerServer;
 	loggerServer = creationServer->create_logger_server();
-
+	ThreadPoolServer* pool;
 #ifdef _DEBUG
 	loggerServer->set_log_level_cout(Logger::DEBUG);
 #endif
@@ -83,6 +83,7 @@ int main()
 	{
 		windowServer = creationServer->create_the_window_server();
 		dev = creationServer->create_render_device();
+		pool = creationServer->create_thread_pool();
 	}
 
 	// Begin change scope
@@ -129,6 +130,7 @@ int main()
 	loggerServer->destroy();
 	eventBus->destroy();
 	configurationServer->destroy();
+	pool->destroy();
 	creationServer->destroy();
 	
 	return 0;

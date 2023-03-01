@@ -8,6 +8,7 @@
 #include "logger_server.h"
 #include "event_bus_server.h"
 #include "rendering/render_device.h"
+#include "thread_pool_server.h"
 
 class CreationServer : public Object
 {
@@ -35,6 +36,7 @@ public:
 	LoggerServer* create_logger_server();
 	EventBusServer* create_event_bus_server();
 	RenderDevice* create_render_device();
+	ThreadPoolServer* create_thread_pool();
 
 	void destroy();	
 
