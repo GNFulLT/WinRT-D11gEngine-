@@ -51,6 +51,11 @@ bool WindowServer::init()
 	return true;
 }
 
+void WindowServer::render()
+{
+
+}
+
 void WindowServer::destroy()
 {
 	delete singleton;

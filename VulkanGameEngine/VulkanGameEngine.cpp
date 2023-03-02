@@ -114,6 +114,10 @@ int main()
 		while (!windowServer->should_close())
 		{
 			windowServer->handle_events();
+
+			// Update here
+
+			dev->render_things();
 		}
 		SerializedStruct out;
 		bool ff = configurationServer->get_init_configuration("config.json", "sa", out);

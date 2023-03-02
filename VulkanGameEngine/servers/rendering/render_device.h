@@ -1,6 +1,8 @@
 #ifndef RENDER_DEVICE_H
 #define RENDER_DEVICE_H
 
+#include <taskflow/taskflow.hpp>
+
 #include <vector>
 #include <unordered_map>
 
@@ -17,6 +19,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include "../../graphic/vulkan/volk.h"
+
 
 class CreationServer;
 
@@ -89,8 +92,21 @@ public:
 
 		std::vector<VkCommandPool> mainQueueCommandPools;
 
+		VkCommandBuffer pMainCommandBuffer;
+
+		std::unordered_map<unsigned int,std::vector<VkCommandBuffer>> commandBuffers;
+
+
 		VkCommandPool presentCommandPool;
 		VkCommandBuffer presentCommandBuffer;
+
+		//! Sync
+		VkSemaphore renderCompleteSemaphore;
+		VkSemaphore imageAcquiredSemaphore;
+
+
+		VkFence	mainQueueFinishedFence;
+		VkFence presentQueueFinishedFence;
 	};
 	
 	~RenderDevice();
@@ -104,8 +120,9 @@ public:
 	{
 		return singleton;
 	}
-
-
+	void render_ui(tf::Subflow& subflow);
+	
+	bool render_things();
 private:
 	VulkanInstance m_instance;
 	// Initialize with save physical dev
@@ -123,9 +140,13 @@ private:
 	void expose_queues();
 	bool create_command_pools();
 	bool init_vk_swapchain();
+	bool init_vk_syncs();
+	bool init_command_buffers();
 private:
 	friend class CreationServer;
 	
+	tf::Taskflow taskFlow;
+
 	static RenderDevice* create_singleton();
 	
 	_INLINE_ static RenderDevice* singleton;

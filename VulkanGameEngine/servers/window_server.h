@@ -82,7 +82,7 @@ public:
 		m_windowMode->set_prop(WINDOW_MODE_MINIMIZED);
 	}
 	// It returns by pixel
-	
+	void render();
 	_INLINE_ void get_framebuffer_size(int* width,int* height) const noexcept
 	{
 		glfwGetFramebufferSize(m_window, width, height);

@@ -62,6 +62,12 @@ RenderDevice::~RenderDevice()
 {
 	if (m_instanceLoaded && m_instance.instance != nullptr)
 	{
+		vkDestroyFence(m_renderDevice.logicalDevice, m_renderDevice.mainQueueFinishedFence, nullptr);
+		vkDestroyFence(m_renderDevice.logicalDevice, m_renderDevice.presentQueueFinishedFence, nullptr);
+
+		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderDevice.imageAcquiredSemaphore, nullptr);
+		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderDevice.renderCompleteSemaphore, nullptr);
+
 		for (int i = 0; i<m_swapchain.frameBuffers.size();i++)
 		{
 			vkDestroyFramebuffer(m_renderDevice.logicalDevice,m_swapchain.frameBuffers[i],nullptr);
@@ -127,6 +133,9 @@ bool RenderDevice::init()
 		return false;
 	succeeded = init_vk_swapchain();
 	if(!succeeded)
+		return false;
+	succeeded = init_vk_syncs();
+	if (!succeeded)
 		return false;
 	return true;
 }
@@ -339,6 +348,68 @@ bool RenderDevice::init_vk_instance()
 	}
 
 	return true;
+}
+
+bool RenderDevice::init_command_buffers()
+{
+
+	for (int i = 1; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+	{
+		VkCommandBufferAllocateInfo inf = {};
+		inf.commandBufferCount = 2;
+		inf.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		inf.pNext = nullptr;
+		inf.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+		inf.commandPool = m_renderDevice.mainQueueCommandPools[i];
+		m_renderDevice.commandBuffers.emplace(i, std::vector<VkCommandBuffer>());
+		m_renderDevice.commandBuffers[i].resize(2);
+
+		vkAllocateCommandBuffers(m_renderDevice.logicalDevice, &inf, m_renderDevice.commandBuffers[i].data());
+	}
+
+	return true;
+}
+
+bool RenderDevice::render_things()
+{
+	// Reset all Command Pools
+
+	for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+	{
+		vkResetCommandPool(m_renderDevice.logicalDevice,m_renderDevice.mainQueueCommandPools[i], 0);
+	}
+	taskFlow.clear();
+
+	uint32_t imageIndex;
+	auto err =vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, UINT64_MAX, m_renderDevice.imageAcquiredSemaphore, nullptr, &imageIndex);
+	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
+	{
+		// swapchain rebuild
+
+	}
+	{
+		err = vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
+		if (err != VK_SUCCESS)
+			return false;
+		err = vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
+		if (err != VK_SUCCESS)
+			return false;
+	}
+
+	
+
+	taskFlow.emplace([n = this](tf::Subflow& subflow) {
+		n->render_ui(subflow);
+	});    
+
+
+	return true;
+}
+
+
+void RenderDevice::render_ui(tf::Subflow& subflow)
+{
+	WindowServer::get_singleton()->render();
 }
 
 bool RenderDevice::init_vk_device()
@@ -883,6 +954,38 @@ bool RenderDevice::init_vk_swapchain()
 
 
 
+	return true;
+}
+
+bool RenderDevice::init_vk_syncs()
+{
+
+	VkSemaphoreCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	createInfo.pNext = nullptr;
+	createInfo.flags = 0;
+
+	auto res = vkCreateSemaphore(m_renderDevice.logicalDevice,&createInfo,nullptr,&m_renderDevice.imageAcquiredSemaphore);
+	if (res != VK_SUCCESS)
+		return false;
+
+	res = vkCreateSemaphore(m_renderDevice.logicalDevice, &createInfo, nullptr, &m_renderDevice.renderCompleteSemaphore);
+	if (res != VK_SUCCESS)
+		return false;
+
+
+	VkFenceCreateInfo fCreateInfo = {};
+	fCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fCreateInfo.pNext = nullptr;
+	fCreateInfo.flags = 0; // Unsignaled
+
+	res = vkCreateFence(m_renderDevice.logicalDevice,&fCreateInfo,nullptr,&m_renderDevice.mainQueueFinishedFence );
+	if (res != VK_SUCCESS)
+		return false;
+
+	res = vkCreateFence(m_renderDevice.logicalDevice, &fCreateInfo, nullptr, &m_renderDevice.mainQueueFinishedFence);
+	if (res != VK_SUCCESS)
+		return false;
 	return true;
 }
 
