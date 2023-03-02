@@ -52,6 +52,22 @@ public:
 		VkPhysicalDeviceProperties physicalDevProperties;
 	};
 
+	struct VulkanSwapChain final
+	{
+		VkSwapchainKHR swapchain;
+
+		//X This is images created with swapchain
+		std::vector<VkImage> swapchainImages;
+
+		//X This is image views for swapchainImages to able writing into image
+		std::vector<VkImageView> swapchainImageViews;
+
+		//X This is to make able imageview be targeted as a frame buffer by presentation
+		std::vector<VkFramebuffer> frameBuffers;
+
+		VkRenderPass renderPass;
+	};
+
 	struct VukanRenderDevice final
 	{
 		VulkanPhysicalDevice physicalDev;
@@ -76,7 +92,7 @@ public:
 		VkCommandPool presentCommandPool;
 		VkCommandBuffer presentCommandBuffer;
 	};
-
+	
 	~RenderDevice();
 
 	bool init();
@@ -94,6 +110,7 @@ private:
 	VulkanInstance m_instance;
 	// Initialize with save physical dev
 	VukanRenderDevice m_renderDevice;
+	VulkanSwapChain m_swapchain;
 	SwapChainSupportDetails m_swapChainDetails;
 	bool m_instanceLoaded = false;
 	bool m_isDebugEnabled = false;
@@ -105,6 +122,7 @@ private:
 	bool init_vk_logical_device();
 	void expose_queues();
 	bool create_command_pools();
+	bool init_vk_swapchain();
 private:
 	friend class CreationServer;
 	

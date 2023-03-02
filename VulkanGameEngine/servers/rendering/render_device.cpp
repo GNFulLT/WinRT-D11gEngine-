@@ -62,6 +62,19 @@ RenderDevice::~RenderDevice()
 {
 	if (m_instanceLoaded && m_instance.instance != nullptr)
 	{
+		for (int i = 0; i<m_swapchain.frameBuffers.size();i++)
+		{
+			vkDestroyFramebuffer(m_renderDevice.logicalDevice,m_swapchain.frameBuffers[i],nullptr);
+		}
+
+		for (int i = 0; i < m_swapchain.swapchainImageViews.size(); i++)
+		{
+			vkDestroyImageView(m_renderDevice.logicalDevice, m_swapchain.swapchainImageViews[i], nullptr);
+		}
+
+		if (m_swapchain.swapchain != nullptr)
+			vkDestroySwapchainKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, nullptr);
+
 		if(m_renderDevice.presentCommandPool != nullptr)
 			vkDestroyCommandPool(m_renderDevice.logicalDevice, m_renderDevice.presentCommandPool, nullptr);
 
@@ -111,6 +124,9 @@ bool RenderDevice::init()
 	expose_queues();
 	succeeded = create_command_pools();
 	if (!succeeded)
+		return false;
+	succeeded = init_vk_swapchain();
+	if(!succeeded)
 		return false;
 	return true;
 }
@@ -588,8 +604,25 @@ bool RenderDevice::init_vk_logical_device()
 				{
 					m_renderDevice.enabledProps.enabledLayers.push_back(prop);
 				}
+			}	
+		}
+
+		m_renderDevice.enabledProps.enabledExtensions.emplace(IMPLICIT_EXTENSIONS_NAME, std::vector<VkExtensionProperties>());
+
+		std::vector<VkExtensionProperties> exPropsI;
+		get_device_implicit_exs(m_renderDevice.physicalDev.physicalDev, exPropsI);
+
+		int exIndex = -1;
+		for (int i = 0;i<exPropsI.size();i++)
+		{
+			if (strcmp(exPropsI[i].extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0)
+			{
+				exIndex = i;
+				break;
 			}
 		}
+		if(exIndex != -1)
+			m_renderDevice.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(exPropsI[exIndex]);
 
 
 		//X TODO : PLUGIN GOES HERE
@@ -672,7 +705,6 @@ void RenderDevice::expose_queues()
 	vkGetDeviceQueue(m_renderDevice.logicalDevice,m_renderDevice.mainQueueFamilyIndex, m_renderDevice.mainQueueIndex,&(m_renderDevice.mainQueue));
 
 	vkGetDeviceQueue(m_renderDevice.logicalDevice, m_renderDevice.presentQueueFamilyIndex, m_renderDevice.presentQueueIndex, &(m_renderDevice.presentQueue));
-
 }
 
 bool RenderDevice::create_command_pools()
@@ -702,6 +734,154 @@ bool RenderDevice::create_command_pools()
 	auto res =vkCreateCommandPool(m_renderDevice.logicalDevice, &commandPoolInfo, nullptr,&(m_renderDevice.presentCommandPool));
 	if (res != VK_SUCCESS)
 		return false;
+
+	return true;
+}
+
+bool RenderDevice::init_vk_swapchain()
+{
+	VkSwapchainCreateInfoKHR swapchain_create_info = {
+		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		nullptr,
+		0,
+		m_instance.surface,
+		m_instance.surfaceImageCount,
+		m_instance.format.format,
+		m_instance.format.colorSpace,
+		m_instance.surfaceExtent,
+		1,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT , // Image Usage
+		VK_SHARING_MODE_EXCLUSIVE,
+		0,
+		nullptr,
+		m_swapChainDetails.capabilities.currentTransform,
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		m_instance.presentMode,
+		VK_TRUE,
+		VK_NULL_HANDLE
+	};
+	
+	if (auto sres = vkCreateSwapchainKHR(m_renderDevice.logicalDevice, &swapchain_create_info, nullptr, &m_swapchain.swapchain); sres != VK_SUCCESS) 
+		return false;
+	
+	uint32_t imageCount = 0;
+	if (vkGetSwapchainImagesKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, &imageCount, nullptr) != VK_SUCCESS)
+	{
+		return false;
+	}
+	m_swapchain.swapchainImages.resize(imageCount);
+	if (vkGetSwapchainImagesKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, &imageCount, m_swapchain.swapchainImages.data()) != VK_SUCCESS)
+	{
+		return false;
+	}
+
+	// Create Image View
+
+	m_swapchain.swapchainImageViews.resize(imageCount);
+
+	for (uint32_t i = 0; i < imageCount; i++)
+	{
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = m_swapchain.swapchainImages[i];
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = m_instance.format.format;
+
+		// Default Usage 
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		vkCreateImageView(m_renderDevice.logicalDevice, &createInfo, nullptr, &(m_swapchain.swapchainImageViews[i]));
+
+	}
+
+
+	// Create Render Pass
+
+	// the renderpass will use this color attachment.
+	VkAttachmentDescription color_attachment = {};
+	//the attachment will have the format needed by the swapchain
+	color_attachment.format = m_instance.format.format;
+	//1 sample, we won't be doing MSAA
+	color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	// we Clear when this attachment is loaded
+	color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	// we keep the attachment stored when the renderpass ends
+	color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	//we don't care about stencil
+	color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+	//we don't know or care about the starting layout of the attachment
+	color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+	//after the renderpass ends, the image has to be on a layout ready for display
+	color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+
+	VkAttachmentReference color_attachment_ref = {};
+	//attachment number will index into the pAttachments array in the parent renderpass itself
+	color_attachment_ref.attachment = 0;
+	color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	//we are going to create 1 subpass, which is the minimum you can do
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &color_attachment_ref;
+
+
+
+	VkRenderPassCreateInfo render_pass_info = {};
+	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+
+	//connect the color attachment to the info
+	render_pass_info.attachmentCount = 1;
+	render_pass_info.pAttachments = &color_attachment;
+	//connect the subpass to the info
+	render_pass_info.subpassCount = 1;
+	render_pass_info.pSubpasses = &subpass;
+
+
+	if (VK_SUCCESS != vkCreateRenderPass(m_renderDevice.logicalDevice, &render_pass_info, nullptr, &m_swapchain.renderPass))
+	{
+		return false;
+	}
+
+	// Create FrameBuffers
+
+	m_swapchain.frameBuffers.resize(imageCount);
+
+	//create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
+	VkFramebufferCreateInfo fb_info = {};
+	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	fb_info.pNext = nullptr;
+
+	fb_info.renderPass = m_swapchain.renderPass;
+	fb_info.attachmentCount = 1;
+	fb_info.width = m_instance.surfaceExtent.width;
+	fb_info.height = m_instance.surfaceExtent.height;
+	fb_info.layers = 1;
+
+
+	for (uint32_t i = 0; i < imageCount; i++)
+	{
+		fb_info.pAttachments = &(m_swapchain.swapchainImageViews[i]);
+		if (vkCreateFramebuffer(m_renderDevice.logicalDevice, &fb_info, nullptr, &m_swapchain.frameBuffers[i]) != VK_SUCCESS)
+		{
+			return false;
+		}
+	}
+
+
 
 	return true;
 }

@@ -290,5 +290,17 @@ _F_INLINE_ _IMP_RETURN_ bool get_all_device_layers(VkPhysicalDevice dev, std::ve
 		return false;
 	return true;
 }
+
+_F_INLINE_ bool get_device_implicit_exs(VkPhysicalDevice dev, std::vector<VkExtensionProperties>& exs)
+{
+	uint32_t propCount = 0;
+	if (VK_SUCCESS != vkEnumerateDeviceExtensionProperties(dev, nullptr, &propCount, nullptr))
+		return false;
+	exs = std::vector<VkExtensionProperties>(propCount);
+	if (VK_SUCCESS != vkEnumerateDeviceExtensionProperties(dev, nullptr,&propCount, exs.data()))
+		return false;
+	return true;
+}
+
 #endif
 
