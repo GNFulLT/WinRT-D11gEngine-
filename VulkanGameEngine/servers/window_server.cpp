@@ -1,5 +1,5 @@
 #include "window_server.h"
-
+#include "../imgui/imgui.h"
 
 Config* WindowServer::config_creation()
 {
@@ -46,14 +46,29 @@ bool WindowServer::init()
 		m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", m_monitor, NULL);
 		break;
 	}
+
+	glfwSetWindowUserPointer(m_window, this);
+
+
+	auto resizeCallback = [](GLFWwindow* window, int width, int height) {
+		((WindowServer*)glfwGetWindowUserPointer(window))->on_resize(width,height);
+	
+	};
+
+	glfwSetWindowSizeCallback(m_window, resizeCallback);
 	//m_window = glfwCreateWindow(m_size->get_prop()->x, m_size->get_prop()->y, "GNF Engine", monitor, NULL);
 
 	return true;
 }
-
-void WindowServer::render()
+void WindowServer::on_resize(int width, int height)
 {
 
+	// NEEDS IF WIDTH AND HEIGHT 0 0 SHOULD CALL MINIMIZE NOT SET SIZE
+	m_size->set_prop(UVec2((unsigned int)width,(unsigned int) height));
+}
+void WindowServer::render()
+{
+	ImGui::ShowDemoWindow();
 }
 
 void WindowServer::destroy()

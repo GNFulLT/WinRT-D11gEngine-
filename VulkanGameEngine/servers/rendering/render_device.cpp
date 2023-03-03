@@ -5,6 +5,8 @@
 #elif __APPLE__
 #define VK_USE_PLATFORM_METAL_EXT
 #endif
+#define IMGUI_IMPL_VULKAN_NO_PROTOTYPES 
+
 
 
 #define DEBUG_LAYER_NAME "VK_LAYER_KHRONOS_validation"
@@ -19,8 +21,15 @@
 #include "../../core/version.h"
 #include "../../graphic/vulkan/utils_vulkan.h"
 #include "../../core/typedefs.h"
+#include "../configuration_server.h"
+#include "render_imgui.h"
+
+#include "../../imgui/imgui.h"
+#include "../../imgui/imgui_impl_glfw.h"
+#include "../../imgui/imgui_impl_vulkan.h"
 
 #include <cmath>
+#include <boost/bind/bind.hpp>
 
 #undef max
 
@@ -62,6 +71,9 @@ RenderDevice::~RenderDevice()
 {
 	if (m_instanceLoaded && m_instance.instance != nullptr)
 	{
+
+		delete imguiDraw;
+
 		vkDestroyFence(m_renderDevice.logicalDevice, m_renderDevice.mainQueueFinishedFence, nullptr);
 		vkDestroyFence(m_renderDevice.logicalDevice, m_renderDevice.presentQueueFinishedFence, nullptr);
 
@@ -131,12 +143,19 @@ bool RenderDevice::init()
 	succeeded = create_command_pools();
 	if (!succeeded)
 		return false;
+	succeeded = init_renderpass();
+	if (!succeeded)
+		return false;
 	succeeded = init_vk_swapchain();
 	if(!succeeded)
 		return false;
 	succeeded = init_vk_syncs();
 	if (!succeeded)
 		return false;
+	init_command_buffers();
+	imguiDraw = new ImGuiDraw();
+	imguiDraw->init();
+	init_subs();
 	return true;
 }
 
@@ -147,9 +166,22 @@ void RenderDevice::destroy()
 
 
 //LoggerServer::get_singleton()->log_cout(this,"Couldn't initalize debug mode",Logger::WARNING);
+void RenderDevice::on_size_changed(const UVec2& size)
+{
+	m_instance.surfaceExtent.height = size.y;
+	m_instance.surfaceExtent.width = size.x;
 
+	init_vk_swapchain();
 
+	
+}
 
+void RenderDevice::init_subs()
+{
+	auto config = ConfigurationServer::get_singleton()->get_config_read("WindowServer").lock();
+	auto prop = config->get_config_prop<UVec2>("size");
+	windowResizeConnection = prop->subscribe_changed_event(boost::bind(&RenderDevice::on_size_changed,this,boost::placeholders::_1));
+}
 
 bool RenderDevice::init_vk_instance()
 {	
@@ -350,6 +382,13 @@ bool RenderDevice::init_vk_instance()
 	return true;
 }
 
+void RenderDevice::ready_ui_data()
+{
+
+	WindowServer::get_singleton()->render();
+	imguiDraw->end();
+}
+
 bool RenderDevice::init_command_buffers()
 {
 
@@ -367,49 +406,215 @@ bool RenderDevice::init_command_buffers()
 		vkAllocateCommandBuffers(m_renderDevice.logicalDevice, &inf, m_renderDevice.commandBuffers[i].data());
 	}
 
-	return true;
-}
+	m_renderDevice.commandBuffers.emplace(0, std::vector<VkCommandBuffer>());
+	m_renderDevice.commandBuffers[0].resize(2);
 
-bool RenderDevice::render_things()
-{
-	// Reset all Command Pools
+	VkCommandBufferAllocateInfo inf = {};
+	inf.commandBufferCount = 1;
+	inf.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	inf.pNext = nullptr;
+	inf.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	inf.commandPool = m_renderDevice.mainQueueCommandPools[0];
+	vkAllocateCommandBuffers(m_renderDevice.logicalDevice, &inf, &(m_renderDevice.commandBuffers[0][0]));
+	
+	m_renderDevice.pMainCommandBuffer = m_renderDevice.commandBuffers[0][0];
 
-	for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
-	{
-		vkResetCommandPool(m_renderDevice.logicalDevice,m_renderDevice.mainQueueCommandPools[i], 0);
-	}
-	taskFlow.clear();
+	inf.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 
-	uint32_t imageIndex;
-	auto err =vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, UINT64_MAX, m_renderDevice.imageAcquiredSemaphore, nullptr, &imageIndex);
-	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
-	{
-		// swapchain rebuild
-
-	}
-	{
-		err = vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
-		if (err != VK_SUCCESS)
-			return false;
-		err = vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
-		if (err != VK_SUCCESS)
-			return false;
-	}
+	vkAllocateCommandBuffers(m_renderDevice.logicalDevice, &inf, &(m_renderDevice.commandBuffers[0][1]));
 
 	
 
-	taskFlow.emplace([n = this](tf::Subflow& subflow) {
-		n->render_ui(subflow);
-	});    
-
-
 	return true;
 }
 
+void RenderDevice::reset_things()
+{
+	vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);
 
+	//for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+	//{
+	//	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], 0);
+	//}
+	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[0], 0);
+	vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
+}
+
+void RenderDevice::set_next_image()
+{
+	auto err = vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, UINT64_MAX, m_renderDevice.imageAcquiredSemaphore, nullptr, &currentImageIndex);
+	//LoggerServer::get_singleton()->log_cout(this, "Next Image has came out", Logger::LOG_LEVEL::DEBUG);
+
+	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
+	{
+		//swapchain rebuild
+		LoggerServer::get_singleton()->log_cout(this, "IMAGE IS BUGGY", Logger::LOG_LEVEL::ERROR);
+	}
+
+	m_swapchain.currentFrameBuffer = m_swapchain.frameBuffers[currentImageIndex];
+}
+
+void RenderDevice::beginFrame()
+{
+	/*for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+	{
+		vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], 0);
+	}*/
+
+	//LoggerServer::get_singleton()->log_cout(this, "Wait next image", Logger::LOG_LEVEL::DEBUG);
+
+	//auto err = vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, UINT64_MAX, m_renderDevice.imageAcquiredSemaphore, nullptr, &currentImageIndex);
+	////LoggerServer::get_singleton()->log_cout(this, "Next Image has came out", Logger::LOG_LEVEL::DEBUG);
+
+	//if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
+	//{
+	//	//swapchain rebuild
+	//	LoggerServer::get_singleton()->log_cout(this, "IMAGE IS BUGGY", Logger::LOG_LEVEL::ERROR);
+	//}
+
+	//m_swapchain.currentFrameBuffer = m_swapchain.frameBuffers[currentImageIndex];
+
+	////LoggerServer::get_singleton()->log_cout(this, "Wait fence", Logger::LOG_LEVEL::DEBUG);
+
+	//err = vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
+	////if (err != VK_SUCCESS)
+	////	return;
+
+	////LoggerServer::get_singleton()->log_cout(this, "Reset fence", Logger::LOG_LEVEL::DEBUG);
+
+	//err = vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
+	////if (err != VK_SUCCESS)
+	////{
+	////	LoggerServer::get_singleton()->log_cout(this, "Error Occurred while reseting fence", Logger::LOG_LEVEL::ERROR);
+	////	LoggerServer::get_singleton()->log_cout(this, std::to_string(err), Logger::LOG_LEVEL::ERROR);
+
+	////}
+
+	//LoggerServer::get_singleton()->log_cout(this, "Fences resetted try to begin new frame", Logger::LOG_LEVEL::DEBUG);
+
+	ImGui_ImplVulkan_NewFrame();
+	ImGui::NewFrame();
+
+}
+
+bool RenderDevice::render_things(tf::Subflow& subflow)
+{
+
+	auto updt = subflow.emplace([n = this,imguiDraw = imguiDraw](tf::Subflow& subflow) {
+		n->render_ui(subflow);
+	});    
+	
+	auto endUpdt = subflow.emplace([n = this,imguiDraw = imguiDraw]() {
+
+		imguiDraw->end();
+
+	});
+
+	auto fillPhase = subflow.emplace([n = this]() {
+
+		auto cmd = n->get_main_cmd();
+
+		vkBeginCommandBuffer(cmd, n->get_main_begin_inf());
+	
+
+		vkCmdBeginRenderPass(cmd, n->get_main_renderpass_begin_inf(), VK_SUBPASS_CONTENTS_INLINE);
+
+		n->fillCmd(cmd);
+		// After filling cmd start to execute
+		vkCmdEndRenderPass(cmd);
+		vkEndCommandBuffer(cmd);
+
+		vkQueueSubmit(n->get_render_device().mainQueue, 1, n->get_main_submit_info(1,&cmd),n->get_render_device().mainQueueFinishedFence);
+
+	});
+
+#ifdef _DEBUG
+	updt.name("Render UI");
+	endUpdt.name("FinishCollectingImGuiData");
+	fillPhase.name("Fill Buffer");
+#endif
+	updt.precede(endUpdt);
+	endUpdt.precede(fillPhase);
+
+	return m_canContinue;
+}
+
+
+void RenderDevice::beginFrameW()
+{
+	ImGui_ImplGlfw_NewFrame();
+}
+
+void RenderDevice::fill_and_execute_cmd()
+{
+	auto sss = vkBeginCommandBuffer(m_renderDevice.pMainCommandBuffer, this->get_main_begin_inf());
+
+	auto inf = this->get_main_renderpass_begin_inf();
+	vkCmdBeginRenderPass(m_renderDevice.pMainCommandBuffer, inf, VK_SUBPASS_CONTENTS_INLINE);
+
+	imguiDraw->fillCmd(m_renderDevice.pMainCommandBuffer);
+
+	vkCmdEndRenderPass(m_renderDevice.pMainCommandBuffer);
+	vkEndCommandBuffer(m_renderDevice.pMainCommandBuffer);
+
+
+	vkQueueSubmit(m_renderDevice.mainQueue, 1, this->get_main_submit_info(1, &m_renderDevice.pMainCommandBuffer), m_renderDevice.mainQueueFinishedFence);
+}
+
+void RenderDevice::render2()
+{
+
+
+	auto sss = vkBeginCommandBuffer(m_renderDevice.pMainCommandBuffer, this->get_main_begin_inf());
+
+	auto inf = this->get_main_renderpass_begin_inf();
+	vkCmdBeginRenderPass(m_renderDevice.pMainCommandBuffer, inf, VK_SUBPASS_CONTENTS_INLINE);
+
+	imguiDraw->fillCmd(m_renderDevice.pMainCommandBuffer);
+
+	vkCmdEndRenderPass(m_renderDevice.pMainCommandBuffer);
+	vkEndCommandBuffer(m_renderDevice.pMainCommandBuffer);
+
+
+	vkQueueSubmit(m_renderDevice.mainQueue, 1, this->get_main_submit_info(1,&m_renderDevice.pMainCommandBuffer), m_renderDevice.mainQueueFinishedFence);
+
+	swapbuffers();
+}
+
+void RenderDevice::swapbuffers()
+{
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.pNext = nullptr;
+
+	presentInfo.pSwapchains = &m_swapchain.swapchain;
+	presentInfo.swapchainCount = 1;
+
+	presentInfo.pWaitSemaphores = &m_renderDevice.renderCompleteSemaphore;
+	presentInfo.waitSemaphoreCount = 1;
+
+	presentInfo.pImageIndices = &currentImageIndex;
+
+	auto sadasdas = vkQueuePresentKHR(m_renderDevice.presentQueue, &presentInfo);
+}
+
+void RenderDevice::handleError()
+{
+	m_canContinue = false; 
+}
+
+void RenderDevice::fillCmd(VkCommandBuffer buff)
+{
+	imguiDraw->fillCmd(buff);
+}
 void RenderDevice::render_ui(tf::Subflow& subflow)
 {
-	WindowServer::get_singleton()->render();
+	auto task = subflow.emplace([imguiDraw = imguiDraw]() {imguiDraw->show_demo(); });
+
+#ifdef _DEBUG
+	task.name("ImGui Draw Fill");
+#endif
 }
 
 bool RenderDevice::init_vk_device()
@@ -816,7 +1021,7 @@ bool RenderDevice::init_vk_swapchain()
 		nullptr,
 		0,
 		m_instance.surface,
-		m_instance.surfaceImageCount,
+		(uint32_t)m_instance.surfaceImageCount,
 		m_instance.format.format,
 		m_instance.format.colorSpace,
 		m_instance.surfaceExtent,
@@ -829,7 +1034,7 @@ bool RenderDevice::init_vk_swapchain()
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		m_instance.presentMode,
 		VK_TRUE,
-		VK_NULL_HANDLE
+		m_swapchain.swapchain
 	};
 	
 	if (auto sres = vkCreateSwapchainKHR(m_renderDevice.logicalDevice, &swapchain_create_info, nullptr, &m_swapchain.swapchain); sres != VK_SUCCESS) 
@@ -840,6 +1045,8 @@ bool RenderDevice::init_vk_swapchain()
 	{
 		return false;
 	}
+	m_swapchain.swapchainImages.clear();
+
 	m_swapchain.swapchainImages.resize(imageCount);
 	if (vkGetSwapchainImagesKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, &imageCount, m_swapchain.swapchainImages.data()) != VK_SUCCESS)
 	{
@@ -848,6 +1055,7 @@ bool RenderDevice::init_vk_swapchain()
 
 	// Create Image View
 
+	m_swapchain.swapchainImageViews.clear();
 	m_swapchain.swapchainImageViews.resize(imageCount);
 
 	for (uint32_t i = 0; i < imageCount; i++)
@@ -875,9 +1083,40 @@ bool RenderDevice::init_vk_swapchain()
 	}
 
 
+	// Create FrameBuffers
+
+	m_swapchain.frameBuffers.resize(imageCount);
+
+	//create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
+	VkFramebufferCreateInfo fb_info = {};
+	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	fb_info.pNext = nullptr;
+
+	fb_info.renderPass = m_swapchain.renderPass;
+	fb_info.attachmentCount = 1;
+	fb_info.width = m_instance.surfaceExtent.width;
+	fb_info.height = m_instance.surfaceExtent.height;
+	fb_info.layers = 1;
+
+
+	for (uint32_t i = 0; i < imageCount; i++)
+	{
+		fb_info.pAttachments = &(m_swapchain.swapchainImageViews[i]);
+		if (vkCreateFramebuffer(m_renderDevice.logicalDevice, &fb_info, nullptr, &m_swapchain.frameBuffers[i]) != VK_SUCCESS)
+		{
+			return false;
+		}
+	}
+
+
+
+	return true;
+}
+bool RenderDevice::init_renderpass()
+{
 	// Create Render Pass
 
-	// the renderpass will use this color attachment.
+// the renderpass will use this color attachment.
 	VkAttachmentDescription color_attachment = {};
 	//the attachment will have the format needed by the swapchain
 	color_attachment.format = m_instance.format.format;
@@ -927,36 +1166,8 @@ bool RenderDevice::init_vk_swapchain()
 		return false;
 	}
 
-	// Create FrameBuffers
-
-	m_swapchain.frameBuffers.resize(imageCount);
-
-	//create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
-	VkFramebufferCreateInfo fb_info = {};
-	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	fb_info.pNext = nullptr;
-
-	fb_info.renderPass = m_swapchain.renderPass;
-	fb_info.attachmentCount = 1;
-	fb_info.width = m_instance.surfaceExtent.width;
-	fb_info.height = m_instance.surfaceExtent.height;
-	fb_info.layers = 1;
-
-
-	for (uint32_t i = 0; i < imageCount; i++)
-	{
-		fb_info.pAttachments = &(m_swapchain.swapchainImageViews[i]);
-		if (vkCreateFramebuffer(m_renderDevice.logicalDevice, &fb_info, nullptr, &m_swapchain.frameBuffers[i]) != VK_SUCCESS)
-		{
-			return false;
-		}
-	}
-
-
-
 	return true;
 }
-
 bool RenderDevice::init_vk_syncs()
 {
 
@@ -977,13 +1188,14 @@ bool RenderDevice::init_vk_syncs()
 	VkFenceCreateInfo fCreateInfo = {};
 	fCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fCreateInfo.pNext = nullptr;
-	fCreateInfo.flags = 0; // Unsignaled
+	fCreateInfo.flags = VkFenceCreateFlagBits::VK_FENCE_CREATE_SIGNALED_BIT; // Signaled
 
 	res = vkCreateFence(m_renderDevice.logicalDevice,&fCreateInfo,nullptr,&m_renderDevice.mainQueueFinishedFence );
 	if (res != VK_SUCCESS)
 		return false;
 
-	res = vkCreateFence(m_renderDevice.logicalDevice, &fCreateInfo, nullptr, &m_renderDevice.mainQueueFinishedFence);
+	fCreateInfo.flags = 0; // Signaled
+	res = vkCreateFence(m_renderDevice.logicalDevice, &fCreateInfo, nullptr, &m_renderDevice.presentQueueFinishedFence);
 	if (res != VK_SUCCESS)
 		return false;
 	return true;

@@ -100,6 +100,8 @@ public:
 		return m_window;
 	}
 
+	void on_resize(int width, int height);
+
 	//X TODO : Initial position should be in InitialConfigProp class
 protected:
 	std::shared_ptr<ConfigProp<MONITOR_SELECTION>> m_monitorSelection;

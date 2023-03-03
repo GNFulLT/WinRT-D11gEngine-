@@ -79,6 +79,7 @@ int main()
 	loggerServer->set_log_level_cout(Logger::DEBUG);
 #endif
 	// Begin expose scope. 
+
 	if (auto scope = configurationServer->scope_expose())
 	{
 		windowServer = creationServer->create_the_window_server();
@@ -105,19 +106,56 @@ int main()
 			allSuccessed = false;
 		}
 	}
-
 	if (allSuccessed)
 	{
 		windowServer->show();
 		// Server Initialization must be in order. WindowServer -> Device -> ETC.. This is because of macos surface creation depents on glfw window
 		// It is possible to add ifdef for just mac.
+		tf::Taskflow flow;
+		tf::Future<void> fture;
+		flow.emplace([dev = dev]() {
+			dev->beginFrame();
+			//fture = pool->run_flow(flow);
+			dev->ready_ui_data();
+		});
+
+		flow.emplace([dev = dev]() {
+			dev->reset_things();
+
+		});
+		flow.emplace([dev = dev]() {
+			dev->set_next_image();
+
+		});
 		while (!windowServer->should_close())
 		{
+			//flow.clear();
 			windowServer->handle_events();
+
 
 			// Update here
 
-			dev->render_things();
+			/*flow.emplace([d = dev](tf::Subflow& subflow) {
+				d->render_things(subflow);
+			});	*/
+			
+			//dev->beginFrame();
+			////fture = pool->run_flow(flow);
+			//dev->ready_ui_data();
+
+			//dev->reset_things();
+
+			//dev->set_next_image();
+
+			//dev->reset_things();
+			dev->beginFrameW();
+			ThreadPoolServer::get_singleton()->run_flow(flow).wait();
+
+			dev->fill_and_execute_cmd();
+			
+			//fture.wait();
+
+			dev->swapbuffers();
 		}
 		SerializedStruct out;
 		bool ff = configurationServer->get_init_configuration("config.json", "sa", out);
@@ -128,7 +166,6 @@ int main()
 	}
 	
 	
-
 	windowServer->destroy();
 	dev->destroy();
 	loggerServer->destroy();
@@ -136,6 +173,5 @@ int main()
 	configurationServer->destroy();
 	pool->destroy();
 	creationServer->destroy();
-	
 	return 0;
 }

@@ -30,7 +30,10 @@ public:
 	{
 		return m_execPool.num_workers();
 	}
-
+	_INLINE_ tf::Future<void> run_flow(tf::Taskflow& tf)
+	{
+		return m_execPool.run(tf);
+	}
 private:
 
 private:
