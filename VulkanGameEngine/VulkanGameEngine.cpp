@@ -148,6 +148,9 @@ int main()
 			//dev->set_next_image();
 
 			//dev->reset_things();
+
+			//dev->render2();
+
 			dev->beginFrameW();
 			ThreadPoolServer::get_singleton()->run_flow(flow).wait();
 

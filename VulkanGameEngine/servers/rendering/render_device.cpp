@@ -107,10 +107,19 @@ RenderDevice::~RenderDevice()
 			vkDestroyDevice(m_renderDevice.logicalDevice, nullptr);
 		}
 
-		if(m_instance.messenger != nullptr)
-			vkDestroyDebugUtilsMessengerEXT(m_instance.instance, m_instance.messenger, nullptr);
-		if(m_instance.reportCallback != nullptr)
-			vkDestroyDebugReportCallbackEXT(m_instance.instance, m_instance.reportCallback, nullptr);
+		if (m_instance.messenger != nullptr)
+		{
+			auto pvkDestroyDebugUtilsMessengerEXT = PFN_vkDestroyDebugUtilsMessengerEXT(vkGetInstanceProcAddr(m_instance.instance, "vkDestroyDebugUtilsMessengerEXT"));
+			if(pvkDestroyDebugUtilsMessengerEXT != nullptr)
+				pvkDestroyDebugUtilsMessengerEXT(m_instance.instance, m_instance.messenger, nullptr);
+		}
+		if (m_instance.reportCallback != nullptr)
+		{
+			auto pvkDestroyDebugReportCallbackEXT = PFN_vkDestroyDebugReportCallbackEXT(vkGetInstanceProcAddr(m_instance.instance, "vkDestroyDebugReportCallbackEXT"));
+			if(pvkDestroyDebugReportCallbackEXT != nullptr)
+				pvkDestroyDebugReportCallbackEXT(m_instance.instance, m_instance.reportCallback, nullptr);
+
+		}
 		if (m_instance.surface != nullptr)
 			vkDestroySurfaceKHR(m_instance.instance, m_instance.surface, nullptr);
 		vkDestroyInstance(m_instance.instance, nullptr);
@@ -121,11 +130,7 @@ bool RenderDevice::init()
 {
 	m_instance.format.format = VK_FORMAT_B8G8R8A8_SRGB;
 	m_instance.format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-	if (VK_SUCCESS != volkInitialize())
-	{
-		return false;
-	}
-	
+
 	bool succeeded = true;
 	succeeded = init_vk_instance();
 	if (!succeeded)
@@ -361,7 +366,6 @@ bool RenderDevice::init_vk_instance()
 			return false;
 
 		//X Init Function pointers of instance
-		volkLoadInstance(m_instance.instance);
 		m_instanceLoaded = true;
 
 		if (isDebugEnabled)
@@ -563,6 +567,37 @@ void RenderDevice::fill_and_execute_cmd()
 
 void RenderDevice::render2()
 {
+
+	auto err = vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, UINT64_MAX, m_renderDevice.imageAcquiredSemaphore, nullptr, &currentImageIndex);
+	//LoggerServer::get_singleton()->log_cout(this, "Next Image has came out", Logger::LOG_LEVEL::DEBUG);
+
+	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
+	{
+		//swapchain rebuild
+		LoggerServer::get_singleton()->log_cout(this, "IMAGE IS BUGGY", Logger::LOG_LEVEL::ERROR);
+	}
+
+	m_swapchain.currentFrameBuffer = m_swapchain.frameBuffers[currentImageIndex];
+
+
+	vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);
+
+	//for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+	//{
+	//	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], 0);
+	//}
+	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[0], 0);
+	vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
+
+	ImGui_ImplGlfw_NewFrame();
+	ImGui_ImplVulkan_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::ShowDemoWindow();
+
+	ImGui::Render();
+
+
 
 
 	auto sss = vkBeginCommandBuffer(m_renderDevice.pMainCommandBuffer, this->get_main_begin_inf());
@@ -968,7 +1003,6 @@ bool RenderDevice::init_vk_logical_device()
 		if (auto res = vkCreateDevice(m_renderDevice.physicalDev.physicalDev, &createInfo, nullptr, &(m_renderDevice.logicalDevice));res != VK_SUCCESS)
 			return false;
 
-		volkLoadDevice(m_renderDevice.logicalDevice);
 	}
 	return true;
 }

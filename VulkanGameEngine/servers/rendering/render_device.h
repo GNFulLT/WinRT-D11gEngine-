@@ -14,11 +14,11 @@
 #define IMPLICIT_EXTENSIONS_NAME "ENGINE_EXS"
 
 
-#define VK_NO_PROTOTYPES
-
+#define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include "../../graphic/vulkan/volk.h"
+
+#include <vulkan/vulkan.h>
 
 #include <boost/signals2.hpp>
 

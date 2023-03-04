@@ -1,5 +1,3 @@
-#define IMGUI_IMPL_VULKAN_NO_PROTOTYPES 
-
 #include "render_imgui.h"
 
 
@@ -9,6 +7,10 @@
 #include "../window_server.h"
 
 #include "render_device.h"
+
+#include <vulkan/vulkan.h>
+
+
 ImGuiDraw::ImGuiDraw()
 {
 

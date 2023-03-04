@@ -2,10 +2,9 @@
 #define UTILS_VULKAN_H
 
 
-#define VK_NO_PROTOTYPES
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include "volk.h"
+#include <vulkan/vulkan.h>
 
 #include <unordered_map>
 #include <vector>
@@ -181,8 +180,10 @@ _F_INLINE_ _IMP_RETURN_ bool create_debug_messenger(VkInstance instance, VkDebug
 			.pfnCallback = VulkanDebugReportCallback,
 			.pUserData = nullptr
 	};
-
-	result = vkCreateDebugReportCallbackEXT(instance, &ci, nullptr, pDebugReporter);
+	auto pvkCreateDebugReportCallbackEXT = PFN_vkCreateDebugReportCallbackEXT(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
+	if (pvkCreateDebugReportCallbackEXT == nullptr)
+		return false;
+	result = pvkCreateDebugReportCallbackEXT(instance, &ci, nullptr, pDebugReporter);
 	return result == VK_SUCCESS;
 }
 

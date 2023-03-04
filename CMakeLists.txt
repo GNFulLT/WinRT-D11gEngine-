@@ -38,6 +38,7 @@ set(BOOST_INCLUDEDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/include")
 set(BOOST_LIBRARYDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/src/boost/build/lib")
 
 find_package(BOOST REQUIRED COMPONENTS system filesystem locale)
+find_package(Vulkan REQUIRED FATAL_ERROR)
 
 if(BOOST_FOUND)
 	message("BOOST IS OK")

@@ -1,8 +1,8 @@
 #ifndef IMGUI_DRAW_H
 #define IMGUI_DRAW_H
 
-#define VK_NO_PROTOTYPES
 
+#define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 

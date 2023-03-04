@@ -12,7 +12,7 @@ add_executable (VulkanGameEngine "VulkanGameEngine.cpp" "VulkanGameEngine.h" "Co
 "servers/creation_server.cpp" "config/config_utils.h" "config/config_utils.cpp" "window/viewport.cpp" "servers/window_server.cpp" "core/version.h" "plugin/plugin.h"
 "plugin/pinclude/basic_shared_types.h" "core/io/logger.h" "core/io/logger.cpp" "servers/logger_server.h" "servers/logger_server.cpp" "servers/event_bus_server.h"
 "servers/event_bus_server.cpp" "core/vec2.h" "core/folders.h"  "config/config.cpp" "core/serialize/serializable_struct.h" "graphic/graphic_api.h" "servers/rendering/render_device.h"
-"graphic/physical_device.h" "graphic/vulkan/volk.h" "graphic/vulkan/volk.c"  "core/serialize/serializable_enum.h"  "servers/rendering/render_device.cpp" 
+"graphic/physical_device.h" "core/serialize/serializable_enum.h"  "servers/rendering/render_device.cpp" 
 "graphic/vulkan/physical_device_vulkan.h" "graphic/vulkan/utils_vulkan.h" "servers/thread_pool_server.h" "servers/thread_pool_server.cpp"
 
 "imgui/imconfig.h" "imgui/imgui.cpp"
@@ -27,6 +27,7 @@ endif()
 
 target_link_libraries(VulkanGameEngine glfw)
 target_link_libraries(VulkanGameEngine Boost::boost)
+target_link_libraries(VulkanGameEngine ${Vulkan_LIBRARIES})
 
 
 # TODO: Add tests and install targets if needed.
