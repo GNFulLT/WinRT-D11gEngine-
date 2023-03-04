@@ -67,7 +67,7 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-_F_INLINE_ _IMP_RETURN_ bool get_all_instance_layers(std::vector<VkLayerProperties>& layerProps)
+_IMP_RETURN_ _F_INLINE_ bool get_all_instance_layers(std::vector<VkLayerProperties>& layerProps)
 {
 	uint32_t layer_count = 0;
 	if (vkEnumerateInstanceLayerProperties(&layer_count, nullptr) != VK_SUCCESS)
@@ -82,7 +82,7 @@ _F_INLINE_ _IMP_RETURN_ bool get_all_instance_layers(std::vector<VkLayerProperti
 	return true;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool find_layer_by_name(const std::vector<VkLayerProperties>* layerProps, const char* name, int& index)
+_IMP_RETURN_ _F_INLINE_ bool find_layer_by_name(const std::vector<VkLayerProperties>* layerProps, const char* name, int& index)
 {
 	index = -1;
 
@@ -99,7 +99,7 @@ _F_INLINE_ _IMP_RETURN_ bool find_layer_by_name(const std::vector<VkLayerPropert
 	return false;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool get_instance_exs_by_layer(const char* forLayer, std::vector<VkExtensionProperties>& exs)
+_IMP_RETURN_ _F_INLINE_ bool get_instance_exs_by_layer(const char* forLayer, std::vector<VkExtensionProperties>& exs)
 {
 	uint32_t ex_count = 0;
 	if (vkEnumerateInstanceExtensionProperties(forLayer, &ex_count, nullptr) != VK_SUCCESS)
@@ -119,7 +119,7 @@ _F_INLINE_ bool get_instance_implicit_exs(std::vector<VkExtensionProperties>& ex
 	return get_instance_exs_by_layer(nullptr, exs);
 }
 
-_F_INLINE_ _IMP_RETURN_ std::unordered_map<std::string, std::vector<VkExtensionProperties>> get_all_instance_exs_by_layers(std::vector<const char*>* layers)
+_IMP_RETURN_ _F_INLINE_ std::unordered_map<std::string, std::vector<VkExtensionProperties>> get_all_instance_exs_by_layers(std::vector<const char*>* layers)
 {
 	std::unordered_map<std::string, std::vector<VkExtensionProperties>> map;
 	for (int i = 0; i < layers->size(); i++)
@@ -149,7 +149,7 @@ _F_INLINE_ bool find_instance_exs_by_names(const std::vector<VkExtensionProperti
 	return indexes.size() == names->size();
 }
 
-_F_INLINE_ _IMP_RETURN_ bool create_debug_messenger(VkInstance instance, VkDebugUtilsMessengerEXT* pDebugMessenger, VkDebugReportCallbackEXT* pDebugReporter,
+_IMP_RETURN_ _F_INLINE_  bool create_debug_messenger(VkInstance instance, VkDebugUtilsMessengerEXT* pDebugMessenger, VkDebugReportCallbackEXT* pDebugReporter,
 	PFN_vkDebugUtilsMessengerCallbackEXT vk_debug_messenger_callback,PFN_vkDebugReportCallbackEXT VulkanDebugReportCallback) {
 	// Load the function pointer for vkCreateDebugUtilsMessengerEXT()
 	PFN_vkCreateDebugUtilsMessengerEXT pfnCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
@@ -187,7 +187,7 @@ _F_INLINE_ _IMP_RETURN_ bool create_debug_messenger(VkInstance instance, VkDebug
 	return result == VK_SUCCESS;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool get_all_physical_devices(VkInstance inst, std::vector<VkPhysicalDevice>& physicalDevs)
+_IMP_RETURN_ _F_INLINE_ bool get_all_physical_devices(VkInstance inst, std::vector<VkPhysicalDevice>& physicalDevs)
 {
 	uint32_t physicalDevCount = 0;
 	if (vkEnumeratePhysicalDevices(inst, &physicalDevCount, nullptr) != VK_SUCCESS)
@@ -205,7 +205,7 @@ _F_INLINE_ _IMP_RETURN_ bool get_all_physical_devices(VkInstance inst, std::vect
 	return true;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool check_device_extension_support(VkPhysicalDevice device, const std::vector<std::string>* deviceExtensions, std::vector<VkExtensionProperties>& deviceExtensionProps)
+_IMP_RETURN_ _F_INLINE_  bool check_device_extension_support(VkPhysicalDevice device, const std::vector<std::string>* deviceExtensions, std::vector<VkExtensionProperties>& deviceExtensionProps)
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -226,7 +226,7 @@ _F_INLINE_ _IMP_RETURN_ bool check_device_extension_support(VkPhysicalDevice dev
 	return requiredExtensions.empty();
 }
 
-_F_INLINE_ _IMP_RETURN_ std::vector<VkQueueFamilyProperties> get_all_queue_families_by_device(VkPhysicalDevice device)
+_F_INLINE_ std::vector<VkQueueFamilyProperties> get_all_queue_families_by_device(VkPhysicalDevice device)
 {
 	uint32_t count;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
@@ -235,7 +235,7 @@ _F_INLINE_ _IMP_RETURN_ std::vector<VkQueueFamilyProperties> get_all_queue_famil
 	return families;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool check_queue_support(VkPhysicalDevice device, VkQueueFlags flags,int& index)
+_IMP_RETURN_ _F_INLINE_ bool check_queue_support(VkPhysicalDevice device, VkQueueFlags flags,int& index)
 {
 	auto queues = get_all_queue_families_by_device(device);
 	for (int i = 0; i < queues.size(); i++)
@@ -250,7 +250,7 @@ _F_INLINE_ _IMP_RETURN_ bool check_queue_support(VkPhysicalDevice device, VkQueu
 	return false;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR surface, SwapChainSupportDetails& detail)
+_IMP_RETURN_ _F_INLINE_ bool get_swap_chain_support_details(VkPhysicalDevice dev, VkSurfaceKHR surface, SwapChainSupportDetails& detail)
 {
 	uint32_t surfaceCount = 0;
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(dev, surface, &surfaceCount, nullptr))
@@ -281,7 +281,7 @@ _F_INLINE_ _IMP_RETURN_ bool get_swap_chain_support_details(VkPhysicalDevice dev
 	return true;
 }
 
-_F_INLINE_ _IMP_RETURN_ bool get_all_device_layers(VkPhysicalDevice dev, std::vector<VkLayerProperties>& props)
+_IMP_RETURN_ _F_INLINE_ bool get_all_device_layers(VkPhysicalDevice dev, std::vector<VkLayerProperties>& props)
 {
 	uint32_t propCount = 0;
 	if (VK_SUCCESS != vkEnumerateDeviceLayerProperties(dev, &propCount, nullptr))
