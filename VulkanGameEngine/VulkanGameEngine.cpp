@@ -1,5 +1,9 @@
 ﻿// VulkanGameEngine.cpp : Defines the entry point for the application.
 //
+#include "servers/rendering/render_dev.h"
+
+
+
 #include "core/string/unicode_char_utils.h"
 #include "VulkanGameEngine.h"
 #include "servers/configuration_server.h"
@@ -7,7 +11,7 @@
 #include "servers/creation_server.h"
 #include "core/folders.h"
 #include "core/serialize/serializable_struct.h"
-
+#include "servers/rendering/render_dev.h"
 #include "window/viewport.h"
 #include "core/templates/safe_num.h"
 #if defined(_DEBUG) && defined(_WINDOWS)
@@ -20,8 +24,8 @@
 #define USE_GARR_SIZE_TEMPLATED
 #define USE_DEBUG_ALLOCATION
 #define USE_DEBUG_ALLOCATION_IMPLICIT
-#include "core/typedefs.h"
 
+#include "core/typedefs.h"
 static WindowServer* windowServer = nullptr;
 
 struct SerializedStruct 
@@ -68,9 +72,10 @@ int main()
 	
 	// We can inject configurations after this
 	auto configurationServer = creationServer->create_configuration();
-	
+
 	configurationServer->read_init_configuration_file("config.json");
-	RenderDevice* dev;
+
+	RenderDevice_1 dev;
 	EventBusServer* eventBus = creationServer->create_event_bus_server();
 	LoggerServer* loggerServer;
 	loggerServer = creationServer->create_logger_server();
@@ -83,7 +88,7 @@ int main()
 	if (auto scope = configurationServer->scope_expose())
 	{
 		windowServer = creationServer->create_the_window_server();
-		dev = creationServer->create_render_device();
+		//dev = creationServer->create_render_device();
 		pool = creationServer->create_thread_pool();
 	}
 
@@ -101,10 +106,8 @@ int main()
 		{
 			allSuccessed = false;
 		}
-		if (!dev->init())
-		{
-			allSuccessed = false;
-		}
+		dev.init(windowServer->get_window());
+		
 	}
 	if (allSuccessed)
 	{
@@ -113,19 +116,17 @@ int main()
 		// It is possible to add ifdef for just mac.
 		tf::Taskflow flow;
 		tf::Future<void> fture;
-		flow.emplace([dev = dev]() {
-			dev->beginFrame();
+		flow.emplace([dev = &dev]() {
 			//fture = pool->run_flow(flow);
 			dev->ready_ui_data();
 		});
 
-		flow.emplace([dev = dev]() {
+		flow.emplace([dev = &dev]() {
 			dev->reset_things();
 
 		});
-		flow.emplace([dev = dev]() {
+		flow.emplace([dev = &dev]() {
 			dev->set_next_image();
-
 		});
 		while (!windowServer->should_close())
 		{
@@ -148,14 +149,18 @@ int main()
 			//dev->set_next_image();
 
 			//dev->reset_things();
-			dev->beginFrameW();
+			dev.beginW();
 			ThreadPoolServer::get_singleton()->run_flow(flow).wait();
 
-			dev->fill_and_execute_cmd();
+			dev.fill_command_buff();
 			
+			//dev->rendOneThread();
+
+			//dev.make_frame();
+
 			//fture.wait();
 
-			dev->swapbuffers();
+			//dev->swapbuffers();
 		}
 		SerializedStruct out;
 		bool ff = configurationServer->get_init_configuration("config.json", "sa", out);
@@ -167,7 +172,7 @@ int main()
 	
 	
 	windowServer->destroy();
-	dev->destroy();
+	//dev->destroy();
 	loggerServer->destroy();
 	eventBus->destroy();
 	configurationServer->destroy();

@@ -25,10 +25,6 @@ ConfigurationServer* CreationServer::create_configuration()
 	return ConfigurationServer::create_singleton();
 }
 
-RenderDevice* CreationServer::create_render_device()
-{
-	return RenderDevice::create_singleton();
-}
 ThreadPoolServer* CreationServer::create_thread_pool()
 {
 	return ThreadPoolServer::create_singleton();
