@@ -282,8 +282,8 @@ bool RenderDevice::init_vk_instance()
 
 		if (!allFounded)
 			return false;
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][0]);
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][1]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[0]]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[1]]);
 
 #elif defined VK_USE_PLATFORM_XLIB_KHR 
 		std::vector<const char*> names = {
@@ -294,8 +294,8 @@ bool RenderDevice::init_vk_instance()
 
 		if (!allFounded)
 			return false;
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][0]);
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][1]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[0]]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[1]]);
 
 #elif defined VK_USE_PLATFORM_METAL_EXT 
 		std::vector<const char*> names = {
@@ -306,9 +306,9 @@ bool RenderDevice::init_vk_instance()
 
 		if (!allFounded)
 			return false;
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][0]);
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][1]);
-		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][2]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[0]]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[1]]);
+		m_instance.enabledProps.enabledExtensions[IMPLICIT_EXTENSIONS_NAME].push_back(all_exs[IMPLICIT_EXTENSIONS_NAME][indexes[2]]);
 #else
 		DONT COMPILE
 #endif 
@@ -750,25 +750,25 @@ bool RenderDevice::init_vk_device()
 
 	std::string deviceTypeStr;
 	auto isFound = ConfigurationServer::get_singleton()->get_init_configuration("config.json", "DEVICE_TYPE", deviceTypeStr);
-	PhysicalDevice::PHYSICAL_DEVICE_TYPE physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
+	VkPhysicalDeviceType physicalType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 
 	if (isFound)
 	{
 		if (deviceTypeStr == "INTEGRATED")
 		{
-			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_INTEGRATED;
+			physicalType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
 		}
 		else if (deviceTypeStr == "CPU")
 		{
-			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_CPU;
+			physicalType = VK_PHYSICAL_DEVICE_TYPE_CPU;
 		}
 		else if (deviceTypeStr == "VIRTUAL")
 		{
-			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_VIRTUAL;
+			physicalType = VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU;
 		}
 		else
 		{
-			physicalType = PhysicalDevice::PHYSICAL_DEVICE_TYPE_DISCRETE;
+			physicalType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 		}
 	}
 	
@@ -789,6 +789,13 @@ bool RenderDevice::init_vk_device()
 		}
 	}
 
+	if (physicalDeviceSelected == false)
+	{
+		physicalDeviceSelected = true;
+		m_renderDevice.physicalDev.physicalDev = devs[0];
+		m_renderDevice.mainQueueFamilyIndex = queueIndices[0];
+
+	}
 	return physicalDeviceSelected;
 }
 
