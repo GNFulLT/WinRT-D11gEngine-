@@ -175,8 +175,8 @@ void RenderDevice::on_size_changed(const UVec2& size)
 {
 	m_instance.surfaceExtent.height = size.y;
 	m_instance.surfaceExtent.width = size.x;
-
-	init_vk_swapchain();
+	swapchain_needs_validate = true;
+	//init_vk_swapchain();
 
 	
 }
@@ -436,11 +436,11 @@ void RenderDevice::reset_things()
 {
 	vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);
 
-	//for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
-	//{
-	//	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], 0);
-	//}
-	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[0], 0);
+	for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
+	{
+		vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], 0);
+	}
+	//vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[0], 0);
 	vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
 }
 
@@ -582,10 +582,6 @@ void RenderDevice::render2()
 
 	vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence, VK_TRUE, UINT64_MAX);
 
-	//for (int i = 0; i < m_renderDevice.mainQueueCommandPools.size(); i++)
-	//{
-	//	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[i], 0);
-	//}
 	vkResetCommandPool(m_renderDevice.logicalDevice, m_renderDevice.mainQueueCommandPools[0], 0);
 	vkResetFences(m_renderDevice.logicalDevice, 1, &m_renderDevice.mainQueueFinishedFence);
 
@@ -1079,7 +1075,6 @@ bool RenderDevice::init_vk_swapchain()
 	{
 		return false;
 	}
-	m_swapchain.swapchainImages.clear();
 
 	m_swapchain.swapchainImages.resize(imageCount);
 	if (vkGetSwapchainImagesKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, &imageCount, m_swapchain.swapchainImages.data()) != VK_SUCCESS)
@@ -1089,28 +1084,28 @@ bool RenderDevice::init_vk_swapchain()
 
 	// Create Image View
 
-	m_swapchain.swapchainImageViews.clear();
 	m_swapchain.swapchainImageViews.resize(imageCount);
 
+	VkImageViewCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	createInfo.format = m_instance.format.format;
+
+	// Default Usage 
+	createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+	createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	createInfo.subresourceRange.baseMipLevel = 0;
+	createInfo.subresourceRange.levelCount = 1;
+	createInfo.subresourceRange.baseArrayLayer = 0;
+	createInfo.subresourceRange.layerCount = 1;
 	for (uint32_t i = 0; i < imageCount; i++)
 	{
-		VkImageViewCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		
 		createInfo.image = m_swapchain.swapchainImages[i];
-		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		createInfo.format = m_instance.format.format;
-
-		// Default Usage 
-		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
-		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
 
 		vkCreateImageView(m_renderDevice.logicalDevice, &createInfo, nullptr, &(m_swapchain.swapchainImageViews[i]));
 
@@ -1141,11 +1136,89 @@ bool RenderDevice::init_vk_swapchain()
 			return false;
 		}
 	}
-
-
-
 	return true;
 }
+
+bool RenderDevice::validate_swapchain()
+{
+	VkSwapchainCreateInfoKHR swapchain_create_info = {
+		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		nullptr,
+		0,
+		m_instance.surface,
+		(uint32_t)m_instance.surfaceImageCount,
+		m_instance.format.format,
+		m_instance.format.colorSpace,
+		m_instance.surfaceExtent,
+		1,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT , // Image Usage
+		VK_SHARING_MODE_EXCLUSIVE,
+		0,
+		nullptr,
+		m_swapChainDetails.capabilities.currentTransform,
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		m_instance.presentMode,
+		VK_TRUE,
+		m_swapchain.swapchain
+	};
+
+	get_swap_chain_support_details(m_renderDevice.physicalDev.physicalDev, m_instance.surface,m_swapChainDetails);
+
+	auto exctent = m_swapChainDetails.capabilities.currentExtent;
+
+	if (auto sres = vkCreateSwapchainKHR(m_renderDevice.logicalDevice, &swapchain_create_info, nullptr, &m_swapchain.swapchain); sres != VK_SUCCESS)
+		return false;
+
+	// Create Image Views
+	uint32_t imageCount;
+	vkGetSwapchainImagesKHR(m_renderDevice.logicalDevice, m_swapchain.swapchain, &imageCount, m_swapchain.swapchainImages.data());
+	
+
+	VkImageViewCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	info.format = m_instance.format.format;
+	info.components.r = VK_COMPONENT_SWIZZLE_R;
+	info.components.g = VK_COMPONENT_SWIZZLE_G;
+	info.components.b = VK_COMPONENT_SWIZZLE_B;
+	info.components.a = VK_COMPONENT_SWIZZLE_A;
+	VkImageSubresourceRange image_range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	info.subresourceRange = image_range;
+	for (uint32_t i = 0; i < m_swapchain.swapchainImageViews.size(); i++)
+	{	
+		vkDestroyImageView(m_renderDevice.logicalDevice, m_swapchain.swapchainImageViews[i], nullptr);
+
+		info.image = m_swapchain.swapchainImages[i];
+
+		vkCreateImageView(m_renderDevice.logicalDevice, &info, nullptr, &m_swapchain.swapchainImageViews[i]);
+
+	}
+
+	VkFramebufferCreateInfo fb_info = {};
+	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	fb_info.pNext = nullptr;
+
+	fb_info.renderPass = m_swapchain.renderPass;
+	fb_info.attachmentCount = 1;
+	fb_info.width = m_instance.surfaceExtent.width;
+	fb_info.height = m_instance.surfaceExtent.height;
+	fb_info.layers = 1;
+
+
+	for (uint32_t i = 0; i < m_swapchain.frameBuffers.size(); i++)
+	{
+		vkDestroyFramebuffer(m_renderDevice.logicalDevice, m_swapchain.frameBuffers[i], nullptr);
+		fb_info.pAttachments = &(m_swapchain.swapchainImageViews[i]);
+		if (vkCreateFramebuffer(m_renderDevice.logicalDevice, &fb_info, nullptr, &m_swapchain.frameBuffers[i]) != VK_SUCCESS)
+		{
+			return false;
+		}
+	}
+
+	swapchain_needs_validate = false;
+	return true;
+}
+
 bool RenderDevice::init_renderpass()
 {
 	// Create Render Pass

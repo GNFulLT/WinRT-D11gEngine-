@@ -97,6 +97,10 @@ void ImGuiDraw::init()
 
 
 	RenderDevice::get_singleton()->reset_cmd_pool(0);
+
+
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 }
 void ImGuiDraw::begin()
 {

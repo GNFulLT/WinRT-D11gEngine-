@@ -127,27 +127,23 @@ int main()
 			dev->set_next_image();
 
 		});
+		
+		// Pre Calls
+		// It needs to calculate 
+		{
+
+		}
+
 		while (!windowServer->should_close())
 		{
 			//flow.clear();
 			windowServer->handle_events();
 
-
+			if (dev->does_swapchain_need_validate())
+			{
+				dev->validate_swapchain();
+			}
 			// Update here
-
-			/*flow.emplace([d = dev](tf::Subflow& subflow) {
-				d->render_things(subflow);
-			});	*/
-			
-			//dev->beginFrame();
-			////fture = pool->run_flow(flow);
-			//dev->ready_ui_data();
-
-			//dev->reset_things();
-
-			//dev->set_next_image();
-
-			//dev->reset_things();
 
 			//dev->render2();
 
@@ -156,8 +152,6 @@ int main()
 
 			dev->fill_and_execute_cmd();
 			
-			//fture.wait();
-
 			dev->swapbuffers();
 		}
 		SerializedStruct out;

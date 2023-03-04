@@ -121,6 +121,8 @@ public:
 
 	void destroy();
 
+	bool validate_swapchain();
+
 	void beginFrame();
 
 	_INLINE_ static RenderDevice* get_singleton()
@@ -165,6 +167,11 @@ public:
 		};
 
 		return &beginInf;
+	}
+
+	_INLINE_ bool does_swapchain_need_validate()
+	{
+		return swapchain_needs_validate;
 	}
 
 	_INLINE_ uint32_t* get_current_image()
@@ -219,10 +226,13 @@ public:
 		beginInf.framebuffer = m_swapchain.currentFrameBuffer;
 		return &beginInf;
 	}
+	bool init_vk_swapchain();
 
 	void handleError();
 	void fillCmd(VkCommandBuffer buff);
 private:
+	bool swapchain_needs_validate = false;
+
 	VulkanInstance m_instance;
 	// Initialize with save physical dev
 	VulkanRenderDevice m_renderDevice;
@@ -238,7 +248,6 @@ private:
 	bool init_vk_logical_device();
 	void expose_queues();
 	bool create_command_pools();
-	bool init_vk_swapchain();
 	bool init_vk_syncs();
 	bool init_command_buffers();
 	void init_subs();
